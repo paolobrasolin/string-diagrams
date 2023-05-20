@@ -1,0 +1,215 @@
+% \iffalse meta-comment
+%
+% This is file `string-diagrams.dtx'.
+%
+% ==============================================================================
+%
+% string-diagrams <VERSION> (<DATE>)
+%
+% Copyright (C) 2023 by Paolo Brasolin <paolo.brasolin@gmail.com>
+% SPDX-License-Identifier: LPPL-1.3c
+%
+% ==============================================================================
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3c
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   https://www.latex-project.org/lppl.txt
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008 or later.
+%
+% This work has the LPPL maintenance status `author-maintained'.
+%
+% The Current Maintainer of this work is Paolo Brasolin.
+%
+% This work consists of the file  string-diagrams.dtx
+% and the derived files           README,
+%                                 string-diagrams.pdf,
+%                                 string-diagrams.sty and
+%                                 string-diagrams.ins.
+%
+% %%%=[ README ]================================================================
+%
+%<*internal>
+\iffalse
+%</internal>
+%<*readme>
+TODO
+%</readme>
+%<*internal>
+\fi
+%</internal>
+%
+% %%%=[ INSTALL ]===============================================================
+%
+%<*internal>
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+%</internal>
+%
+%<*install>
+\input l3docstrip.tex
+\keepsilent
+\askforoverwritefalse
+
+\preamble
+
+=============================================================================
+
+string-diagrams <VERSION> (<DATE>)
+
+Copyright (C) 2023 by Paolo Brasolin <paolo.brasolin@gmail.com>
+SPDX-License-Identifier: LPPL-1.3c
+
+=============================================================================
+
+This work may be distributed and/or modified under the
+conditions of the LaTeX Project Public License, either version 1.3c
+of this license or (at your option) any later version.
+The latest version of this license is in
+  https://www.latex-project.org/lppl.txt
+and version 1.3c or later is part of all distributions of LaTeX
+version 2008 or later.
+
+This work has the LPPL maintenance status `author-maintained'.
+
+The Current Maintainer of this work is Paolo Brasolin.
+
+This work consists of the file  string-diagrams.dtx
+and the derived files           README,
+                                string-diagrams.pdf,
+                                string-diagrams.sty and
+                                string-diagrams.ins.
+
+=============================================================================
+\endpreamble
+
+\postamble
+=============================================================================
+\endpostamble
+
+\usedir{tex/latex/string-diagrams}
+\generate{\file{\jobname.sty}{\from{\jobname.dtx}{package}}}
+
+%</install>
+%<*internal>
+
+\usedir{source/latex/string-diagrams}
+\generate{\file{\jobname.ins}{\from{\jobname.dtx}{install}}}
+
+\nopreamble\nopostamble
+\usedir{doc/latex/string-diagrams}
+\generate{\file{README}{\from{\jobname.dtx}{readme}}}
+
+%</internal>
+%
+%<*internal>
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%</internal>
+%
+%<install>\endbatchfile
+%
+% %%%=[ DRIVER ]================================================================
+%
+%<*driver>
+\documentclass[a4paper,full]{l3doc}
+\usepackage{string-diagrams}
+\begin{document}
+  \DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+%
+% \fi
+%
+% \GetFileInfo{\jobname.sty}
+%
+% \title{^^A
+%   The \pkg{\jobname} package^^A
+%   \thanks{Thanks!}\\^^A
+%   \fileinfo^^A
+% }
+%
+% \author{^^A
+%   Paolo Brasolin\\^^A
+%   \texttt{\href{mailto:paolo.brasolin@gmail.com}{paolo.brasolin@gmail.com}}^^A
+% }
+%
+% \date{\fileversion~(\filedate)}
+%
+% \maketitle
+%
+% ^^A=[ DOCUMENTATION ]=========================================================
+%
+% \begin{documentation}
+%
+% \section{Documentation}
+%
+% \end{documentation}
+%
+% ^^A=[ PACKAGE ]===============================================================
+%
+% \begin{implementation}
+%
+% \section{Implementation}
+%
+% Open the \pkg{DocStrip} guards.
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+% Identify the internal prefix (\LaTeX3 \pkg{DocStrip} convention).
+%<@@=stridi>
+%    \end{macrocode}
+%
+% \subsection{Initial set up}
+%
+% Load the essential support (\pkg{expl3}) \enquote{up-front}.
+%
+%    \begin{macrocode}
+\RequirePackage{expl3}[2023/05/11]
+\RequirePackage{tikz}[2023/01/15]
+%    \end{macrocode}
+%
+% Identify the package and give the over all version information.
+%    \begin{macrocode}
+\ProvidesExplPackage
+  {string-diagrams}
+  {<DATE>}
+  {<VERSION>}
+  {Draw string diagrams using TikZ}
+\ExplSyntaxOn
+%    \end{macrocode}
+%
+% Define a dummy internal macro.
+% \begin{macro}{\@@_foo:n}
+%    \begin{macrocode}
+\cs_new:Nn \@@_foo:n { \relax }
+%    \end{macrocode}
+% \end{macro}
+%
+% Define a dummy public macro.
+% \begin{macro}{\foo}
+%    \begin{macrocode}
+\cs_set_eq:NN \Foo \@@_foo:n
+%    \end{macrocode}
+% \end{macro}
+%
+% Close the \pkg{DocStrip} guards.
+%    \begin{macrocode}
+\ExplSyntaxOff
+%    \end{macrocode}
+%
+% \iffalse
+%</package>
+% \fi
+% \end{implementation}
+%
+% \PrintIndex
