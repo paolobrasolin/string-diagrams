@@ -120,13 +120,20 @@ and the derived files           README,
 %
 %<*driver>
 \documentclass[a4paper,full]{l3doc}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
 \usepackage{string-diagrams}
 \begin{document}
   \DocInput{\jobname.dtx}
+  \PrintChanges
+  \PrintIndex
 \end{document}
 %</driver>
 %
 % \fi
+%
+% \changes{0.1.0}{2023/05/20}{Initial version}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -321,5 +328,3 @@ and the derived files           README,
 %</package>
 % \fi
 % \end{implementation}
-%
-% \PrintIndex
