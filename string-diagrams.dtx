@@ -151,6 +151,22 @@ and the derived files           README,
 %
 % \section{Documentation}
 %
+% Let's draw a cute example.
+%
+% \begin{tikzpicture}
+%   \node[box] (a) {a};
+%   \node[box] (b) at (0,-2) {b};
+%   \node[dot] (x) at (1,-1) {};
+%   \node[dot] (y) at (-1,-1) {};
+%   \wires[]{
+%     a = { east = x.north },
+%     b = { east0 = x.south },
+%     y = { north = a.west1, south = b.west },
+%   }{
+%     a.west0, b.east1, x.east, y.west
+%   }
+% \end{tikzpicture}
+%
 % \end{documentation}
 %
 % ^^A=[ PACKAGE ]===============================================================
@@ -188,17 +204,119 @@ and the derived files           README,
 \ExplSyntaxOn
 %    \end{macrocode}
 %
-% Define a dummy internal macro.
-% \begin{macro}{\@@_foo:n}
+% Define a shape with useful anchor points.
 %    \begin{macrocode}
-\cs_new:Nn \@@_foo:n { \relax }
+\makeatletter
+\pgfdeclareshape{box}{
+  \inheritbackgroundpath[from=rectangle]
+  \inheritsavedanchors[from=rectangle]
+  \inheritanchorborder[from=rectangle]
+  \inheritanchor[from=rectangle]{center}
+  \inheritanchor[from=rectangle]{north}
+  \inheritanchor[from=rectangle]{south}
+  \inheritanchor[from=rectangle]{west}
+  \inheritanchor[from=rectangle]{east}
+  \anchor{east0}{
+    \pgf@process{\southwest}
+    \pgf@ya=0.25\pgf@y
+    \pgf@process{\northeast}
+    \pgf@y=0.75\pgf@y
+    \advance\pgf@y by \pgf@ya
+  }
+  \anchor{east1}{
+    \pgf@process{\southwest}
+    \pgf@ya=0.75\pgf@y
+    \pgf@process{\northeast}
+    \pgf@y=0.25\pgf@y
+    \advance\pgf@y by \pgf@ya
+  }
+  \anchor{west0}{
+    \pgf@process{\northeast}
+    \pgf@ya=0.75\pgf@y
+    \pgf@process{\southwest}
+    \pgf@y=0.25\pgf@y
+    \advance\pgf@y by \pgf@ya
+  }
+  \anchor{west1}{
+    \pgf@process{\northeast}
+    \pgf@ya=0.25\pgf@y
+    \pgf@process{\southwest}
+    \pgf@y=0.75\pgf@y
+    \advance\pgf@y by \pgf@ya
+  }
+}
+\makeatother
 %    \end{macrocode}
-% \end{macro}
-%
-% Define a dummy public macro.
-% \begin{macro}{\foo}
+% Define styles to draw boxes and dots.
 %    \begin{macrocode}
-\cs_set_eq:NN \Foo \@@_foo:n
+\tikzset{
+  box/.style={
+    shape=box,
+    draw,
+    inner~sep=.5em,
+    minimum~width=2em,
+    minimum~height=2em,
+    execute~at~begin~node=$,
+    execute~at~end~node=$,
+  },
+  dot/.style={
+    shape=circle,
+    fill,
+    inner~sep=0,
+    minimum~width=0.4em,
+  },
+}
+%    \end{macrocode}
+%
+% Define our main actor.
+% \begin{macro}{\wires}
+%    \begin{macrocode}
+\makeatletter
+\NewDocumentCommand{\wires}{ o m m }
+{
+  \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
+  \prop_map_inline:Nn \l_tmpa_prop
+  {
+    \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
+    \prop_map_inline:Nn \l_tmpb_prop
+    {
+      \regex_match_case:nnTF
+      {
+        { \. north } { \tl_gset:Nn \g_tmpa_tl { 90 } }
+        { \. south } { \tl_gset:Nn \g_tmpa_tl { -90 } }
+        { \. west } { \tl_gset:Nn \g_tmpa_tl { 180 } }
+        { \. east } { \tl_gset:Nn \g_tmpa_tl { 0 } }
+      } { ####2 } {} {}
+      \regex_match_case:nnTF
+      {
+        { north } { \tl_gset:Nn \g_tmpb_tl { 90 } }
+        { south } { \tl_gset:Nn \g_tmpb_tl { -90 } }
+        { west } { \tl_gset:Nn \g_tmpb_tl { 180 } }
+        { east } { \tl_gset:Nn \g_tmpb_tl { 0 } }
+      } { ####1 } {} {}
+      \draw [
+        out={\tl_use:N \g_tmpb_tl},
+        in={\tl_use:N \g_tmpa_tl},
+        #1,
+      ] (##1.####1) to (####2);
+    }
+  }
+  \clist_set:Nn \l_tmpa_clist { #3 }
+  \clist_map_inline:Nn \l_tmpa_clist {
+    \regex_match_case:nnTF
+    {
+      { \. north } { \draw[#1] (##1) -- +( 0,+1); } % TODO: cleaner solution?
+      { \. south }
+        {
+          \draw[out=-90, in=0,#1] (##1)
+            to ($(\pgf@picminx, \pgf@y)$);
+        } % TODO: not sure why this works
+      { \. west  } { \draw[#1] (##1) -- +(-1, 0); }
+      { \. east  } { \draw[#1] (##1) -- +(+1, 0); }
+    } { ##1 } {} {}
+  }
+}
+\makeatother
 %    \end{macrocode}
 % \end{macro}
 %
