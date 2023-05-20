@@ -3,7 +3,6 @@ alphalph
 amsfonts
 amsmath
 auxhook
-base
 bigintcalc
 bitset
 booktabs
@@ -45,3 +44,8 @@ underscore
 uniquecounter
 url
 xcolor
+ctanify
+tex
+pdftex
+latex-bin
+collection-fontsrecommended

@@ -36,13 +36,11 @@ for name in $list ; do
     counter=$((counter + 1))
 
     # Print the progress bar
-    # printf "Processing: %s/%s (%.2f%%)\r" "$counter" "$total" "$(echo "$counter / $total * 100" | bc -l)"
-    printf "Processing: %s/%s (%.2f%%)\r" "$counter" "$total" "$(echo "scale=4; $counter / $total * 100" | bc)"
-
+    printf "[%3.f%%] %3s/%3s %s -> " "$(echo "scale=2; $counter / $total * 100" | bc)" "$counter" "$total" $name
 
     # Run kpsewhich to find the file path
     path=$(kpsewhich "$name")
-    # if [[ "$path" == $ROOT* ]]; then
+
     if [ "${path#$ROOT/}" != "$path" ]; then
         # Remove the root directory from the path
         path="${path#$ROOT/}"
@@ -50,12 +48,11 @@ for name in $list ; do
         package_name=$(echo "$path" | cut -d'/' -f4)
         # Add the package name to the list
         package_list="$package_list $package_name"
+        printf "%s\n" $package_name
+    else
+        printf "SKIP\n"
     fi
 done
 
 # Sort the list, remove duplicates, and write to the file
-# echo "$package_list" | tr ' ' '\n' | sort -u > $TARGET
 printf "%s\n" "$package_list" | tr ' ' '\n' | sort -u > "$TARGET"
-
-echo
-echo "Processing completed."

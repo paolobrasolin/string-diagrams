@@ -27,3 +27,6 @@ clobber: clean
 
 .github/texlive.packages: $(PKG).dep
 	sh dev/dep_to_pkg.sh $< $@
+	# TODO: it's pretty annoying we need to add/remove packages manually...
+	sed -i '/^base$$/d' $@
+	echo "ctanify tex pdftex latex-bin collection-fontsrecommended" | tr ' ' '\n' >> $@
