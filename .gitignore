@@ -1,6 +1,7 @@
 .vscode/
 
 *.aux
+*.dep
 *.glo
 *.gls
 *.hd
