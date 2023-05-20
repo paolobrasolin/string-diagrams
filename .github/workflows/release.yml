@@ -7,6 +7,7 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+
 jobs:
   release:
+    permissions: write-all # TODO: make this as strict as possible
     runs-on: ubuntu-latest
     steps:
       #==[ Shared ]=============================================================
