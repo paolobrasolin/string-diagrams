@@ -201,12 +201,10 @@ and the derived files           README,
   {<DATE>}
   {<VERSION>}
   {Draw string diagrams using TikZ}
-\ExplSyntaxOn
 %    \end{macrocode}
 %
 % Define a shape with useful anchor points.
 %    \begin{macrocode}
-\makeatletter
 \pgfdeclareshape{box}{
   \inheritbackgroundpath[from=rectangle]
   \inheritsavedanchors[from=rectangle]
@@ -245,33 +243,33 @@ and the derived files           README,
     \advance\pgf@y by \pgf@ya
   }
 }
-\makeatother
 %    \end{macrocode}
 % Define styles to draw boxes and dots.
 %    \begin{macrocode}
+\ExplSyntaxOff
 \tikzset{
   box/.style={
     shape=box,
     draw,
-    inner~sep=.5em,
-    minimum~width=2em,
-    minimum~height=2em,
-    execute~at~begin~node=$,
-    execute~at~end~node=$,
+    inner sep=.5em,
+    minimum width=2em,
+    minimum height=2em,
+    execute at begin node=$,
+    execute at end node=$,
   },
   dot/.style={
     shape=circle,
     fill,
-    inner~sep=0,
-    minimum~width=0.4em,
+    inner sep=0,
+    minimum width=0.4em,
   },
 }
+\ExplSyntaxOn
 %    \end{macrocode}
 %
 % Define our main actor.
 % \begin{macro}{\wires}
 %    \begin{macrocode}
-\makeatletter
 \NewDocumentCommand{\wires}{ o m m }
 {
   \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
@@ -316,14 +314,8 @@ and the derived files           README,
     } { ##1 } {} {}
   }
 }
-\makeatother
 %    \end{macrocode}
 % \end{macro}
-%
-% Close the \pkg{DocStrip} guards.
-%    \begin{macrocode}
-\ExplSyntaxOff
-%    \end{macrocode}
 %
 % \iffalse
 %</package>
