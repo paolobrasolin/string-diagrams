@@ -1,6 +1,12 @@
 SHELL = /usr/bin/bash
 PKG = string-diagrams
 
+VERSION = UNRELEASED
+DATE = $(shell date +"%Y/%m/%d")
+
+INTERPOLATIONS  = s@<DATE>@$(DATE)@g;
+INTERPOLATIONS += s/<VERSION>/$(VERSION)/g;
+
 $(PKG).tar.gz: $(PKG).ins $(PKG).pdf README
 	ctanify $^
 
@@ -24,6 +30,9 @@ clean:
 	
 clobber: clean
 	rm -f $(PKG).{ins,pdf,sty,tar.gz}
+
+interpolate:
+	sed -i "$(INTERPOLATIONS)" $(PKG).dtx
 
 .github/texlive.packages: $(PKG).dep
 	sh dev/dep_to_pkg.sh $< $@

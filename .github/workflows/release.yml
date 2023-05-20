@@ -39,7 +39,8 @@ jobs:
 
       - name: Build
         run: |
-          make VERSION=${{ steps.labeller.outputs.version }} string-diagrams.tar.gz
+          make VERSION=${{ steps.labeller.outputs.version }} interpolate
+          make string-diagrams.tar.gz
           cp string-diagrams.tar.gz string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
 
       #==[ Pre-release ]========================================================
