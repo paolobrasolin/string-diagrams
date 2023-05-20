@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Perl dependencies
+      - name: Install Perl dependencies
         uses: perl-actions/install-with-cpanm@stable
         with:
           install: |
