@@ -7,7 +7,7 @@ DATE = $(shell date +"%Y/%m/%d")
 INTERPOLATIONS  = s@<DATE>@$(DATE)@g;
 INTERPOLATIONS += s/<VERSION>/$(VERSION)/g;
 
-$(PKG).tar.gz: $(PKG).ins $(PKG).pdf README
+$(PKG).tar.gz: $(PKG).ins $(PKG).pdf README.md
 	ctanify $^
 
 $(PKG).pdf $(PKG).dep: $(PKG).dtx $(PKG).sty
@@ -18,9 +18,8 @@ $(PKG).pdf $(PKG).dep: $(PKG).dtx $(PKG).sty
 	pdflatex $(PKG).dtx
 	pdflatex $(PKG).dtx
 
-$(PKG).ins $(PKG).sty README: $(PKG).dtx
+$(PKG).ins $(PKG).sty: $(PKG).dtx
 	tex $<
-	mv README.tex README
 
 watch:
 	ls $(PKG).dtx | entr -c make $(PKG).pdf
