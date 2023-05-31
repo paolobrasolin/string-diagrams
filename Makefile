@@ -25,7 +25,7 @@ watch:
 	ls $(PKG).dtx | entr -c make $(PKG).pdf
 
 clean:
-	rm -f $(PKG).{aux,dep,glo,gls,hd,idx,ilg,ind,log,out}
+	rm -f $(PKG).{aux,dep,glo,gls,hd,idx,ilg,ind,listing,log,out}
 	
 clobber: clean
 	rm -f $(PKG).{ins,pdf,sty,tar.gz}

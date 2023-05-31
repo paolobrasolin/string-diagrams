@@ -8,6 +8,7 @@
 *.idx
 *.ilg
 *.ind
+*.listing
 *.log
 *.out
 README.tex
