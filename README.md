@@ -11,7 +11,7 @@
 [licence-shield]: https://img.shields.io/github/license/paolobrasolin/string-diagrams
 [licence-link]: https://www.latex-project.org/lppl.txt
 
-Create stunning string diagrams with LaTeX!
+Create string diagrams with LaTeX!
 
 `string-diagrams` is a LaTeX package designed for effortless and aesthetically pleasing creation of string diagrams.
 
@@ -74,4 +74,4 @@ This work is built upon the collaborative efforts of two exceptional contributor
 - [tetrapharmakon](https://github.com/tetrapharmakon), my partner in crime for [moirai](https://github.com/tetrapharmakon/moirai), the projects' first iteration.
 - [iwilare](https://github.com/iwilare), who saw potential in our initial idea and pushed it forward with their own fork [moirphism](https://github.com/iwilare/moirphism).
 
-Without them, their shared enthusiasm, and our countless fruitful discussions, `string-diagrams` simply wouldn't be.
+Without them, their shared enthusiasm, and our fruitful discussions, `string-diagrams` simply wouldn't be.
