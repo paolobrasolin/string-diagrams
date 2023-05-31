@@ -77,6 +77,36 @@
 \RecordChanges
 \usepackage{string-diagrams}
 \usepackage{snapshot}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{listings, skins}
+
+\lstset{
+  language=[LaTeX]TeX,
+  basicstyle=\ttfamily\small,
+  columns=flexible,
+  ^^A keywordstyle=\color{red},
+  ^^A morekeywords={},
+  texcsstyle=*\color{violet},
+  moretexcs={node,wires},
+  breaklines=true,
+}
+
+\tcbset{
+  listing engine=listings,
+  verbatim ignore percent=true,
+  listing side text,
+  size=minimal,
+  skin=bicolor,
+  colback=black!5!white,
+  colbacklower=white,
+  sidebyside,
+  lefthand ratio=0.62,
+  listing options={
+    xleftmargin=-0.6em, % poor man's gobble=4
+  },
+}
+
 \begin{document}
   \DocInput{\jobname.dtx}
   \PrintChanges
@@ -113,19 +143,21 @@
 %
 % Let's draw a cute example.
 %
-% \begin{tikzpicture}
-%   \node[box] (a) {a};
-%   \node[box] (b) at (0,-2) {b};
-%   \node[dot] (x) at (1,-1) {};
-%   \node[dot] (y) at (-1,-1) {};
-%   \wires[]{
-%     a = { east = x.north },
-%     b = { east0 = x.south },
-%     y = { north = a.west1, south = b.west },
-%   }{
-%     a.west0, b.east1, x.east, y.west
-%   }
-% \end{tikzpicture}
+% \begin{tcblisting}{}
+%   \begin{tikzpicture}
+%     \node[box] (a) {a};
+%     \node[box] (b) at (0,-2) {b};
+%     \node[dot] (x) at (1,-1) {};
+%     \node[dot] (y) at (-1,-1) {};
+%     \wires[]{
+%       a = { east = x.north },
+%       b = { east0 = x.south },
+%       y = { north = a.west1, south = b.west },
+%     }{
+%       a.west0, b.east1, x.east, y.west
+%     }
+%   \end{tikzpicture}
+% \end{tcblisting}
 %
 % \end{documentation}
 %
