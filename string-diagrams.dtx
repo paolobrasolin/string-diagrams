@@ -92,7 +92,7 @@
   breaklines=true,
 }
 
-\tcbset{
+\tcbset{example/.style={
   listing engine=listings,
   verbatim ignore percent=true,
   listing side text,
@@ -105,7 +105,7 @@
   listing options={
     xleftmargin=-0.6em, % poor man's gobble=4
   },
-}
+}}
 
 \begin{document}
   \DocInput{\jobname.dtx}
@@ -139,11 +139,23 @@
 %
 % \begin{documentation}
 %
+% \begin{tcolorbox}[
+%   colback=red!5!white,
+%   colframe=red,
+%   sharp corners,
+%   boxrule=1pt,
+% ]
+% Please note this is the \href{https://semver.org/#spec-item-4}{major version zero}, meant for initial development: \emph{anything MAY change at any time}.
+% The upside is that this is the best time to \href{https://github.com/paolobrasolin/string-diagrams/issues}{contribute}!
+% Of course you can also just keep the \texttt{sty} along with your code and not care at all.
+% \end{tcolorbox}
+% 
+%
 % \section{Documentation}
 %
 % Let's draw a cute example.
 %
-% \begin{tcblisting}{}
+% \begin{tcblisting}{example}
 %   \begin{tikzpicture}
 %     \node[box] (a) {a};
 %     \node[box] (b) at (0,-2) {b};
