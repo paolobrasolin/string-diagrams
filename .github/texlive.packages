@@ -9,6 +9,7 @@ booktabs
 colortbl
 csquotes
 enumitem
+environ
 epstopdf-pkg
 etoolbox
 fancyvrb
@@ -30,6 +31,7 @@ l3backend
 l3kernel
 latexconfig
 letltxmacro
+listings
 lm
 ltxcmds
 pdfescape
@@ -39,7 +41,10 @@ psnfss
 refcount
 rerunfilecheck
 snapshot
+tcolorbox
+tikzfill
 tools
+trimspaces
 underscore
 uniquecounter
 url
