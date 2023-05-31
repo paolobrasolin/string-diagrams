@@ -76,6 +76,7 @@
 \CodelineIndex
 \RecordChanges
 \usepackage{string-diagrams}
+\usetikzlibrary{calc}
 \usepackage{snapshot}
 
 \usepackage{tcolorbox}
@@ -153,23 +154,66 @@
 %
 % \section{Documentation}
 %
-% Let's draw a cute example.
+% Let's walk through the features by example.
+%
+%
+% To draw boxes, you use the \texttt{box} style on a node.
 %
 % \begin{tcblisting}{example}
 %   \begin{tikzpicture}
-%     \node[box] (a) {a};
-%     \node[box] (b) at (0,-2) {b};
-%     \node[dot] (x) at (1,-1) {};
-%     \node[dot] (y) at (-1,-1) {};
+%     \node[box] {A};
+%   \end{tikzpicture}
+% \end{tcblisting}
+%
+% You can draw multiple boxes using any of your standard Ti\emph{k}Z positioning techniques.
+% Don't forget to label the nodes so you can easily reference them.
+%
+% \begin{tcblisting}{example}
+%   \begin{tikzpicture}
+%     \node[box] (A) at (0,0) {A};
+%     \node[box, right of=A] (B) {B};
+%     \node[box] (C) at ($(B)+(2cm,1em)$) {C};
+%   \end{tikzpicture}
+% \end{tcblisting}
+%
+% To connect boxes, you can use the \cmd\wires\ macro.
+% The first argument is Ti\emph{k}Z styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
+% \texttt{box}es have the following anchors: \texttt{west}, \texttt{west0}, \texttt{west1},  \texttt{east}, \texttt{east0}, and \texttt{east1}.
+%
+% \begin{tcblisting}{example}
+%   \begin{tikzpicture}[scale=0.6]
+%     \node[box] (A) at (-2, 0) {A};
+%     \node[box] (B) at (+2, 0) {B};
+%     \node[box] (C) at ( 0,+1) {C};
+%     \node[box] (D) at ( 0,-1) {D};
 %     \wires[]{
-%       a = { east = x.north },
-%       b = { east0 = x.south },
-%       y = { north = a.west1, south = b.west },
+%       A = { east0 = C.west, east1 = D.west },
+%       C = { east = B.west0 },
+%       D = { east = B.west1 },
+%     }{ A.west, B.east }
+%   \end{tikzpicture}
+% \end{tcblisting}
+%
+% To split and join wires, you can use \texttt{dot}s and their anchors \texttt{north}, \texttt{east}, \texttt{south}, and \texttt{west}.
+% Remember to have fun with styling wires.
+%
+% \begin{tcblisting}{example}
+%   \begin{tikzpicture}
+%     \node[box] (A) at ( 0,+1) {A};
+%     \node[box] (B) at ( 0,-1) {B};
+%     \node[dot] (x) at (+1, 0) {};
+%     \node[dot] (y) at (-1, 0) {};
+%     \wires[looseness=1.5, dashed]{
+%       A = { east = x.north },
+%       B = { east0 = x.south },
+%       y = { north = A.west1, south = B.west },
 %     }{
-%       a.west0, b.east1, x.east, y.west
+%       A.west0, B.east1, x.east, y.west
 %     }
 %   \end{tikzpicture}
 % \end{tcblisting}
+%
+% That's it. This is the package, for now.
 %
 % \end{documentation}
 %
