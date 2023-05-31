@@ -98,7 +98,7 @@ jobs:
             license: lppl1.3c
             ctanPath: /graphics/pgf/contrib/string-diagrams
             topic: diagram-maths
-            home: https://paolobrasolin.github.io/string-diagrams/
+            home: https://github.com/paolobrasolin/string-diagrams
             bugs: https://github.com/paolobrasolin/string-diagrams/issues
             repository: https://github.com/paolobrasolin/string-diagrams
             summary: >
