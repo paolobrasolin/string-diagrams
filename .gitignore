@@ -11,10 +11,8 @@
 *.listing
 *.log
 *.out
-README.tex
 
 *.ins
 *.pdf
 *.sty
 *.tar.gz
-README
