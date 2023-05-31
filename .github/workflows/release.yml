@@ -53,6 +53,7 @@ jobs:
           RELEASE_NAME: "${{ steps.labeller.outputs.version }}"
           UNRELEASED: "update"
           UNRELEASED_TAG: unreleased
+          ALLOW_EMPTY_CHANGELOG: true
         with:
           args: |
             string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
