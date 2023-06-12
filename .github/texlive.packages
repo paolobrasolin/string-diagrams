@@ -34,6 +34,7 @@ letltxmacro
 listings
 lm
 ltxcmds
+parskip
 pdfescape
 pdftexcmds
 pgf
