@@ -75,6 +75,8 @@
 \documentclass[a4paper,full]{l3doc}
 \usepackage{parskip}
 
+\NewDocumentCommand{\TikZ}{}{Ti\emph{k}Z}
+
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -168,7 +170,7 @@
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
-%   You can draw multiple boxes using any of your standard Ti\emph{k}Z positioning techniques.
+%   You can draw multiple boxes using any of your standard \TikZ\ positioning techniques.
 %   Don't forget to label the nodes so you can easily reference them.
 %
 %   \begin{tcblisting}{example}
@@ -249,11 +251,11 @@
 %
 % \begin{function}[added=2023-05-31]{\wires}
 %   \begin{syntax}
-%     \cs{wires}\oarg{Ti\emph{k}Z keys}\marg{connectivity}\marg{loose ends}
+%     \cs{wires}\oarg{\TikZ\ keys}\marg{connectivity}\marg{loose ends}
 %   \end{syntax}
 %
 %   To connect boxes, you can use the \cmd\wires\ macro.
-%   The first argument is Ti\emph{k}Z styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
+%   The first argument is \TikZ\ styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
 %   \texttt{box}es have the following anchors: \texttt{west}, \texttt{west.0}, \texttt{west.1},  \texttt{east}, \texttt{east.0}, and \texttt{east.1}.
 %
 %   \begin{tcblisting}{example}
@@ -324,7 +326,7 @@
   {string-diagrams}
   {<DATE>}
   {<VERSION>}
-  {Draw string diagrams using TikZ}
+  {Draw string diagrams using \TikZ}
 %    \end{macrocode}
 %
 %  \begin{macro}{
@@ -401,7 +403,7 @@
 % \end{macro}
 %
 % \begin{macro}{box}
-%   \changes{0.2.0}{2023/06/12}{make ports configurable through Ti\emph{k}Z keys}
+%   \changes{0.2.0}{2023/06/12}{make ports configurable through \TikZ\ keys}
 %
 %   Define a rectangular shape with configurable ports.
 %    \begin{macrocode}
