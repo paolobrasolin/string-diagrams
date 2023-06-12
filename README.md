@@ -31,28 +31,6 @@ For those who always live on the edge, unreleased versions are available on the 
 
 ### Usage
 
-After including the package in your preamble, you can craft your string diagrams in a `tikzpicture` environment:
-
-```latex
-\usepackage{string-diagrams}
-
-%...
-
-\begin{tikzpicture}
-  \node[box] (a) {a};
-  \node[box] (b) at (0,-2) {b};
-  \node[dot] (x) at (1,-1) {};
-  \node[dot] (y) at (-1,-1) {};
-  \wires[]{
-    a = { east = x.north },
-    b = { east0 = x.south },
-    y = { north = a.west1, south = b.west },
-  }{
-    a.west0, b.east1, x.east, y.west
-  }
-\end{tikzpicture}
-```
-
 Detailed instructions are available in the [documentation](http://mirrors.ctan.org/graphics/pgf/contrib/string-diagrams/string-diagrams.pdf).
 
 ## Contributing
