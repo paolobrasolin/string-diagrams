@@ -489,11 +489,14 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\wires}
-%   Define our main actor.
+% \begin{macro}{\@@_draw_bound_wires:nn}
+%   Draws bound wires.
+%   \begin{arguments}
+%     \item \TikZ\ keys
+%     \item dictionary of port labels
+%   \end{arguments}
 %    \begin{macrocode}
-\NewDocumentCommand{\wires}{ o m m }
-{
+\cs_new:Nn \@@_draw_bound_wires:nn {
   \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
   \prop_map_inline:Nn \l_tmpa_prop
   {
@@ -521,7 +524,19 @@
       ] (##1.####1) to (####2);
     }
   }
-  \clist_set:Nn \l_tmpa_clist { #3 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_draw_loose_wires:nn}
+%   Draws loose wires.
+%   \begin{arguments}
+%     \item \TikZ\ keys
+%     \item list of port labels
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_draw_loose_wires:nn {
+  \clist_set:Nn \l_tmpa_clist { #2 }
   \clist_map_inline:Nn \l_tmpa_clist {
     \regex_match_case:nnTF
     {
@@ -535,6 +550,17 @@
       { \. east  } { \draw[#1] (##1) -- +(+1, 0); }
     } { ##1 } {} {}
   }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\wires}
+%   Define our main actor.
+%    \begin{macrocode}
+\NewDocumentCommand{\wires}{ o m m }
+{
+  \@@_draw_bound_wires:nn { #1 } { #2 }
+  \@@_draw_loose_wires:nn { #1 } { #3 }
 }
 %    \end{macrocode}
 % \end{macro}
