@@ -22,6 +22,9 @@ $(PKG).ins $(PKG).sty: $(PKG).dtx
 	tex $<
 
 watch:
+	ls $(PKG).dtx | entr -c make $(PKG).pdf
+
+gawk:
 	ls $(PKG).dtx | entr -c texfot pdflatex -interaction=nonstopmode $(PKG).dtx
 
 clean:
