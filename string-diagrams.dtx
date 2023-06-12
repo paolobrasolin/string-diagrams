@@ -503,20 +503,20 @@
     \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
     \prop_map_inline:Nn \l_tmpb_prop
     {
-      \regex_match_case:nnTF
+      \regex_match_case:nn
       {
         { \. north } { \tl_gset:Nn \g_tmpa_tl { 90 } }
         { \. south } { \tl_gset:Nn \g_tmpa_tl { -90 } }
         { \. west } { \tl_gset:Nn \g_tmpa_tl { 180 } }
         { \. east } { \tl_gset:Nn \g_tmpa_tl { 0 } }
-      } { ####2 } {} {}
-      \regex_match_case:nnTF
+      } { ####2 }
+      \regex_match_case:nn
       {
         { north } { \tl_gset:Nn \g_tmpb_tl { 90 } }
         { south } { \tl_gset:Nn \g_tmpb_tl { -90 } }
         { west } { \tl_gset:Nn \g_tmpb_tl { 180 } }
         { east } { \tl_gset:Nn \g_tmpb_tl { 0 } }
-      } { ####1 } {} {}
+      } { ####1 }
       \draw [
         out={\tl_use:N \g_tmpb_tl},
         in={\tl_use:N \g_tmpa_tl},
@@ -538,7 +538,7 @@
 \cs_new:Nn \@@_draw_loose_wires:nn {
   \clist_set:Nn \l_tmpa_clist { #2 }
   \clist_map_inline:Nn \l_tmpa_clist {
-    \regex_match_case:nnTF
+    \regex_match_case:nn
     {
       { \. north } { \draw[#1] (##1) -- +( 0,+1); } % TODO: cleaner solution?
       { \. south }
@@ -548,7 +548,7 @@
         } % TODO: not sure why this works
       { \. west  } { \draw[#1] (##1) -- +(-1, 0); }
       { \. east  } { \draw[#1] (##1) -- +(+1, 0); }
-    } { ##1 } {} {}
+    } { ##1 }
   }
 }
 %    \end{macrocode}
