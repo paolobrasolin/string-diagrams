@@ -107,7 +107,7 @@
   sidebyside,
   lefthand ratio=0.62,
   listing options={
-    xleftmargin=-0.6em, % poor man's gobble=4
+    xleftmargin=-1.6em, % poor man's gobble=4
   },
 }}
 
@@ -120,7 +120,8 @@
 %
 % \fi
 %
-% \changes{0.1.0}{2023/05/31}{Initial version}
+% \changes{0.1.0}{2023/05/31}{initial version}
+% \changes{0.2.0}{2023/06/12}{make box ports configurable}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -153,68 +154,146 @@
 % The upside is that this is the best time to \href{https://github.com/paolobrasolin/string-diagrams#contributing}{contribute}!
 % Of course you can also just keep the \texttt{sty} along with your code and not care at all.
 % \end{tcolorbox}
-% 
+%
 %
 % \section{Documentation}
 %
-% Let's walk through the features by example.
+% \begin{function}[added=2023-05-31,updated=2023-06-12]{/pgf/box}
 %
+%   To draw boxes, you use this style on a node.
 %
-% To draw boxes, you use the \texttt{box} style on a node.
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}
+%       \node[box] {A};
+%     \end{tikzpicture}
+%   \end{tcblisting}
 %
-% \begin{tcblisting}{example}
-%   \begin{tikzpicture}
-%     \node[box] {A};
-%   \end{tikzpicture}
-% \end{tcblisting}
+%   You can draw multiple boxes using any of your standard Ti\emph{k}Z positioning techniques.
+%   Don't forget to label the nodes so you can easily reference them.
 %
-% You can draw multiple boxes using any of your standard Ti\emph{k}Z positioning techniques.
-% Don't forget to label the nodes so you can easily reference them.
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}
+%       \node[box] (A) at (0,0) {A};
+%       \node[box, right of=A] (B) {B};
+%       \node[box] (C) at ($(B)+(2cm,1em)$) {C};
+%     \end{tikzpicture}
+%   \end{tcblisting}
+% \end{function}
 %
-% \begin{tcblisting}{example}
-%   \begin{tikzpicture}
-%     \node[box] (A) at (0,0) {A};
-%     \node[box, right of=A] (B) {B};
-%     \node[box] (C) at ($(B)+(2cm,1em)$) {C};
-%   \end{tikzpicture}
-% \end{tcblisting}
+% \begin{function}[added=2023-06-12]{
+%   /pgf/box ports north,
+%   /pgf/box ports east,
+%   /pgf/box ports south,
+%   /pgf/box ports west,
+% }
+%   \begin{syntax}
+%     /pgf/box ports north=\meta{integer}
+%     /pgf/box ports east=\meta{integer}
+%     /pgf/box ports south=\meta{integer}
+%     /pgf/box ports west=\meta{integer}
+%   \end{syntax}
 %
-% To connect boxes, you can use the \cmd\wires\ macro.
-% The first argument is Ti\emph{k}Z styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
-% \texttt{box}es have the following anchors: \texttt{west}, \texttt{west0}, \texttt{west1},  \texttt{east}, \texttt{east0}, and \texttt{east1}.
+%   You can open up any number of ports on any side of a box using the appropriate key.
+%   Then, you can refer to the opened ports by their index.
 %
-% \begin{tcblisting}{example}
-%   \begin{tikzpicture}[scale=0.6]
-%     \node[box] (A) at (-2, 0) {A};
-%     \node[box] (B) at (+2, 0) {B};
-%     \node[box] (C) at ( 0,+1) {C};
-%     \node[box] (D) at ( 0,-1) {D};
-%     \wires[]{
-%       A = { east0 = C.west, east1 = D.west },
-%       C = { east = B.west0 },
-%       D = { east = B.west1 },
-%     }{ A.west, B.east }
-%   \end{tikzpicture}
-% \end{tcblisting}
+%   \begin{tcblisting}{example,lefthand ratio=0.8}
+%     \begin{tikzpicture}[
+%       marker/.style={circle, fill, inner sep=1pt, text=white},
+%     ]
 %
-% To split and join wires, you can use \texttt{dot}s and their anchors \texttt{north}, \texttt{east}, \texttt{south}, and \texttt{west}.
-% Remember to have fun with styling wires.
+%     \node[
+%       box,
+%       box ports north=3,
+%       box ports east=3,
+%       box ports south=3,
+%       box ports west=3,
+%       minimum width=6em,
+%       minimum height=6em,
+%     ] (A) {A};
 %
-% \begin{tcblisting}{example}
-%   \begin{tikzpicture}
-%     \node[box] (A) at ( 0,+1) {A};
-%     \node[box] (B) at ( 0,-1) {B};
-%     \node[dot] (x) at (+1, 0) {};
-%     \node[dot] (y) at (-1, 0) {};
-%     \wires[looseness=1.5, dashed]{
-%       A = { east = x.north },
-%       B = { east0 = x.south },
-%       y = { north = A.west1, south = B.west },
-%     }{
-%       A.west0, B.east1, x.east, y.west
-%     }
-%   \end{tikzpicture}
-% \end{tcblisting}
+%     \foreach \side in {north,east,south,west}
+%       \foreach \index in {1,...,3}
+%         \node[marker] at (A.\side.\index) {\index};
+%
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% \begin{function}[added=2023-06-12]{
+%   /pgf/box ports,
+% }
+%   \begin{syntax}
+%     /pgf/box ports=\meta{integer}/\meta{integer}/\meta{integer}/\meta{integer}
+%   \end{syntax}
+%
+%   The \texttt{box ports} key is a shortcut to set the number of ports on all sides at once.
+%
+%   \begin{tcblisting}{example,lefthand ratio=0.8}
+%     \begin{tikzpicture}[
+%       marker/.style={circle, fill, inner sep=1pt},
+%     ]
+%
+%     \node[box, box ports=1/2/3/4] (A) {A};
+%
+%     \foreach \side/\n in {north/1,east/2,south/3,west/4}
+%       \foreach \index in {1,...,\n}
+%         \node[marker] at (A.\side.\index) {};
+%
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+%   The same value can also be passed to the \texttt{box} key itself.
+%
+% \end{function}
+%
+% \begin{function}[added=2023-05-31]{\wires}
+%   \begin{syntax}
+%     \cs{wires}\oarg{Ti\emph{k}Z keys}\marg{connectivity}\marg{loose ends}
+%   \end{syntax}
+%
+%   To connect boxes, you can use the \cmd\wires\ macro.
+%   The first argument is Ti\emph{k}Z styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
+%   \texttt{box}es have the following anchors: \texttt{west}, \texttt{west.0}, \texttt{west.1},  \texttt{east}, \texttt{east.0}, and \texttt{east.1}.
+%
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}[scale=0.6]
+%       \node[box=0/2/0/1] (A) at (-2, 0) {A};
+%       \node[box=0/1/0/2] (B) at (+2, 0) {B};
+%       \node[box=0/1/0/1] (C) at ( 0,+1) {C};
+%       \node[box=0/1/0/1] (D) at ( 0,-1) {D};
+%       \wires[]{
+%         A = { east.1 = C.west, east.2 = D.west },
+%         C = { east = B.west.1 },
+%         D = { east = B.west.2 },
+%       }{ A.west, B.east }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% \begin{function}[added=2023-05-31]{/pgf/dot}
+%
+%   To split and join wires, you can use \texttt{dot}s and their anchors \texttt{north}, \texttt{east}, \texttt{south}, and \texttt{west}.
+%   Remember to have fun with styling wires.
+%
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}
+%       \node[box=0/1/0/2] (A) at ( 0,+1) {A};
+%       \node[box=0/2/0/1] (B) at ( 0,-1) {B};
+%       \node[dot] (x) at (+1, 0) {};
+%       \node[dot] (y) at (-1, 0) {};
+%       \wires[looseness=1.5, dashed]{
+%         A = { east = x.north },
+%         B = { east.1 = x.south },
+%         y = { north = A.west.2, south = B.west },
+%       }{
+%         A.west.1, B.east.2, x.east, y.west
+%       }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
 %
 % That's it. This is the package, for now.
 %
@@ -248,52 +327,135 @@
   {Draw string diagrams using TikZ}
 %    \end{macrocode}
 %
-% Define a shape with useful anchor points.
+%  \begin{macro}{
+%    /pgf/box ports north,
+%    /pgf/box ports east,
+%    /pgf/box ports south,
+%    /pgf/box ports west,
+%    /pgf/box ports,
+%  }
+%
+%    Define high level keys to configure the number of ports on each side.
 %    \begin{macrocode}
-\pgfdeclareshape{box}{
-  \inheritbackgroundpath[from=rectangle]
-  \inheritsavedanchors[from=rectangle]
-  \inheritanchorborder[from=rectangle]
-  \inheritanchor[from=rectangle]{center}
-  \inheritanchor[from=rectangle]{north}
-  \inheritanchor[from=rectangle]{south}
-  \inheritanchor[from=rectangle]{west}
-  \inheritanchor[from=rectangle]{east}
-  \anchor{east0}{
-    \pgf@process{\southwest}
-    \pgf@ya=0.25\pgf@y
-    \pgf@process{\northeast}
-    \pgf@y=0.75\pgf@y
-    \advance\pgf@y by \pgf@ya
-  }
-  \anchor{east1}{
-    \pgf@process{\southwest}
-    \pgf@ya=0.75\pgf@y
-    \pgf@process{\northeast}
-    \pgf@y=0.25\pgf@y
-    \advance\pgf@y by \pgf@ya
-  }
-  \anchor{west0}{
-    \pgf@process{\northeast}
-    \pgf@ya=0.75\pgf@y
-    \pgf@process{\southwest}
-    \pgf@y=0.25\pgf@y
-    \advance\pgf@y by \pgf@ya
-  }
-  \anchor{west1}{
-    \pgf@process{\northeast}
-    \pgf@ya=0.25\pgf@y
-    \pgf@process{\southwest}
-    \pgf@y=0.75\pgf@y
-    \advance\pgf@y by \pgf@ya
+\pgfkeys{
+  /pgf/box~ports~north/.initial=1,
+  /pgf/box~ports~east/.initial=1,
+  /pgf/box~ports~south/.initial=1,
+  /pgf/box~ports~west/.initial=1,
+  /pgf/box~ports/.style~args={#1/#2/#3/#4}{
+    /pgf/box~ports~north=#1,
+    /pgf/box~ports~east=#2,
+    /pgf/box~ports~south=#3,
+    /pgf/box~ports~west=#4,
+  },
+}
+%    \end{macrocode}
+%  \end{macro}
+%
+%  \begin{macro}{\@@_intersect_hv_lines_through:NN}
+%    Calculates the intersection of two lines parallel to axes passing through given points on the plane.
+%    \begin{arguments}
+%      \item Point through which the vertical line passes
+%      \item Point through which the horizontal line passes
+%    \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_intersect_hv_lines_through:NN {
+  \pgfextractx { \pgf@xa } { #1 }
+  \pgfextracty { \pgf@ya } { #2 }
+  \pgfpoint { \pgf@xa } { \pgf@ya }
+}
+%    \end{macrocode}
+%  \end{macro}
+%
+% \begin{macro}{\@@_subdivide_segment:nNNNNN}
+%   Defines macros numbering equally spaced points on a segment.
+%   \begin{arguments}
+%     \item Base namespace
+%     \item Points count
+%     \item Point containing the x coordinate of the starting point
+%     \item Point containing the y coordinate of the starting point
+%     \item Point containing the x coordinate of the ending point
+%     \item Point containing the y coordinate of the ending point
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_subdivide_segment:nNNNNN {
+  \int_step_inline:nnnn { #2 } { -1 } { 1 } {
+    \cs_if_exist:cTF
+      { #1.##1 }
+      { \prg_break: }
+      { \prg_do_nothing: }
+    \cs_new_nopar:cpn
+      { #1.##1 }
+      {
+        \pgfmathdivide
+          { 2 * ##1 - 1 }
+          { 2 * #2 }
+        \pgfpointlineattime
+          { \pgfmathresult }
+          { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
+          { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
+      }
   }
 }
 %    \end{macrocode}
-% Define styles to draw boxes and dots.
+% \end{macro}
+%
+% \begin{macro}{box}
+%   \changes{0.2.0}{2023/06/12}{make ports configurable through Ti\emph{k}Z keys}
+%
+%   Define a rectangular shape with configurable ports.
+%    \begin{macrocode}
+\pgfdeclareshape{box}{
+
+  % Inherit all the structure of rectangle
+  \inheritsavedanchors[from=rectangle]
+  \clist_map_inline:nn
+    {
+      north~west,  north, north~east,
+            west, center,       east,
+        mid~west,    mid,   mid~east,
+       base~west,   base,  base~east,
+      south~west,  south, south~east,
+    }
+    { \inheritanchor[from=rectangle]{#1} }
+  \inheritanchorborder[from=rectangle]
+  \inheritbackgroundpath[from=rectangle]
+
+  % Dump port counts into saved macros
+  \savedmacro\portsnorth
+    {\pgfmathtruncatemacro\portsnorth{\pgfkeysvalueof{/pgf/box~ports~north}}}
+  \savedmacro\portseast
+    {\pgfmathtruncatemacro\portseast{\pgfkeysvalueof{/pgf/box~ports~east}}}
+  \savedmacro\portssouth
+    {\pgfmathtruncatemacro\portssouth{\pgfkeysvalueof{/pgf/box~ports~south}}}
+  \savedmacro\portswest
+    {\pgfmathtruncatemacro\portswest{\pgfkeysvalueof{/pgf/box~ports~west}}}
+
+  % Add ports definitions to shape definition
+  \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@box\endcsname{
+    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@north } { \portsnorth }
+      { \southwest } { \northeast } { \northeast } { \northeast }
+    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@east } { \portseast }
+      { \northeast } { \northeast } { \northeast } { \southwest }
+    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@south } { \portssouth }
+      { \southwest } { \southwest } { \northeast } { \southwest }
+    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@west } { \portswest }
+      { \southwest } { \northeast } { \southwest } { \southwest }
+  }
+
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{/pgf/box}
+%   \changes{0.2.0}{2023/06/12}{acts as a shortcut for setting port counts}
+%
+%   Define style to draw boxes.
 %    \begin{macrocode}
 \ExplSyntaxOff
 \tikzset{
-  box/.style={
+  box/.default={0/0/0/0},
+  box/.style args={#1}{
     shape=box,
     draw,
     inner sep=.5em,
@@ -301,7 +463,19 @@
     minimum height=2em,
     execute at begin node=$,
     execute at end node=$,
+    /pgf/box ports=#1,
   },
+}
+\ExplSyntaxOn
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{/pgf/dot}
+%
+%   Define style to draw dots.
+%    \begin{macrocode}
+\ExplSyntaxOff
+\tikzset{
   dot/.style={
     shape=circle,
     fill,
@@ -311,9 +485,10 @@
 }
 \ExplSyntaxOn
 %    \end{macrocode}
+% \end{macro}
 %
-% Define our main actor.
 % \begin{macro}{\wires}
+%   Define our main actor.
 %    \begin{macrocode}
 \NewDocumentCommand{\wires}{ o m m }
 {
