@@ -8,7 +8,7 @@ INTERPOLATIONS  = s@<DATE>@$(DATE)@g;
 INTERPOLATIONS += s/<VERSION>/$(VERSION)/g;
 
 $(PKG).tar.gz: $(PKG).ins $(PKG).pdf README.md
-	ctanify $^
+	ctanify --no-tds $^
 
 $(PKG).pdf $(PKG).dep: $(PKG).dtx $(PKG).sty
 	pdflatex $(PKG).dtx
