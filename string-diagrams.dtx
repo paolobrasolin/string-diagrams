@@ -249,7 +249,7 @@
 %
 % \end{function}
 %
-% \begin{function}[added=2023-05-31]{\wires}
+% \begin{function}[added=2023-05-31,updated=2023-06-13]{\wires}
 %   \begin{syntax}
 %     \cs{wires}\oarg{\TikZ\ keys}\marg{connectivity}\marg{loose ends}
 %   \end{syntax}
@@ -264,7 +264,7 @@
 %       \node[box=0/1/0/2] (B) at (+2, 0) {B};
 %       \node[box=0/1/0/1] (C) at ( 0,+1) {C};
 %       \node[box=0/1/0/1] (D) at ( 0,-1) {D};
-%       \wires[]{
+%       \wires{
 %         A = { east.1 = C.west, east.2 = D.west },
 %         C = { east = B.west.1 },
 %         D = { east = B.west.2 },
@@ -555,9 +555,10 @@
 % \end{macro}
 %
 % \begin{macro}{\wires}
+%   \changes{0.2.1}{2023/06/13}{now correctly handles optional style parameter}
 %   Define our main actor.
 %    \begin{macrocode}
-\NewDocumentCommand{\wires}{ o m m }
+\NewDocumentCommand{\wires}{ O{} m m }
 {
   \@@_draw_bound_wires:nn { #1 } { #2 }
   \@@_draw_loose_wires:nn { #1 } { #3 }
