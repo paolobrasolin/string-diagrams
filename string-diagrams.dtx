@@ -82,6 +82,7 @@
 \RecordChanges
 \usepackage{string-diagrams}
 \usetikzlibrary{calc}
+\usetikzlibrary{fit}
 \usepackage{snapshot}
 
 \usepackage{tcolorbox}
@@ -265,10 +266,13 @@
 %       \node[box=0/1/0/1] (C) at ( 0,+1) {C};
 %       \node[box=0/1/0/1] (D) at ( 0,-1) {D};
 %       \wires{
-%         A = { east.1 = C.west, east.2 = D.west },
+%         A = { east.1 = C.west
+%             , east.2 = D.west
+%             , west = @.west },
+%         B = { east = @.east },
 %         C = { east = B.west.1 },
 %         D = { east = B.west.2 },
-%       }{ A.west, B.east }
+%       }
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
@@ -285,12 +289,15 @@
 %       \node[box=0/2/0/1] (B) at ( 0,-1) {B};
 %       \node[dot] (x) at (+1, 0) {};
 %       \node[dot] (y) at (-1, 0) {};
-%       \wires[looseness=1.5, dashed]{
-%         A = { east = x.north },
-%         B = { east.1 = x.south },
-%         y = { north = A.west.2, south = B.west },
-%       }{
-%         A.west.1, B.east.2, x.east, y.west
+%       \wires[looseness=1.5,-stealth]{
+%         A = { east.1 = x.north
+%             , west.1 = @.west },
+%         B = { east.1 = x.south
+%             , east.2 = @.east },
+%         y = { north = A.west.2
+%             , south = B.west
+%             , west = @.west },
+%         x = { east = @.east },
 %       }
 %     \end{tikzpicture}
 %   \end{tcblisting}
@@ -489,66 +496,194 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_draw_bound_wires:nn}
-%   Draws bound wires.
+% \begin{macro}{\@@_calctarget:nnnn}
+%   Performs the core calculation for \macro{\@@_anchors_to_proj:Nnnnn}.
+%   The result is stored in the internal \texttt{pgf} variables.
 %   \begin{arguments}
-%     \item \TikZ\ keys
-%     \item dictionary of port labels
+%     \item source node
+%     \item source anchor
+%     \item target node (can be boundary)
+%     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_draw_bound_wires:nn {
-  \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
-  \prop_map_inline:Nn \l_tmpa_prop
+\cs_new:Nn \@@_calctarget:nnnn {
+  \pgfpointanchor{#1}{#2} \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+  \pgfpointanchor{#3}{#4} \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+  \regex_match_case:nn
   {
-    \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
-    \prop_map_inline:Nn \l_tmpb_prop
-    {
-      \regex_match_case:nn
-      {
-        { \. north } { \tl_gset:Nn \g_tmpa_tl { 90 } }
-        { \. south } { \tl_gset:Nn \g_tmpa_tl { -90 } }
-        { \. west } { \tl_gset:Nn \g_tmpa_tl { 180 } }
-        { \. east } { \tl_gset:Nn \g_tmpa_tl { 0 } }
-      } { ####2 }
-      \regex_match_case:nn
-      {
-        { north } { \tl_gset:Nn \g_tmpb_tl { 90 } }
-        { south } { \tl_gset:Nn \g_tmpb_tl { -90 } }
-        { west } { \tl_gset:Nn \g_tmpb_tl { 180 } }
-        { east } { \tl_gset:Nn \g_tmpb_tl { 0 } }
-      } { ####1 }
-      \draw [
-        out={\tl_use:N \g_tmpb_tl},
-        in={\tl_use:N \g_tmpa_tl},
-        #1,
-      ] (##1.####1) to (####2);
-    }
-  }
+    { \A north ; north \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
+    { \A north ; south \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
+    { \A south ; north \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
+    { \A south ; south \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
+    { \A north ; east  \b } { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
+    { \A south ; east  \b } { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
+    { \A north ; west  \b } { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
+    { \A south ; west  \b } { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
+    { \A east  ; east  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
+    { \A east  ; west  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
+    { \A west  ; east  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
+    { \A west  ; west  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
+    { \A east  ; north \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } }
+    { \A west  ; north \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } }
+    { \A east  ; south \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } }
+    { \A west  ; south \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } }
+  } { #4 ; #2 }
 }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_draw_loose_wires:nn}
-%   Draws loose wires.
+% \begin{macro}{\@@_anchor_to_angle:Nnn}
+%   Calculates in/out angle given a node/anchor pair.
+%   Accounts for when the node is the boundary.
+%   The result is stored in the given variable.
 %   \begin{arguments}
-%     \item \TikZ\ keys
-%     \item list of port labels
+%     \item token list variable
+%     \item node
+%     \item anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_draw_loose_wires:nn {
-  \clist_set:Nn \l_tmpa_clist { #2 }
-  \clist_map_inline:Nn \l_tmpa_clist {
-    \regex_match_case:nn
+\cs_new:Nn \@@_anchor_to_angle:Nnn {
+  \regex_match_case:nnTF
     {
-      { \. north } { \draw[#1] (##1) -- +( 0,+1); } % TODO: cleaner solution?
-      { \. south }
-        {
-          \draw[out=-90, in=0,#1] (##1)
-            to ($(\pgf@picminx, \pgf@y)$);
-        } % TODO: not sure why this works
-      { \. west  } { \draw[#1] (##1) -- +(-1, 0); }
-      { \. east  } { \draw[#1] (##1) -- +(+1, 0); }
-    } { ##1 }
+      { \A north \b } { \int_set:Nn \l_tmpa_int {  90 } }
+      { \A east  \b } { \int_set:Nn \l_tmpa_int {   0 } }
+      { \A south \b } { \int_set:Nn \l_tmpa_int { -90 } }
+      { \A west  \b } { \int_set:Nn \l_tmpa_int { 180 } }
+    }
+    { #3 }
+    {
+      \str_if_eq:nnTF { @ } { #2 }
+        { \int_sub:Nn \l_tmpa_int { 180 } } { }
+      \tl_set:Nf #1 { \int_use:N \l_tmpa_int }
+    }
+    { \tl_clear:N #1 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_anchors_to_proj:Nnnnn}
+%   Calculates a target point given two node/anchor pairs.
+%   The first pair can be on the boundary.
+%   The result is stored in the given token list variable.
+%   \begin{arguments}
+%     \item token list variable
+%     \item source node
+%     \item source anchor
+%     \item target node
+%     \item target anchor
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_anchors_to_proj:Nnnnn {
+  \regex_match_case:nn
+    {
+      { \A @ \. } {
+        \@@_calctarget:nnnn { #4 } { #5 } { #2 } { #3 }
+        \pgfgetlastxy { \l_tmpa_dim } { \l_tmpb_dim }
+        \tl_gset:Nn #1 { \l_tmpa_dim, \l_tmpb_dim }
+      }
+      { } { \tl_gset:Nn #1 { #2.#3 } }
+    }
+    { #2.#3 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_oangle_tl,\l_@@_iangle_tl,\l_@@_source_tl,\l_@@_target_tl}
+%   Initialize scratch variables required by \cmd{\@@_draw_wire:nnnnn}.
+%    \begin{macrocode}
+\tl_new:N \l_@@_oangle_tl
+\tl_new:N \l_@@_iangle_tl
+\tl_new:N \l_@@_source_tl
+\tl_new:N \l_@@_target_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_draw_wire:nnnnn}
+%   Draws a wire.
+%   \begin{arguments}
+%     \item \TikZ\ keys
+%     \item source node
+%     \item source anchor
+%     \item target node
+%     \item target anchor
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_draw_wire:nnnnn {
+  \@@_anchor_to_angle:Nnn   \l_@@_oangle_tl { #2 } { #3 }
+  \@@_anchor_to_angle:Nnn   \l_@@_iangle_tl { #4 } { #5 }
+  \@@_anchors_to_proj:Nnnnn \l_@@_source_tl { #2 } { #3 } { #4 } { #5 }
+  \@@_anchors_to_proj:Nnnnn \l_@@_target_tl { #4 } { #5 } { #2 } { #3 }
+
+  \path
+    [
+      out={\tl_use:N \l_@@_oangle_tl},
+      in= {\tl_use:N \l_@@_iangle_tl},
+      draw, #1,
+    ]
+      (\tl_use:N \l_@@_source_tl) to
+      (\tl_use:N \l_@@_target_tl)
+    ;
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_draw_boundary:nn}
+%   Creates the boundary node.
+%    \begin{macrocode}
+\cs_new:Nn \@@_draw_boundary: {
+  \node [%draw, box=2/2/0/1, dashed, red,
+    name=@, node~contents={},
+    fit={
+      ([shift={(+2em,+1em)}]current~bounding~box.north~east)
+      ([shift={(-2em,-1em)}]current~bounding~box.south~west)
+    },
+  ];
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_split_node_anchor:NNn}
+%   Parses a token list into a node/anchor pair.
+%   \begin{arguments}
+%     \item token list variable to store node
+%     \item token list variable to store anchor
+%     \item token list to be parsed
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_split_node_anchor:NNn {
+  \regex_extract_once:nnN { ([^\.])* \.? (.*) } { #3 } \l_tmpa_seq
+  \seq_pop:NN \l_tmpa_seq \l_tmpa_tl  % discard match
+  \seq_pop:NN \l_tmpa_seq #1          % keep 1st matching group (node)
+  \seq_pop:NN \l_tmpa_seq #2          % keep 2nd matching group (anchor)
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\exp_args:Nnnnoo}
+%   This helper is required by \cmd{\@@_adj_map_function:nnN}.
+%    \begin{macrocode}
+\exp_args_generate:n { nnnoo }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_adj_map_function:nnN}
+%   Unrolls the nested dictionary of adjacencies into pairs and maps a function over them.
+%   The given list of \TikZ\ keys is passed through to the function.
+%   \begin{arguments}
+%     \item \TikZ\ keys to pass through
+%     \item nested dictionary of adjacencies
+%     \item function to be mapped over pairs
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_adj_map_function:nnN {
+  \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
+  \prop_map_inline:Nn \l_tmpa_prop {
+    \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
+    \prop_map_inline:Nn \l_tmpb_prop {
+      \@@_split_node_anchor:NNn \l_tmpa_tl \l_tmpb_tl { ####2 }
+      \exp_args:Nnnnoo #3
+        { #1 } { ##1 } { ####1 } { \l_tmpa_tl } { \l_tmpb_tl }
+    }
   }
 }
 %    \end{macrocode}
@@ -556,12 +691,13 @@
 %
 % \begin{macro}{\wires}
 %   \changes{0.2.1}{2023/06/13}{now correctly handles optional style parameter}
-%   Define our main actor.
+%   Define our superstar.
 %    \begin{macrocode}
-\NewDocumentCommand{\wires}{ O{} m m }
+\NewDocumentCommand{\wires}{ O{} m }
 {
-  \@@_draw_bound_wires:nn { #1 } { #2 }
-  \@@_draw_loose_wires:nn { #1 } { #3 }
+  \@@_draw_boundary:
+  \@@_adj_map_function:nnN
+    { #1 } { #2 } \@@_draw_wire:nnnnn
 }
 %    \end{macrocode}
 % \end{macro}
