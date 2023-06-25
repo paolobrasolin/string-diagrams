@@ -552,9 +552,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\l_@@_oangle_tl,\l_@@_iangle_tl,\l_@@_source_tl,\l_@@_target_tl}
+% \begin{variable}{\l_@@_styles_tl,\l_@@_oangle_tl,\l_@@_iangle_tl,\l_@@_source_tl,\l_@@_target_tl}
 %   Initialize scratch variables required by \cmd{\@@_draw_wire:nnnnn}.
 %    \begin{macrocode}
+\tl_new:N \l_@@_styles_tl
 \tl_new:N \l_@@_oangle_tl
 \tl_new:N \l_@@_iangle_tl
 \tl_new:N \l_@@_source_tl
@@ -573,20 +574,20 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new:Nn \@@_draw_wire:nnnnn {
+  \tl_set:Nn                \l_@@_styles_tl { #1 }
   \@@_anchor_to_angle:Nnn   \l_@@_oangle_tl { #2 } { #3 }
   \@@_anchor_to_angle:Nnn   \l_@@_iangle_tl { #4 } { #5 }
   \@@_anchors_to_proj:Nnnnn \l_@@_source_tl { #2 } { #3 } { #4 } { #5 }
   \@@_anchors_to_proj:Nnnnn \l_@@_target_tl { #4 } { #5 } { #2 } { #3 }
 
-  \path
-    [
-      out={\tl_use:N \l_@@_oangle_tl},
-      in= {\tl_use:N \l_@@_iangle_tl},
-      draw, #1,
-    ]
-      (\tl_use:N \l_@@_source_tl) to
-      (\tl_use:N \l_@@_target_tl)
-    ;
+  \use:x {
+    \exp_not:N \path
+      [out={\tl_use:N \l_@@_oangle_tl},
+       in= {\tl_use:N \l_@@_iangle_tl}]
+           (\tl_use:N \l_@@_source_tl)
+      edge [\tl_use:N \l_@@_styles_tl]
+           (\tl_use:N \l_@@_target_tl);
+  }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -623,12 +624,45 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\exp_args:Nnnnoo}
-%   This helper is required by \cmd{\@@_adj_map_function:nnN}.
+% \begin{macro}{\exp_args:NVnnVV, \exp_args:NVVVVV}
+%   These helpers are required by \cmd{\@@_adj_map_function:nnN}.
 %    \begin{macrocode}
-\exp_args_generate:n { nnnoo }
+\exp_args_generate:n { VnnVV }
+\exp_args_generate:n { VVVVV }
 %    \end{macrocode}
 % \end{macro}
+%
+% \begin{macro}{\@@_strip_optional_keylist:NNn}
+%   TODO
+%   \begin{arguments}
+%     \item TODO
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new:Nn \@@_strip_optional_keylist:NNn {
+  \regex_extract_once:nnN
+    {
+      \A
+      (?: \[ (.*?) \] )?
+      \{? (.+?) \}?
+      \Z
+    } { #3 } \l_tmpb_seq
+
+  \seq_pop_right:NN \l_tmpb_seq #2 % keep 2nd matching group
+  \seq_pop_right:NN \l_tmpb_seq #1 % keep 1st matching group
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_styles_seq,\l_@@_src_n_tl,\l_@@_src_a_tl,\l_@@_tgt_n_tl,\l_@@_tgt_a_tl}
+%   Initialize scratch variables required by \cmd{\@@_adj_map_function:nnN}.
+%    \begin{macrocode}
+\seq_new:N \l_@@_styles_seq
+\tl_new:N  \l_@@_src_n_tl
+\tl_new:N  \l_@@_src_a_tl
+\tl_new:N  \l_@@_tgt_n_tl
+\tl_new:N  \l_@@_tgt_a_tl
+%    \end{macrocode}
+% \end{variable}
 %
 % \begin{macro}{\@@_adj_map_function:nnN}
 %   Unrolls the nested dictionary of adjacencies into pairs and maps a function over them.
@@ -640,13 +674,67 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new:Nn \@@_adj_map_function:nnN {
-  \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
+  \seq_clear:N \l_@@_styles_seq
+  \seq_put_right:Nn \l_@@_styles_seq { #1 }
+
+  \tl_set_rescan:Nnn
+    \l_tmpb_tl
+    {
+      \char_set_catcode_group_begin:N [
+      \char_set_catcode_group_end:N ]
+    }
+    { #2 }
+
+  \exp_args:NNV \prop_set_from_keyval:Nn \l_tmpa_prop \l_tmpb_tl
   \prop_map_inline:Nn \l_tmpa_prop {
-    \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
+    \regex_match:nnTF { \. } { ##1 }
+      {
+        % KEY: <node>.<anchor>
+        % VAL: [...]{ [...]<node>.<anchor>, ... }
+        \@@_strip_optional_keylist:NNn \l_tmpa_tl \l_tmpb_tl { ##2 }
+        \seq_put_right:NV \l_@@_styles_seq \l_tmpa_tl
+        \clist_set:NV \l_tmpa_clist \l_tmpb_tl
+        \clist_map_inline:Nn \l_tmpa_clist {
+          \@@_split_node_anchor:NNn \l_@@_src_n_tl \l_@@_src_a_tl { ##1 }
+          \@@_strip_optional_keylist:NNn \l_tmpa_tl \l_tmpb_tl { ####1 }
+          \seq_put_right:NV \l_@@_styles_seq \l_tmpa_tl
+          \exp_args:NNNV \@@_split_node_anchor:NNn \l_@@_tgt_n_tl \l_@@_tgt_a_tl \l_tmpb_tl
+          \tl_set:Nx \l_tmpa_tl { \seq_use:Nn \l_@@_styles_seq {,} } % NOTE: items are not expanded in an x
+          \exp_args:NNnV \tl_set_rescan:Nnn \l_tmpa_tl {} \l_tmpa_tl
+          \exp_args:NVVVVV #3
+            \l_tmpa_tl
+            \l_@@_src_n_tl \l_@@_src_a_tl
+            \l_@@_tgt_n_tl \l_@@_tgt_a_tl
+          \seq_pop_right:NN \l_@@_styles_seq \l_tmpb_tl
+        }
+        \seq_pop_right:NN \l_@@_styles_seq \l_tmpb_tl
+      }
+      {
+        % KEY: <node>
+        % VAL: [...]{ <anchor> = [...]{ [...]<node>.<anchor>, ... }, ... }
+        \@@_strip_optional_keylist:NNn \l_tmpa_tl \l_tmpb_tl { ##2 }
+        \seq_put_right:NV \l_@@_styles_seq \l_tmpa_tl
+        \exp_args:NNV \prop_set_from_keyval:Nn \l_tmpb_prop \l_tmpb_tl
     \prop_map_inline:Nn \l_tmpb_prop {
-      \@@_split_node_anchor:NNn \l_tmpa_tl \l_tmpb_tl { ####2 }
-      \exp_args:Nnnnoo #3
-        { #1 } { ##1 } { ####1 } { \l_tmpa_tl } { \l_tmpb_tl }
+          \@@_strip_optional_keylist:NNn \l_tmpa_tl \l_tmpb_tl { ####2 }
+          \seq_put_right:NV \l_@@_styles_seq \l_tmpa_tl
+          \clist_set:NV \l_tmpa_clist \l_tmpb_tl
+          \clist_map_inline:Nn \l_tmpa_clist {
+            % NOTE: we skip assigning \l_@@_src_n_tl = ##1 and \l_@@_src_a_tl = ####1
+            \@@_strip_optional_keylist:NNn \l_tmpa_tl \l_tmpb_tl { ########1 }
+            \seq_put_right:NV \l_@@_styles_seq \l_tmpa_tl
+            \exp_args:NNNV \@@_split_node_anchor:NNn \l_@@_tgt_n_tl \l_@@_tgt_a_tl \l_tmpb_tl
+            \tl_set:Nx \l_tmpa_tl { \seq_use:Nn \l_@@_styles_seq {,} } % NOTE: items are not expanded in an x
+            \exp_args:NNnV \tl_set_rescan:Nnn \l_tmpa_tl {} \l_tmpa_tl
+            \exp_args:NVnnVV #3
+              \l_tmpa_tl
+              { ##1 } { ####1 }
+              \l_@@_tgt_n_tl \l_@@_tgt_a_tl
+            \seq_pop_right:NN \l_@@_styles_seq \l_tmpb_tl
+          }
+          \seq_pop_right:NN \l_@@_styles_seq \l_tmpb_tl
+        }
+        \seq_pop_right:NN \l_@@_styles_seq \l_tmpb_tl
     }
   }
 }
