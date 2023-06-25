@@ -25,7 +25,7 @@ watch:
 	ls $(PKG).dtx | entr -c make $(PKG).pdf
 
 gawk:
-	ls $(PKG).dtx | entr -c texfot pdflatex -interaction=nonstopmode $(PKG).dtx
+	ls $(PKG).dtx | entr -c texfot --ignore Overfull pdflatex -interaction=nonstopmode $(PKG).dtx
 
 clean:
 	rm -f $(PKG).{aux,dep,glo,gls,hd,idx,ilg,ind,listing,log,out}
