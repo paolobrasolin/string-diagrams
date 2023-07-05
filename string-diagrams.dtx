@@ -59,20 +59,24 @@
   breaklines=true,
 }
 
-\tcbset{example/.style={
+\tcbset{
+  codesample/.style={
+    bicolor,
+    colback=black!2!white,
+    colbacklower=violet!2!white,
+  size=minimal,
+    left=1em, sidebyside gap=2em, right=1em,
+    top=0.6em, bottom=0.6em,
+  sidebyside,
+    sidebyside adapt=right,
+  },
   listing engine=listings,
   verbatim ignore percent=true,
-  listing side text,
-  size=minimal,
-  skin=bicolor,
-  colback=black!5!white,
-  colbacklower=white,
-  sidebyside,
-  lefthand ratio=0.62,
-  listing options={
-    xleftmargin=-1.6em, % poor man's gobble=4
-  },
-}}
+}
+
+\newenvironment{codesample}
+  {\tcboutputlisting}
+  {\endtcboutputlisting\tcbsidebyside[codesample]{\tcbuselistinglisting}{\tcbuselistingtext}}
 
 \begin{document}
   \DocInput{\jobname.dtx}
@@ -125,22 +129,22 @@
 %
 %   To draw boxes, you use this style on a node.
 %
-%   \begin{tcblisting}{example}
+%   \begin{codesample}
 %     \begin{tikzpicture}
 %       \node[box] {A};
 %     \end{tikzpicture}
-%   \end{tcblisting}
+%   \end{codesample}
 %
 %   You can draw multiple boxes using any of your standard \TikZ\ positioning techniques.
 %   Don't forget to label the nodes so you can easily reference them.
 %
-%   \begin{tcblisting}{example}
+%   \begin{codesample}
 %     \begin{tikzpicture}
 %       \node[box] (A) at (0,0) {A};
 %       \node[box, right of=A] (B) {B};
 %       \node[box] (C) at ($(B)+(2cm,1em)$) {C};
 %     \end{tikzpicture}
-%   \end{tcblisting}
+%   \end{codesample}
 % \end{function}
 %
 % \begin{function}[added=2023-06-12]{
@@ -159,7 +163,7 @@
 %   You can open up any number of ports on any side of a box using the appropriate key.
 %   Then, you can refer to the opened ports by their index.
 %
-%   \begin{tcblisting}{example,lefthand ratio=0.8}
+%   \begin{codesample}
 %     \begin{tikzpicture}[
 %       marker/.style={circle, fill, inner sep=1pt, text=white},
 %     ]
@@ -179,7 +183,7 @@
 %         \node[marker] at (A.\side.\index) {\index};
 %
 %     \end{tikzpicture}
-%   \end{tcblisting}
+%   \end{codesample}
 %
 % \end{function}
 %
@@ -192,7 +196,7 @@
 %
 %   The \texttt{box ports} key is a shortcut to set the number of ports on all sides at once.
 %
-%   \begin{tcblisting}{example,lefthand ratio=0.8}
+%   \begin{codesample}
 %     \begin{tikzpicture}[
 %       marker/.style={circle, fill, inner sep=1pt},
 %     ]
@@ -204,7 +208,7 @@
 %         \node[marker] at (A.\side.\index) {};
 %
 %     \end{tikzpicture}
-%   \end{tcblisting}
+%   \end{codesample}
 %
 %   The same value can also be passed to the \texttt{box} key itself.
 %
@@ -219,7 +223,7 @@
 %   The first argument is \TikZ\ styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
 %   \texttt{box}es have the following anchors: \texttt{west}, \texttt{west.0}, \texttt{west.1},  \texttt{east}, \texttt{east.0}, and \texttt{east.1}.
 %
-%   \begin{tcblisting}{example}
+%   \begin{codesample}
 %     \begin{tikzpicture}[scale=0.6]
 %       \node[box=0/2/0/1] (A) at (-2, 0) {A};
 %       \node[box=0/1/0/2] (B) at (+2, 0) {B};
@@ -234,7 +238,7 @@
 %         D = { east = B.west.2 },
 %       }
 %     \end{tikzpicture}
-%   \end{tcblisting}
+%   \end{codesample}
 %
 % \end{function}
 %
@@ -243,7 +247,7 @@
 %   To split and join wires, you can use \texttt{dot}s and their anchors \texttt{north}, \texttt{east}, \texttt{south}, and \texttt{west}.
 %   Remember to have fun with styling wires.
 %
-%   \begin{tcblisting}{example}
+%   \begin{codesample}
 %     \begin{tikzpicture}
 %       \node[box=0/1/0/2] (A) at ( 0,+1) {A};
 %       \node[box=0/2/0/1] (B) at ( 0,-1) {B};
@@ -260,7 +264,7 @@
 %         x = { east = @.east },
 %       }
 %     \end{tikzpicture}
-%   \end{tcblisting}
+%   \end{codesample}
 %
 % \end{function}
 %
