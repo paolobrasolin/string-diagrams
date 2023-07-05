@@ -130,20 +130,20 @@
 %   To draw boxes, you use this style on a node.
 %
 %   \begin{codesample}
-%     \begin{tikzpicture}
-%       \node[box] {A};
-%     \end{tikzpicture}
+%\begin{tikzpicture}
+%  \node[box] {A};
+%\end{tikzpicture}
 %   \end{codesample}
 %
 %   You can draw multiple boxes using any of your standard \TikZ\ positioning techniques.
 %   Don't forget to label the nodes so you can easily reference them.
 %
 %   \begin{codesample}
-%     \begin{tikzpicture}
-%       \node[box] (A) at (0,0) {A};
-%       \node[box, right of=A] (B) {B};
-%       \node[box] (C) at ($(B)+(2cm,1em)$) {C};
-%     \end{tikzpicture}
+%\begin{tikzpicture}
+%  \node[box] (A) at (0,0) {A};
+%  \node[box, right of=A] (B) {B};
+%  \node[box] (C) at ($(B)+(2cm,1em)$) {C};
+%\end{tikzpicture}
 %   \end{codesample}
 % \end{function}
 %
@@ -164,25 +164,25 @@
 %   Then, you can refer to the opened ports by their index.
 %
 %   \begin{codesample}
-%     \begin{tikzpicture}[
-%       marker/.style={circle, fill, inner sep=1pt, text=white},
-%     ]
+%\begin{tikzpicture}[
+%  marker/.style={circle, fill, inner sep=1pt, text=white},
+%]
 %
-%     \node[
-%       box,
-%       box ports north=3,
-%       box ports east=3,
-%       box ports south=3,
-%       box ports west=3,
-%       minimum width=6em,
-%       minimum height=6em,
-%     ] (A) {A};
+%\node[
+%  box,
+%  box ports north=3,
+%  box ports east=3,
+%  box ports south=3,
+%  box ports west=3,
+%  minimum width=6em,
+%  minimum height=6em,
+%] (A) {A};
 %
-%     \foreach \side in {north,east,south,west}
-%       \foreach \index in {1,...,3}
-%         \node[marker] at (A.\side.\index) {\index};
+%\foreach \side in {north,east,south,west}
+%  \foreach \index in {1,...,3}
+%    \node[marker] at (A.\side.\index) {\index};
 %
-%     \end{tikzpicture}
+%\end{tikzpicture}
 %   \end{codesample}
 %
 % \end{function}
@@ -197,17 +197,17 @@
 %   The \texttt{box ports} key is a shortcut to set the number of ports on all sides at once.
 %
 %   \begin{codesample}
-%     \begin{tikzpicture}[
-%       marker/.style={circle, fill, inner sep=1pt},
-%     ]
+%\begin{tikzpicture}[
+%  marker/.style={circle, fill, inner sep=1pt},
+%]
 %
-%     \node[box, box ports=1/2/3/4] (A) {A};
+%\node[box, box ports=1/2/3/4] (A) {A};
 %
-%     \foreach \side/\n in {north/1,east/2,south/3,west/4}
-%       \foreach \index in {1,...,\n}
-%         \node[marker] at (A.\side.\index) {};
+%\foreach \side/\n in {north/1,east/2,south/3,west/4}
+%  \foreach \index in {1,...,\n}
+%    \node[marker] at (A.\side.\index) {};
 %
-%     \end{tikzpicture}
+%\end{tikzpicture}
 %   \end{codesample}
 %
 %   The same value can also be passed to the \texttt{box} key itself.
@@ -224,20 +224,20 @@
 %   \texttt{box}es have the following anchors: \texttt{west}, \texttt{west.0}, \texttt{west.1},  \texttt{east}, \texttt{east.0}, and \texttt{east.1}.
 %
 %   \begin{codesample}
-%     \begin{tikzpicture}[scale=0.6]
-%       \node[box=0/2/0/1] (A) at (-2, 0) {A};
-%       \node[box=0/1/0/2] (B) at (+2, 0) {B};
-%       \node[box=0/1/0/1] (C) at ( 0,+1) {C};
-%       \node[box=0/1/0/1] (D) at ( 0,-1) {D};
-%       \wires{
-%         A = { east.1 = C.west
-%             , east.2 = D.west
-%             , west = @.west },
-%         B = { east = @.east },
-%         C = { east = B.west.1 },
-%         D = { east = B.west.2 },
-%       }
-%     \end{tikzpicture}
+%\begin{tikzpicture}[scale=0.6]
+%  \node[box=0/2/0/1] (A) at (-2, 0) {A};
+%  \node[box=0/1/0/2] (B) at (+2, 0) {B};
+%  \node[box=0/1/0/1] (C) at ( 0,+1) {C};
+%  \node[box=0/1/0/1] (D) at ( 0,-1) {D};
+%  \wires{
+%    A = { east.1 = C.west
+%        , east.2 = D.west
+%        , west = @.west },
+%    B = { east = @.east },
+%    C = { east = B.west.1 },
+%    D = { east = B.west.2 },
+%  }
+%\end{tikzpicture}
 %   \end{codesample}
 %
 % \end{function}
@@ -248,22 +248,22 @@
 %   Remember to have fun with styling wires.
 %
 %   \begin{codesample}
-%     \begin{tikzpicture}
-%       \node[box=0/1/0/2] (A) at ( 0,+1) {A};
-%       \node[box=0/2/0/1] (B) at ( 0,-1) {B};
-%       \node[dot] (x) at (+1, 0) {};
-%       \node[dot] (y) at (-1, 0) {};
-%       \wires[looseness=1.5,-stealth]{
-%         A = { east.1 = x.north
-%             , west.1 = @.west },
-%         B = { east.1 = x.south
-%             , east.2 = @.east },
-%         y = { north = A.west.2
-%             , south = B.west
-%             , west = @.west },
-%         x = { east = @.east },
-%       }
-%     \end{tikzpicture}
+%\begin{tikzpicture}
+%  \node[box=0/1/0/2] (A) at ( 0,+1) {A};
+%  \node[box=0/2/0/1] (B) at ( 0,-1) {B};
+%  \node[dot] (x) at (+1, 0) {};
+%  \node[dot] (y) at (-1, 0) {};
+%  \wires[looseness=1.5,-stealth]{
+%    A = { east.1 = x.north
+%        , west.1 = @.west },
+%    B = { east.1 = x.south
+%        , east.2 = @.east },
+%    y = { north = A.west.2
+%        , south = B.west
+%        , west = @.west },
+%    x = { east = @.east },
+%  }
+%\end{tikzpicture}
 %   \end{codesample}
 %
 % \end{function}
