@@ -1,4 +1,4 @@
-SHELL = /usr/bin/bash
+SHELL := /usr/bin/env bash
 PKG = string-diagrams
 
 VERSION = UNRELEASED
@@ -29,7 +29,7 @@ gawk:
 
 clean:
 	rm -f $(PKG).{aux,dep,glo,gls,hd,idx,ilg,ind,listing,log,out}
-	
+
 clobber: clean
 	rm -f $(PKG).{ins,pdf,sty,tar.gz}
 
