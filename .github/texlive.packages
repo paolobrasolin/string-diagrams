@@ -2,7 +2,6 @@
 alphalph
 amsfonts
 amsmath
-auxhook
 bigintcalc
 bitset
 booktabs
@@ -13,6 +12,7 @@ environ
 epstopdf-pkg
 etoolbox
 fancyvrb
+firstaid
 gettitlestring
 graphics
 graphics-cfg
@@ -30,7 +30,6 @@ kvsetkeys
 l3backend
 l3kernel
 latexconfig
-letltxmacro
 listings
 lm
 ltxcmds
@@ -42,6 +41,7 @@ psnfss
 refcount
 rerunfilecheck
 snapshot
+stringenc
 tcolorbox
 tikzfill
 tools
