@@ -44,6 +44,30 @@
             texlive
           ];
         };
+        defaultPackage = pkgs.stdenvNoCC.mkDerivation rec {
+          name = "string-diagrams";
+          src = self;
+          buildInputs = [pkgs.coreutils texlive];
+          phases = ["unpackPhase" "buildPhase" "installPhase"];
+          buildPhase = ''
+            env \
+              TEXMFVAR=$(pwd)/.texmf-var \
+              TEXMFHOME=$(pwd)/.texmf-home  \
+              TEXMFCACHE=$(pwd)/.texmf-cache \
+              TEXMFCONFIG=$(pwd)/.texmf-config \
+              SOURCE_DATE_EPOCH=${toString self.lastModified} \
+              FORCE_SOURCE_DATE=1 \
+            latexmk \
+              -gg -interaction=batchmode -pdf \
+              -pretex="\pdftrailerid{}\relax" -usepretex  \
+            ${name}.dtx
+            echo ${toString self.lastModified}
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp ${name}.{dtx,ins,sty,pdf} $out/
+          '';
+        };
       }
     );
 }
