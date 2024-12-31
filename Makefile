@@ -11,24 +11,16 @@ $(PKG).tar.gz: $(PKG).ins $(PKG).pdf README.md
 	ctanify --no-tds $^
 
 $(PKG).pdf $(PKG).dep: $(PKG).dtx $(PKG).sty
-	pdflatex $(PKG).dtx
-	pdflatex $(PKG).dtx
-	makeindex -s gglo.ist -o $(PKG).gls $(PKG).glo
-	makeindex -s gind.ist -o $(PKG).ind $(PKG).idx
-	pdflatex $(PKG).dtx
-	pdflatex $(PKG).dtx
+	latexmk -pdf $<
 
 $(PKG).sty: $(PKG).ins $(PKG).dtx
-	tex $^
+	tex $<
 
-watch:
-	ls $(PKG).dtx | entr -c make $(PKG).pdf
-
-gawk:
-	ls $(PKG).dtx | entr -c texfot pdflatex -interaction=nonstopmode $(PKG).dtx
+watch: $(PKG).dtx
+	ls $^ | entr -c make $(PKG).pdf
 
 clean:
-	rm -f $(PKG).{aux,dep,glo,gls,hd,idx,ilg,ind,listing,log,out}
+	latexmk -c $(PKG).pdf
 
 clobber: clean
 	rm -f $(PKG).{pdf,sty,tar.gz}
