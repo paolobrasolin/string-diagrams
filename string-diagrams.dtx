@@ -22,52 +22,12 @@
 %%
 %% This work consists of the files  README.md,
 %%                                  string-diagrams.dtx,
-%% and the derived files            string-diagrams.ins,
-%%                                  string-diagrams.sty, and
+%%                                  string-diagrams.ins,
+%% and the derived files            string-diagrams.sty, and
 %%                                  string-diagrams.pdf.
 %%
 %% =============================================================================
 %%
-%
-% %%%=[ INSTALL ]===============================================================
-%
-%<*internal>
-\def\nameofplainTeX{plain}
-\ifx\fmtname\nameofplainTeX\else
-  \expandafter\begingroup
-\fi
-%</internal>
-%
-%<*install>
-\input l3docstrip.tex
-\keepsilent
-\askforoverwritefalse
-
-% NOTE: to avoid redundancy we use `%%'-lines instead of pre/postambles
-\preamble
-\endpreamble
-\nopostamble
-
-\usedir{tex/latex/string-diagrams}
-\generate{\file{\jobname.sty}{\from{\jobname.dtx}{package}}}
-
-%</install>
-%<*internal>
-
-\usedir{source/latex/string-diagrams}
-\generate{\file{\jobname.ins}{\from{\jobname.dtx}{install}}}
-
-%</internal>
-%
-%<*internal>
-\ifx\fmtname\nameofplainTeX
-  \expandafter\endbatchfile
-\else
-  \expandafter\endgroup
-\fi
-%</internal>
-%
-%<install>\endbatchfile
 %
 % %%%=[ DRIVER ]================================================================
 %

@@ -18,8 +18,8 @@ $(PKG).pdf $(PKG).dep: $(PKG).dtx $(PKG).sty
 	pdflatex $(PKG).dtx
 	pdflatex $(PKG).dtx
 
-$(PKG).ins $(PKG).sty: $(PKG).dtx
-	tex $<
+$(PKG).sty: $(PKG).ins $(PKG).dtx
+	tex $^
 
 watch:
 	ls $(PKG).dtx | entr -c make $(PKG).pdf
@@ -31,9 +31,10 @@ clean:
 	rm -f $(PKG).{aux,dep,glo,gls,hd,idx,ilg,ind,listing,log,out}
 
 clobber: clean
-	rm -f $(PKG).{ins,pdf,sty,tar.gz}
+	rm -f $(PKG).{pdf,sty,tar.gz}
 
 interpolate:
+	sed -i "$(INTERPOLATIONS)" $(PKG).ins
 	sed -i "$(INTERPOLATIONS)" $(PKG).dtx
 
 .github/texlive.packages: $(PKG).dep
