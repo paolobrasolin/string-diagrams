@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Get the root TeX Live directory
 ROOT=$(kpsewhich --var-value=SELFAUTOPARENT)
 
 if [ $# -ge 2 ]; then
-    SOURCE=$1
-    TARGET=$2
-    echo "Source file: $SOURCE"
-    echo "Target file: $TARGET"
+	SOURCE=$1
+	TARGET=$2
+	echo "Source file: $SOURCE"
+	echo "Target file: $TARGET"
 else
-    echo "Error: Insufficient arguments!"
-    exit 1
+	echo "Error: Insufficient arguments!"
+	exit 1
 fi
 
 # Generate lists of package, class, and file names with appropriate suffixes
@@ -31,28 +31,28 @@ counter=0
 package_list=""
 
 # Process each name in the list
-for name in $list ; do
-    # Increment the counter
-    counter=$((counter + 1))
+for name in $list; do
+	# Increment the counter
+	counter=$((counter + 1))
 
-    # Print the progress bar
-    printf "[%3.f%%] %3s/%3s %s -> " "$(echo "scale=2; $counter / $total * 100" | bc)" "$counter" "$total" $name
+	# Print the progress bar
+	LC_NUMERIC="en_US.UTF-8" printf "[%3.f%%] %3s/%3s %s -> " "$(bc -l <<<"$counter / $total * 100")" "$counter" "$total" "$name"
 
-    # Run kpsewhich to find the file path
-    path=$(kpsewhich "$name")
+	# Run kpsewhich to find the file path
+	path=$(kpsewhich "$name")
 
-    if [ "${path#$ROOT/}" != "$path" ]; then
-        # Remove the root directory from the path
-        path="${path#$ROOT/}"
-        # Extract the fourth path component (the package name)
-        package_name=$(echo "$path" | cut -d'/' -f4)
-        # Add the package name to the list
-        package_list="$package_list $package_name"
-        printf "%s\n" $package_name
-    else
-        printf "SKIP\n"
-    fi
+	if [ "${path#"$ROOT"/}" != "$path" ]; then
+		# Remove the root directory from the path
+		path="${path#"$ROOT"/}"
+		# Extract the fourth path component (the package name)
+		package_name=$(echo "$path" | cut -d'/' -f4)
+		# Add the package name to the list
+		package_list="$package_list $package_name"
+		printf "%s\n" "$package_name"
+	else
+		printf "SKIP\n"
+	fi
 done
 
 # Sort the list, remove duplicates, and write to the file
-printf "%s\n" "$package_list" | tr ' ' '\n' | sort -u > "$TARGET"
+printf "%s\n" "$package_list" | tr ' ' '\n' | sort -u >"$TARGET"
