@@ -43,6 +43,10 @@
             gnutar
             texlive
           ];
+          shellHook = ''
+            # NOTE: this is a hack to repair l3build (trailing slash is required); see https://github.com/NixOS/nixpkgs/issues/352194
+            export TEXMF="${texlive}/"
+          '';
         };
         defaultPackage = pkgs.stdenvNoCC.mkDerivation rec {
           name = "string-diagrams";
