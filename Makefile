@@ -2,16 +2,22 @@ SHELL := /usr/bin/env bash
 PKG = string-diagrams
 
 VERSION = UNRELEASED
-DATE = $(shell date +"%Y/%m/%d")
+TIMESTAMP = $(shell date +"%s")
 
-INTERPOLATIONS  = s@<DATE>@$(DATE)@g;
+INTERPOLATIONS  = s@<DATE>@$(shell date --date @$(TIMESTAMP) +"%Y/%m/%d")@g;
 INTERPOLATIONS += s/<VERSION>/$(VERSION)/g;
 
 $(PKG).tar.gz: $(PKG).ins $(PKG).pdf README.md
 	ctanify --no-tds $^
 
+# NOTE: this command reproducibly builds the PDF (see https://flyx.org/nix-flakes-latex/ and https://texdoc.org/serve/pdftex-a.pdf/0)
 $(PKG).pdf $(PKG).dep: $(PKG).dtx $(PKG).sty
-	latexmk -pdf $<
+	SOURCE_DATE_EPOCH=$(TIMESTAMP) \
+	FORCE_SOURCE_DATE=1 \
+	latexmk -pdf -gg \
+		-interaction=nonstopmode \
+		-usepretex='\pdftrailerid{}\relax' \
+		$<
 
 $(PKG).sty: $(PKG).ins $(PKG).dtx
 	tex $<
