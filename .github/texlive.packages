@@ -1,12 +1,13 @@
-
 alphalph
 amsfonts
 amsmath
 bigintcalc
 bitset
 booktabs
+collection-fontsrecommended
 colortbl
 csquotes
+ctanify
 enumitem
 environ
 epstopdf-pkg
@@ -29,12 +30,14 @@ kvoptions
 kvsetkeys
 l3backend
 l3kernel
+latex-bin
 latexconfig
 listings
 lm
 ltxcmds
 parskip
 pdfescape
+pdftex
 pdftexcmds
 pgf
 psnfss
@@ -43,6 +46,7 @@ rerunfilecheck
 snapshot
 stringenc
 tcolorbox
+tex
 tikzfill
 tools
 trimspaces
@@ -50,8 +54,3 @@ underscore
 uniquecounter
 url
 xcolor
-ctanify
-tex
-pdftex
-latex-bin
-collection-fontsrecommended
