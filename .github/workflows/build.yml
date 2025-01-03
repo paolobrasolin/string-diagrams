@@ -1,31 +1,11 @@
-name: Build
 on:
   push:
-    branches:
-      - development
   pull_request:
-  schedule:
-    - cron: "0 0 * * *"
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix develop --command make -B string-diagrams.tar.gz
 
-      - name: Install Perl dependencies
-        uses: perl-actions/install-with-cpanm@stable
-        with:
-          install: |
-            File::HomeDir
-            File::Copy::Recursive
-
-      - name: Setup TeX Live
-        uses: paolobrasolin/setup-texlive-action@main
-        with:
-          packages-path: ${{ github.workspace }}/.github/texlive.packages
-          profile-path: ${{ github.workspace }}/.github/texlive.profile
-
-      - name: Build
-        run: |
-          make string-diagrams.tar.gz
