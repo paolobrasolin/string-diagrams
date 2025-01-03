@@ -37,3 +37,16 @@ interpolate:
 
 .github/texlive.packages: $(PKG).dep
 	./dev/dep_to_pkg.sh --source $< --target $@ --remove "base" --append "ctanify tex pdftex latex-bin collection-fontsrecommended"
+
+$(PKG).pdf.dep: $(PKG).dtx $(PKG).sty
+	./dev/make_pdf_dep.sh
+
+dependencies/build.texlive-packages.txt: $(PKG).pdf.dep
+	./dev/dep_to_pkg.sh --source $< --target $@ --remove "snapshot base" --append "collection-fontsrecommended"
+
+$(PKG).sty.dep: $(PKG).sty
+	./dev/make_sty_dep.sh
+
+dependencies/runtime.texlive-packages.txt: $(PKG).sty.dep
+	./dev/dep_to_pkg.sh --source $< --target $@ --remove "snapshot"
+
