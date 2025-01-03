@@ -3,14 +3,53 @@
 # Get the root TeX Live directory
 ROOT=$(kpsewhich --var-value=SELFAUTOPARENT)
 
-if [ $# -ge 2 ]; then
-	SOURCE=$1
-	TARGET=$2
-	echo "Source file: $SOURCE"
-	echo "Target file: $TARGET"
-else
-	echo "Error: Insufficient arguments!"
+# Initialize variables
+SOURCE=""
+TARGET=""
+APPEND=""
+REMOVE=""
+
+# Parse command line arguments
+while [ $# -gt 0 ]; do
+	case "$1" in
+	--source)
+		SOURCE="$2"
+		shift 2
+		;;
+	--target)
+		TARGET="$2"
+		shift 2
+		;;
+	--append)
+		APPEND="$2"
+		shift 2
+		;;
+	--remove)
+		REMOVE="$2"
+		shift 2
+		;;
+	*)
+		echo "Error: Unknown parameter $1"
+		exit 1
+		;;
+	esac
+done
+
+# Check mandatory arguments
+if [ -z "$SOURCE" ] || [ -z "$TARGET" ]; then
+	echo "Error: --source and --target are mandatory!"
+	echo "Usage: $0 --source <source_file> --target <target_file> [--append <append_list>] [--remove <remove_list>]"
 	exit 1
+fi
+
+# Print arguments for debugging
+echo "Source file: $SOURCE"
+echo "Target file: $TARGET"
+if [ -n "$APPEND" ]; then
+	echo "Packages to append: $APPEND"
+fi
+if [ -n "$REMOVE" ]; then
+	echo "Packages to remove: $REMOVE"
 fi
 
 # Generate lists of package, class, and file names with appropriate suffixes
@@ -28,7 +67,7 @@ total=$(echo "$list" | wc -w)
 counter=0
 
 # Initialize the package list
-package_list=""
+package_list=$APPEND
 
 # Process each name in the list
 for name in $list; do
@@ -54,5 +93,5 @@ for name in $list; do
 	fi
 done
 
-# Sort the list, remove duplicates, and write to the file
-printf "%s\n" "$package_list" | tr ' ' '\n' | sort -u >"$TARGET"
+# Sort the list, remove duplicates, remove filtered, and write to the file
+printf "%s " "$package_list" | sed 's/^ *//' | tr ' ' '\n' | sort -u | grep -v -x -f <(echo "$REMOVE" | tr ' ' '\n') | cat >"$TARGET"

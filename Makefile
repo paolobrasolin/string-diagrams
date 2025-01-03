@@ -36,7 +36,4 @@ interpolate:
 	sed -i "$(INTERPOLATIONS)" $(PKG).dtx
 
 .github/texlive.packages: $(PKG).dep
-	sh dev/dep_to_pkg.sh $< $@
-	# TODO: it's pretty annoying we need to add/remove packages manually...
-	sed -i '/^base$$/d' $@
-	echo "ctanify tex pdftex latex-bin collection-fontsrecommended" | tr ' ' '\n' >> $@
+	./dev/dep_to_pkg.sh --source $< --target $@ --remove "base" --append "ctanify tex pdftex latex-bin collection-fontsrecommended"
