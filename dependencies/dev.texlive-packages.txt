@@ -1,0 +1,7 @@
+ctanify
+latex-bin
+latexmk
+pdftex
+scheme-infraonly
+snapshot
+tex
