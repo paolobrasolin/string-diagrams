@@ -19,3 +19,4 @@ build/
 *.pdf
 *.sty
 *.zip
+*.curlopt
