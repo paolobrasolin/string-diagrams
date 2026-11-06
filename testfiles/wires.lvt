@@ -127,6 +127,22 @@
   }
 }
 
+% TBC: a wire across the boundary runs through its middle, here right through the box: should there be a way to place it beside the boxes?
+\TEST{TBC: a wire across the boundary runs through the boxes}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a) at (0pt,0pt) {};
+    \LOG{\wires{a = {north.1 = @.north, south.1 = @.south}, @ = {south = @.north}}}
+  }
+}
+
+% TBC: wires from corners end on the boundary straight below or beside the corner, after the side named first, so the two loose ends of the lower corners of a dot end about 3pt apart: should they spread out, e.g. along their diagonal?
+\TEST{TBC: loose ends from neighboring corners end close together}{
+  \PICTURE{
+    \node[dot] (a) at (0pt,0pt) {};
+    \LOG{\wires{a = {south west = @.south, south east = @.south}}}
+  }
+}
+
 \TEST{a wire across the boundary}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
