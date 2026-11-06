@@ -112,14 +112,30 @@
   }
 }
 
-% TBC: should a second call of \wires reuse the boundary of the first?
-\TEST{TBC: each call of wires makes a bigger boundary}{
+\TEST{a second call of wires reuses the boundary, and a new picture gets its own}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \wires{}
     \SHOWANCHOR{@}{north east}
     \wires{}
     \SHOWANCHOR{@}{north east}
+  }
+  \PICTURE{
+    \node[box, minimum size=40pt, inner sep=0pt, outer sep=0pt] (a) at (0pt,0pt) {};
+    \wires{}
+    \SHOWANCHOR{@}{north east}
+  }
+}
+
+% NOTE: so nodes are best drawn before wires, as the documentation says.
+\TEST{nodes drawn after the first call of wires are outside the boundary}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \wires{}
+    \node[box, square] (b) at (200pt,0pt) {};
+    \wires{}
+    \SHOWANCHOR{@}{north east}
+    \SHOWANCHOR{b}{north east}
   }
 }
 

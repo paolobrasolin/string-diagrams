@@ -687,18 +687,25 @@
 %
 % \begin{macro}{\@@_draw_boundary:,\@@_draw_boundary_around:nn}
 %   Creates the boundary node around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds).
+%   A picture gets a single boundary: later calls of \cmd\wires\ in it reuse the first one, found by the picture that pgf records for each node.
 %   \begin{arguments}
 %     \item north east corner to surround
 %     \item south west corner to surround
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_boundary: {
-  \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
-    { \@@_draw_boundary_around:nn { 0pt, 0pt } { 0pt, 0pt } }
+  % NOTE: the space keeps docstrip from turning the @@ of the name of node @ into the module prefix.
+  \bool_lazy_and:nnF
+    { \cs_if_exist_p:c { pgf@sh@pi@ @ } }
+    { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ @ } } { \pgfpictureid } }
     {
-      \@@_draw_boundary_around:nn
-        { current~bounding~box.north~east }
-        { current~bounding~box.south~west }
+      \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
+        { \@@_draw_boundary_around:nn { 0pt, 0pt } { 0pt, 0pt } }
+        {
+          \@@_draw_boundary_around:nn
+            { current~bounding~box.north~east }
+            { current~bounding~box.south~west }
+        }
     }
 }
 \cs_new_protected:Nn \@@_draw_boundary_around:nn {

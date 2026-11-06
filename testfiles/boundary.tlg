@@ -62,8 +62,15 @@ TEST 8: the boundary surrounds the picture
 @.south west = (-83.733pt, -73.73299pt)
 ============================================================
 ============================================================
-TEST 9: TBC: each call of wires makes a bigger boundary
+TEST 9: a second call of wires reuses the boundary, and a new picture gets its own
 ============================================================
 @.north east = (83.733pt, 73.73299pt)
-@.north east = (107.06601pt, 87.06598pt)
+@.north east = (83.733pt, 73.73299pt)
+@.north east = (43.733pt, 33.73299pt)
+============================================================
+============================================================
+TEST 10: nodes drawn after the first call of wires are outside the boundary
+============================================================
+@.north east = (83.733pt, 73.73299pt)
+b.north east = (260.0pt, 60.0pt)
 ============================================================
