@@ -1,4 +1,6 @@
 .vscode/
+build/
+/result*
 
 *.aux
 *.dep
@@ -17,3 +19,4 @@
 *.pdf
 *.sty
 *.tar.gz
+*.zip

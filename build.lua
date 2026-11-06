@@ -1,0 +1,20 @@
+module = "string-diagrams"
+
+checkengines = { "pdftex" } --, "xetex", "luatex" }
+
+-- NOTE: CTAN maintainers prefer a flat upload (no TDS zip) for simple packages.
+packtdszip = false
+
+tagfiles = { "*.dtx", "*.ins" }
+
+-- NOTE: listed explicitly so no other Markdown file ends up on CTAN by accident.
+textfiles = { "README.md", "CHANGELOG.md" }
+
+-- NOTE: this makes the PDF reproducible, along with SOURCE_DATE_EPOCH and FORCE_SOURCE_DATE (see https://texdoc.org/serve/pdftex-a.pdf/0)
+typesetcmds = "\\pdftrailerid{}"
+
+function update_tag(filename, content, tagname, tagdate)
+	content = string.gsub(content, "<VERSION>", tagname)
+	content = string.gsub(content, "<DATE>", (string.gsub(tagdate, "-", "/")))
+	return content
+end

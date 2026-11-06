@@ -1,0 +1,22 @@
+\input regression-test.tex\relax
+\ExplSyntaxOn
+
+\START
+
+\TEST{bool_set,~lazy~evaluation}
+{
+\bool_set:Nn \l_tmpa_bool
+{
+\int_compare_p:nNn 1=1
+&& \bool_lazy_any_p:n
+{
+{ \int_compare_p:nNn 2=3 }
+{ \int_compare_p:nNn 4=4 }
+{ \int_compare_p:nNn 1=\ERROR } % is skipped
+}
+&& \int_compare_p:nNn 2=2
+}
+\bool_if:NTF \l_tmpa_bool \TRUE \FALSE
+}
+
+\END
