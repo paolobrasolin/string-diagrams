@@ -609,7 +609,7 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_split_node_anchor:NNn {
-  \regex_extract_once:nnN { ([^\.])* \.? (.*) } { #3 } \l_tmpa_seq
+  \regex_extract_once:nnN { ([^\.]*) \.? (.*) } { #3 } \l_tmpa_seq
   \seq_pop:NN \l_tmpa_seq \l_tmpa_tl  % discard match
   \seq_pop:NN \l_tmpa_seq #1          % keep 1st matching group (node)
   \seq_pop:NN \l_tmpa_seq #2          % keep 2nd matching group (anchor)

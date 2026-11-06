@@ -47,8 +47,7 @@
   \SPLIT{.north}
 }
 
-% BUG: the nodes should be [ab], [box1], [my node] and [ab].
-\TEST{BUG: node names longer than a letter keep only their last letter}{
+\TEST{splitting ends whose node name is longer than a letter}{
   \SPLIT{ab.north}
   \SPLIT{box1.north.1}
   \SPLIT{my node.north}
@@ -77,8 +76,7 @@
   \MAP{a = {north = b}}
 }
 
-% BUG: the target should be [cd].
-\TEST{BUG: a target whose node name is longer than a letter keeps only its last letter}{
+\TEST{a target whose node name is longer than a letter}{
   \MAP{ab = {north = cd.south}}
 }
 

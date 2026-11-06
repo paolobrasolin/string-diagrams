@@ -12,12 +12,12 @@ a. -> node [a] anchor []
 .north -> node [] anchor [north]
 ============================================================
 ============================================================
-TEST 2: BUG: node names longer than a letter keep only their last letter
+TEST 2: splitting ends whose node name is longer than a letter
 ============================================================
-ab.north -> node [b] anchor [north]
-box1.north.1 -> node [1] anchor [north.1]
-my node.north -> node [e] anchor [north]
-ab -> node [b] anchor []
+ab.north -> node [ab] anchor [north]
+box1.north.1 -> node [box1] anchor [north.1]
+my node.north -> node [my node] anchor [north]
+ab -> node [ab] anchor []
 ============================================================
 ============================================================
 TEST 3: one wire
@@ -43,9 +43,9 @@ TEST 6: TBC: a target without anchor
 [] [a].[north] -- [b].[]
 ============================================================
 ============================================================
-TEST 7: BUG: a target whose node name is longer than a letter keeps only its last letter
+TEST 7: a target whose node name is longer than a letter
 ============================================================
-[] [ab].[north] -- [d].[south]
+[] [ab].[north] -- [cd].[south]
 ============================================================
 ============================================================
 TEST 8: TBC: a node listed twice keeps only its last wires

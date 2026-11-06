@@ -90,8 +90,7 @@
   }
 }
 
-% BUG: the first wire should end at type1.south, and draw no errors.
-\TEST{BUG: the example of issue 15, with node names longer than a letter}{
+\TEST{the example of issue 15, with node names longer than a letter}{
   \PICTURE{
     \node[box=0/0/1/0, draw=none] (type1) at (-3,0) {n};
     \node[box=0/0/1/0, draw=none] (type21) at (-1,0) {n^l};
@@ -154,8 +153,7 @@
   }
 }
 
-% BUG: the error should name the node `nowhere'.
-\TEST{BUG: a wire to a node that doesn't exist}{
+\TEST{a wire to a node that doesn't exist}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \LOG{\wires{a = {north = nowhere.south}}}
