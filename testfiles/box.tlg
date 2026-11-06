@@ -78,7 +78,13 @@ a.east.1 = (60.0pt, 0.0pt)
 a.south.1 = (-40.00122pt, -60.0pt)
 ============================================================
 ============================================================
-TEST 7: TBC: the box style resets port counts set outside it
+TEST 7: port counts set outside a box reach it
+============================================================
+a.north.1 = (-30.0pt, 60.0pt)
+b.north.1 = (-30.0pt, 60.0pt)
+============================================================
+============================================================
+TEST 8: the box shape alone has no ports
 ============================================================
 ! Package string-diagrams Error: Box `a' has no port north.1, since its north side has 0.
 Type <return> to continue.
@@ -88,14 +94,29 @@ LaTeX does not know anything more about this error, sorry.
 Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
 a.north.1 = (0.0pt, 60.0pt)
-b.north.1 = (-30.0pt, 60.0pt)
-============================================================
-============================================================
-TEST 8: the box shape alone has one port per side
-============================================================
-a.north.1 = (0.0pt, 60.0pt)
+! Package string-diagrams Error: Box `a' has no port east.1, since its east side has 0.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
 a.east.1 = (60.0pt, 0.0pt)
+! Package string-diagrams Error: Box `a' has no port south.1, since its south side has 0.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
 a.south.1 = (0.0pt, -60.0pt)
+! Package string-diagrams Error: Box `a' has no port west.1, since its west side has 0.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
 a.west.1 = (-60.0pt, 0.0pt)
 ============================================================
 ============================================================

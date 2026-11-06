@@ -94,8 +94,7 @@
   }
 }
 
-% TBC: should port counts set on a scope apply to boxes in it? The box style sets them all, to 0 by default.
-\TEST{TBC: the box style resets port counts set outside it}{
+\TEST{port counts set outside a box reach it}{
   \PICTURE[box ports=2/2/2/2]{
     \node[box, square] (a) at (0pt,0pt) {};
     \node[shape=box, square] (b) at (0pt,0pt) {};
@@ -104,7 +103,7 @@
   }
 }
 
-\TEST{the box shape alone has one port per side}{
+\TEST{the box shape alone has no ports}{
   \PICTURE{
     \node[shape=box, square] (a) at (0pt,0pt) {};
     \SHOWANCHOR{a}{north.1}
