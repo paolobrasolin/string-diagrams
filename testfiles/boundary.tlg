@@ -16,18 +16,18 @@ a.west -> @.west = (-200.0pt, 10.0pt)
 TEST 2: wires between sides at right angles bend
 ============================================================
 a.east -> @.north = (197.41928pt, 200.0pt)
-a.east -> @.south = (209.7792pt, -200.0pt)
+a.east -> @.south = (200.0pt, -200.0pt)
 a.west -> @.north = (-157.41928pt, 200.0pt)
 a.west -> @.south = (-169.7792pt, -200.0pt)
 a.north -> @.east = (200.0pt, 181.23932pt)
-a.north -> @.west = (-200.0pt, 205.95917pt)
+a.north -> @.west = (-200.0pt, 200.0pt)
 a.south -> @.east = (200.0pt, -161.23932pt)
 a.south -> @.west = (-200.0pt, -185.95917pt)
 ============================================================
 ============================================================
-TEST 3: TBC: a bent wire can end past a corner of the boundary
+TEST 3: a bent wire ends at most at the corner of the boundary
 ============================================================
-a.north -> @.west = (-200.0pt, 205.95917pt)
+a.north -> @.west = (-200.0pt, 200.0pt)
 ============================================================
 ============================================================
 TEST 4: wires from ports go like wires from their side

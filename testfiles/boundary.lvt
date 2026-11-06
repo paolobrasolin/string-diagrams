@@ -59,8 +59,8 @@
   }
 }
 
-% TBC: a.north is at y=70pt, so the end sits at y=205.95917pt, above the top of the boundary at y=200pt.
-\TEST{TBC: a bent wire can end past a corner of the boundary}{
+% NOTE: a.north is at y=70pt, so the end would sit at y=205.95917pt, above the top of the boundary at y=200pt.
+\TEST{a bent wire ends at most at the corner of the boundary}{
   \PICTURE{
     \SETUP
     \TARGET{a}{north}{west}

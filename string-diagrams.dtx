@@ -492,9 +492,29 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\@@_clamp_to_node:n}
+%   Moves the point in the internal \texttt{pgf} variables to the nearest point of the bounding rectangle of the given node, if it lies outside it.
+%    \begin{macrocode}
+\dim_new:N \l_@@_x_dim
+\dim_new:N \l_@@_y_dim
+\cs_new_protected:Nn \@@_clamp_to_node:n {
+  \dim_set:Nn \l_@@_x_dim { \pgf@x }
+  \dim_set:Nn \l_@@_y_dim { \pgf@y }
+  \pgfpointanchor { #1 } { north~east }
+  \dim_set:Nn \l_@@_x_dim { \dim_min:nn { \l_@@_x_dim } { \pgf@x } }
+  \dim_set:Nn \l_@@_y_dim { \dim_min:nn { \l_@@_y_dim } { \pgf@y } }
+  \pgfpointanchor { #1 } { south~west }
+  \dim_set:Nn \l_@@_x_dim { \dim_max:nn { \l_@@_x_dim } { \pgf@x } }
+  \dim_set:Nn \l_@@_y_dim { \dim_max:nn { \l_@@_y_dim } { \pgf@y } }
+  \pgfpoint { \l_@@_x_dim } { \l_@@_y_dim }
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\@@_calctarget:nnnn}
 %   Performs the core calculation for \macro{\@@_anchors_to_proj:Nnnnn}.
 %   The result is stored in the internal \texttt{pgf} variables.
+%   A bend that would end past a corner of the boundary ends at that corner.
 %   \begin{arguments}
 %     \item source node
 %     \item source anchor
@@ -524,6 +544,7 @@
     { \A east  ; south \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } }
     { \A west  ; south \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } }
   } { #4 ; #2 }
+  \@@_clamp_to_node:n { #3 }
 }
 %    \end{macrocode}
 % \end{macro}
