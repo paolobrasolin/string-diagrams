@@ -1,108 +1,52 @@
 on:
   push:
-    branches:
-      - main
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
 jobs:
   release:
-    permissions: write-all # TODO: make this as strict as possible
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
-      #==[ Shared ]=============================================================
-
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Run labeller
-        id: labeller
+      # NOTE: pinned since this job can write to the repository and publishes to CTAN.
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+
+      - name: Check version
+        id: version
         run: |
-          git fetch --unshallow --tags
-          GIT_DESCRIPTOR=$(git describe --tags --always --exclude latest --exclude unreleased)
-          echo Detected descriptor: ${GIT_DESCRIPTOR}
-          echo "VERSION=${GIT_DESCRIPTOR#v}" >> $GITHUB_OUTPUT
-
-      - uses: DeterminateSystems/nix-installer-action@main
+          VERSION=$(nix eval --raw .#ctan.version)
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match version $VERSION in flake.nix"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Build
         run: |
-          nix develop --command make VERSION=${{ steps.labeller.outputs.version }} interpolate
-          nix develop --command make string-diagrams.tar.gz
-          cp string-diagrams.tar.gz string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
+          nix build .#ctan --print-build-logs
+          cp result string-diagrams-${{ steps.version.outputs.version }}.zip
 
-      #==[ Pre-release ]========================================================
-
-      - if: startsWith(github.ref, 'refs/heads/')
-        name: "GitHub: update pre-release"
+      - name: "GitHub: release"
         uses: docker://antonyurchenko/git-release:v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_NAME: "${{ steps.labeller.outputs.version }}"
-          UNRELEASED: "update"
-          UNRELEASED_TAG: unreleased
-          ALLOW_EMPTY_CHANGELOG: true
+          RELEASE_NAME: "${{ steps.version.outputs.version }}"
         with:
           args: |
-            string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
+            string-diagrams-${{ steps.version.outputs.version }}.zip
 
-      #==[ Release ]============================================================
-
-      - if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        name: "GitHub: delete pre-release"
-        uses: docker://antonyurchenko/git-release:v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UNRELEASED: "delete"
-          UNRELEASED_TAG: unreleased
-          ALLOW_EMPTY_CHANGELOG: true
-        with:
-          args: |
-            string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
-
-      - if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        name: "GitHub: release"
-        uses: docker://antonyurchenko/git-release:v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_NAME: "${{ steps.labeller.outputs.version }}"
-        with:
-          args: |
-            string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
-
-      - if: ${{ startsWith(github.ref, 'refs/tags/') && steps.labeller.outputs.version == '0.1.0' }}
-        name: "CTAN: submit first release"
+      - name: "CTAN: submit updated release"
         uses: paolobrasolin/ctan-submit-action@v1
         with:
           action: upload
-          file_path: string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
-          fields: |
-            update: "false"
-            pkg: string-diagrams
-            version: ${{ steps.labeller.outputs.version }}
-            uploader: Paolo Brasolin
-            email: paolo.brasolin@gmail.com
-            author: Paolo Brasolin
-            license: lppl1.3c
-            ctanPath: /graphics/pgf/contrib/string-diagrams
-            topic: diagram-maths
-            home: https://github.com/paolobrasolin/string-diagrams
-            bugs: https://github.com/paolobrasolin/string-diagrams/issues
-            repository: https://github.com/paolobrasolin/string-diagrams
-            summary: >
-              string-diagrams: Create string diagrams with LaTeX!
-            description: >
-              string-diagrams is a LaTeX package designed for effortless and aesthetically pleasing creation of string diagrams.
-            note: >
-              Extra relevant topics are: diagram maths pgf-tikz graphics
-
-      - if: ${{ startsWith(github.ref, 'refs/tags/') && steps.labeller.outputs.version != '0.1.0' }}
-        name: "CTAN: submit updated release"
-        uses: paolobrasolin/ctan-submit-action@v1
-        with:
-          action: upload
-          file_path: string-diagrams-${{ steps.labeller.outputs.version }}.tar.gz
+          file_path: string-diagrams-${{ steps.version.outputs.version }}.zip
           fields: |
             update: "true"
             pkg: string-diagrams
-            version: ${{ steps.labeller.outputs.version }}
+            version: ${{ steps.version.outputs.version }}
             uploader: Paolo Brasolin
             email: paolo.brasolin@gmail.com
