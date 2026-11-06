@@ -18,3 +18,16 @@ function update_tag(filename, content, tagname, tagdate)
 	content = string.gsub(content, "<DATE>", (string.gsub(tagdate, "-", "/")))
 	return content
 end
+
+-- NOTE: `l3build upload <version>` validates the upload with CTAN, then asks before submitting it.
+uploadconfig = {
+	author = "Paolo Brasolin",
+	uploader = "Paolo Brasolin",
+	email = "paolo.brasolin@gmail.com",
+	license = "lppl1.3c",
+	summary = "Create string diagrams with LaTeX and TikZ",
+	ctanPath = "/graphics/pgf/contrib/string-diagrams",
+	home = "https://github.com/paolobrasolin/string-diagrams",
+	repository = "https://github.com/paolobrasolin/string-diagrams",
+	bugtracker = "https://github.com/paolobrasolin/string-diagrams/issues",
+}

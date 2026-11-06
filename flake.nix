@@ -44,7 +44,8 @@
         );
 
         devShell = pkgs.mkShell {
-          packages = [texlive];
+          # NOTE: l3build uploads to CTAN with curl.
+          packages = [texlive pkgs.curl];
         };
 
         formatter = pkgs.alejandra;
