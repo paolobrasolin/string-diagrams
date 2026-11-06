@@ -6,7 +6,7 @@
 
 [ctan-shield]: https://img.shields.io/ctan/v/string-diagrams?label=CTAN
 [ctan-link]: https://ctan.org/pkg/string-diagrams
-[release-shield]: https://img.shields.io/github/v/release/paolobrasolin/string-diagrams?display_name=release&include_prereleases
+[release-shield]: https://img.shields.io/github/v/release/paolobrasolin/string-diagrams?display_name=release
 [release-link]: https://github.com/paolobrasolin/string-diagrams/releases/
 [licence-shield]: https://img.shields.io/github/license/paolobrasolin/string-diagrams
 [licence-link]: https://www.latex-project.org/lppl.txt
@@ -25,9 +25,16 @@ The only thing you need is an up-to-date LaTeX distribution including TikZ.
 
 The fastest way to hit the ground running is to download `string-diagrams` from CTAN via your package manager. For instance, TeXLive users can run `tlmgr install string-diagrams` or select `string-diagrams` from the GUI.
 
-Alternatively, you can download the package from the [CTAN page](https://www.ctan.org/pkg/string-diagrams), unzip the archive, and place `string-diagrams.sty` in your working directory.
+Alternatively, you can download the package from the [CTAN page](https://www.ctan.org/pkg/string-diagrams), unzip the archive, run `tex string-diagrams.ins` to generate `string-diagrams.sty`, and place it in your working directory.
 
-For those who always live on the edge, unreleased versions are available on the [releases page](https://github.com/paolobrasolin/string-diagrams/releases).
+For those who always live on the edge, the development version lives in this repository: generate `string-diagrams.sty` from a checkout with `tex string-diagrams.ins`, or, with Nix, take it straight from the flake, which replaces the copy shipped with TeX Live:
+
+```nix
+# inputs.string-diagrams.url = "github:paolobrasolin/string-diagrams";
+pkgs.texliveSmall.withPackages (ps: [
+  inputs.string-diagrams.packages.${pkgs.stdenv.hostPlatform.system}.default
+])
+```
 
 ### Usage
 
@@ -37,7 +44,7 @@ Detailed instructions are available in the [documentation](http://mirrors.ctan.o
 
 Got a fantastic idea? Noticed a bug? Contributions are more than welcome! Please feel free to share your thoughts via the [issue tracker](https://github.com/paolobrasolin/string-diagrams/issues).
 
-For the adventurous, you can [fork the repository](https://github.com/paolobrasolin/string-diagrams/fork), create some magic, and [submit a pull request](https://github.com/paolobrasolin/string-diagrams/pulls).
+For the adventurous, you can [fork the repository](https://github.com/paolobrasolin/string-diagrams/fork), create some magic, and [submit a pull request](https://github.com/paolobrasolin/string-diagrams/pulls). The [contributing guide](https://github.com/paolobrasolin/string-diagrams/blob/main/CONTRIBUTING.md) explains how to build and test the package.
 
 ## License
 
