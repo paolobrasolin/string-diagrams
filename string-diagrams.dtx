@@ -282,7 +282,7 @@
 % Load the essential support (\pkg{expl3}) \enquote{up-front}.
 %
 %    \begin{macrocode}
-\RequirePackage{expl3}[2023/05/11]
+\RequirePackage{expl3}[2023/06/05]
 \RequirePackage{tikz}[2023/01/15]
 %    \end{macrocode}
 %
@@ -537,8 +537,7 @@
     {
       { \A @ \. } {
         \@@_calctarget:nnnn { #4 } { #5 } { #2 } { #3 }
-        \pgfgetlastxy { \l_tmpa_dim } { \l_tmpb_dim }
-        \tl_set:Nn #1 { \l_tmpa_dim, \l_tmpb_dim }
+        \tl_set:Ne #1 { \dim_use:N \pgf@x, \dim_use:N \pgf@y }
       }
       { } { \tl_set:Nn #1 { #2.#3 } }
     }

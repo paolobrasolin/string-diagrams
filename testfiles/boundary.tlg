@@ -53,7 +53,7 @@ a.north -> @.center = (0.0pt, 0.0pt)
 TEST 7: wire ends on the boundary are computed, others are anchors
 ============================================================
 a.north -- b.south -> (a.north) = (20.0pt, 70.0pt)
-@.north -- a.north -> (\l_tmpa_dim ,\l_tmpb_dim ) = (20.0pt, 200.0pt)
+@.north -- a.north -> (20.0pt,200.0pt) = (20.0pt, 200.0pt)
 ============================================================
 ============================================================
 TEST 8: the boundary surrounds the picture

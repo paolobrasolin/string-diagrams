@@ -131,8 +131,7 @@
   }
 }
 
-% BUG: the wire should go from @.west to @.east, rather than collapse to a point.
-\TEST{BUG: a wire across the boundary}{
+\TEST{a wire across the boundary}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \LOG{\wires{@ = {west = @.east}}}
