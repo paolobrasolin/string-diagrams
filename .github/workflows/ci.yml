@@ -18,13 +18,13 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
       - run: nix flake check --print-build-logs
       - run: |
           nix build .#ctan --print-build-logs
           cp result string-diagrams-ctan.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ctan-${{ matrix.os }}
           path: string-diagrams-ctan.zip
@@ -34,7 +34,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
       - run: |
           sha256sum ctan-*/string-diagrams-ctan.zip
           cmp ctan-ubuntu-latest/string-diagrams-ctan.zip ctan-macos-latest/string-diagrams-ctan.zip
@@ -48,7 +48,7 @@ jobs:
       contents: write
     concurrency: publish
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
       - name: Check version and changelog
@@ -65,7 +65,7 @@ jobs:
           fi
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: ctan-ubuntu-latest
 
