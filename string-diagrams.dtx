@@ -628,15 +628,28 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_draw_boundary:nn}
-%   Creates the boundary node.
+% \begin{macro}{\@@_draw_boundary:,\@@_draw_boundary_around:nn}
+%   Creates the boundary node around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds).
+%   \begin{arguments}
+%     \item north east corner to surround
+%     \item south west corner to surround
+%   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_boundary: {
+  \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
+    { \@@_draw_boundary_around:nn { 0pt, 0pt } { 0pt, 0pt } }
+    {
+      \@@_draw_boundary_around:nn
+        { current~bounding~box.north~east }
+        { current~bounding~box.south~west }
+    }
+}
+\cs_new_protected:Nn \@@_draw_boundary_around:nn {
   \node [%draw, box=2/2/0/1, dashed, red,
     name=@, node~contents={},
     fit={
-      ([shift={(+2em,+1em)}]current~bounding~box.north~east)
-      ([shift={(-2em,-1em)}]current~bounding~box.south~west)
+      ([shift={(+2em,+1em)}]#1)
+      ([shift={(-2em,-1em)}]#2)
     },
   ];
 }

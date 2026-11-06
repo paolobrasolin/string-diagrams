@@ -134,8 +134,7 @@
   }
 }
 
-% BUG: the boundary should get a size even when nothing else is drawn, as in a diagram of an identity.
-\TEST{BUG: a picture with only a wire across the boundary}{
+\TEST{a picture with only a wire across the boundary}{
   \PICTURE{
     \LOG{\wires{@ = {west = @.east}}}
   }

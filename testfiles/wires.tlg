@@ -222,90 +222,15 @@ Q
 S 
 ============================================================
 ============================================================
-TEST 13: BUG: a picture with only a wire across the boundary
+TEST 13: a picture with only a wire across the boundary
 ============================================================
-! Dimension too large.
-\tikz@lib@fit ...nded=\the \pgf@x }\pgf@x =\pgf@y 
-                                                  \pgf@y =.5\pgf@y \pgfkeysa...
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<to be read again> 
-                   \relax 
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<to be read again> 
-                   \relax 
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
 q 
 0 G 
 0 g 
-! Dimension too large.
-<argument> ... {/pgf/minimum width}}\ifdim \pgf@x 
-                                                  <\pgf@xb \pgf@x =\pgf@xb \...
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<argument> ...{/pgf/minimum height}}\ifdim \pgf@y 
-                                                  <\pgf@yb \pgf@y =\pgf@yb \...
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-\pgf@process #1->{#1\global \pgf@x =\pgf@x 
-                                           \global \pgf@y =\pgf@y }
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<argument> ... {/pgf/minimum width}}\ifdim \pgf@x 
-                                                  <\pgf@xb \pgf@x =\pgf@xb \...
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<argument> ...{/pgf/minimum height}}\ifdim \pgf@y 
-                                                  <\pgf@yb \pgf@y =\pgf@yb \...
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<argument> \pgf@xc 
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<argument> \pgf@yc 
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
 Q 
-! Dimension too large.
-\pgf@process #1->{#1\global \pgf@x =\pgf@x 
-                                           \global \pgf@y =\pgf@y }
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
-! Dimension too large.
-<recently read> \pgf@xa 
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
--8163.25989 0.0 m 
--7765.416 0.0 7765.416 0.0 8163.25989 0.0 c 
+-23.44537 0.0 m 
+-5.15935 0.0 5.15935 0.0 23.44537 0.0 c 
 S 
-! Dimension too large.
-\pgfsys@typesetpicturebox ... \wd #1=\pgf@picmaxx 
-                                                  \dp #1=0pt\leavevmode \pgf...
-l. ...}
-I can't work with sizes bigger than about 19 feet.
-Continue and I'll use the largest value I can.
 ============================================================
 ============================================================
 TEST 14: a wire from an anchor that isn't on a side is an error
