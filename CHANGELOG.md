@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Report ports a box doesn't have with an error naming the box, rather than placing them outside it or dividing by zero.
+- Report wire ends that aren't on a side with an error, rather than drawing a stray curve.
 
 ## [0.2.1] - 2023-06-13
 

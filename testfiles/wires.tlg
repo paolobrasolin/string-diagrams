@@ -308,29 +308,19 @@ I can't work with sizes bigger than about 19 feet.
 Continue and I'll use the largest value I can.
 ============================================================
 ============================================================
-TEST 14: BUG: a wire from an anchor without angle
+TEST 14: a wire from an anchor that isn't on a side is an error
 ============================================================
 q 
 0 G 
 0 g 
 Q 
-! Missing number, treated as zero.
-<to be read again> 
-                   p
+! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
+Type <return> to continue.
+ ...                                              
 l. ...}
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-! Missing number, treated as zero.
-<to be read again> 
-                   p
-l. ...}
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-0.0 0.0 m 
-54.39264 0.0 0.0 85.0861 0.0 139.47876 c 
-S 
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
 ============================================================
 ============================================================
 TEST 15: a wire to a node that doesn't exist

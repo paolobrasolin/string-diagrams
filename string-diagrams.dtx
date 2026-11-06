@@ -577,7 +577,7 @@
 % \end{variable}
 %
 % \begin{macro}{\@@_draw_wire:nnnnn}
-%   Draws a wire.
+%   Draws a wire, unless an end has no angle to leave at: then it raises an error for each such end.
 %   \begin{arguments}
 %     \item \TikZ\ keys
 %     \item source node
@@ -586,21 +586,32 @@
 %     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { end-off-sides }
+  { Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~wires~end~at~north,~east,~south~or~west,~or~at~ports. }
 \cs_new_protected:Nn \@@_draw_wire:nnnnn {
   \@@_anchor_to_angle:Nnn   \l_@@_oangle_tl { #2 } { #3 }
   \@@_anchor_to_angle:Nnn   \l_@@_iangle_tl { #4 } { #5 }
-  \@@_anchors_to_proj:Nnnnn \l_@@_source_tl { #2 } { #3 } { #4 } { #5 }
-  \@@_anchors_to_proj:Nnnnn \l_@@_target_tl { #4 } { #5 } { #2 } { #3 }
+  \tl_if_empty:NT \l_@@_oangle_tl
+    { \msg_error:nnnn { string-diagrams } { end-off-sides } { #2 } { #3 } }
+  \tl_if_empty:NT \l_@@_iangle_tl
+    { \msg_error:nnnn { string-diagrams } { end-off-sides } { #4 } { #5 } }
+  \bool_lazy_or:nnF
+    { \tl_if_empty_p:N \l_@@_oangle_tl }
+    { \tl_if_empty_p:N \l_@@_iangle_tl }
+    {
+      \@@_anchors_to_proj:Nnnnn \l_@@_source_tl { #2 } { #3 } { #4 } { #5 }
+      \@@_anchors_to_proj:Nnnnn \l_@@_target_tl { #4 } { #5 } { #2 } { #3 }
 
-  \path
-    [
-      out={\tl_use:N \l_@@_oangle_tl},
-      in= {\tl_use:N \l_@@_iangle_tl},
-      draw, #1,
-    ]
-      (\tl_use:N \l_@@_source_tl) to
-      (\tl_use:N \l_@@_target_tl)
-    ;
+      \path
+        [
+          out={\tl_use:N \l_@@_oangle_tl},
+          in= {\tl_use:N \l_@@_iangle_tl},
+          draw, #1,
+        ]
+          (\tl_use:N \l_@@_source_tl) to
+          (\tl_use:N \l_@@_target_tl)
+        ;
+    }
 }
 %    \end{macrocode}
 % \end{macro}

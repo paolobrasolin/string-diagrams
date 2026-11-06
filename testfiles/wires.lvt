@@ -141,8 +141,7 @@
   }
 }
 
-% BUG: either the wire should be drawn without errors, or the error should say what's wrong.
-\TEST{BUG: a wire from an anchor without angle}{
+\TEST{a wire from an anchor that isn't on a side is an error}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \node[box, square] (b) at (0pt,200pt) {};
