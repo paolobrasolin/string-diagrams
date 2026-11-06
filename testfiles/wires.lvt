@@ -119,8 +119,8 @@
   }
 }
 
-% TBC: should wires leave a rotated box at a rotated angle? Here a.north.1 is on the left of the box, but the wire leaves upwards.
-\TEST{TBC: wires leave rotated boxes as if they weren't rotated}{
+% NOTE: directions follow the names of anchors in the frame of the picture, so rotated nodes aren't supported, as the documentation says: here a.north.1 is on the left of the box, but the wire leaves upwards.
+\TEST{wires leave rotated boxes as if they weren't rotated}{
   \PICTURE{
     \node[box=1/0/0/0, square, rotate=90] (a) at (0pt,0pt) {};
     \node[box=0/0/1/0, square] (b) at (0pt,200pt) {};
@@ -128,8 +128,8 @@
   }
 }
 
-% TBC: should rotated pictures be supported? Nodes don't turn with the picture, but the angles of wires do, so the wire from a.north.1 leaves sideways; the margins of the boundary turn too, so it's narrower than the picture, and the wire to @.east collapses to a point.
-\TEST{TBC: wires in a rotated picture}{
+% NOTE: pictures can be shifted and scaled, but not rotated or mirrored, as the documentation says: nodes don't turn with the picture, but the angles of wires do, so the wire from a.north.1 leaves sideways, and the boundary turns too, so the wire to @.east goes astray.
+\TEST{wires in a rotated picture}{
   \PICTURE[rotate=90]{
     \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
     \node[box=0/0/1/0, square] (b) at (0pt,200pt) {};
