@@ -1,7 +1,5 @@
-ctanify
 l3build
 latex-bin
-latexmk
 pdftex
 snapshot
 tex
