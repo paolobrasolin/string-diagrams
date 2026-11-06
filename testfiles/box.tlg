@@ -164,7 +164,29 @@ If that doesn't work, type X <return> to quit.
 a.center = (0.0pt, -60.0pt)
 ============================================================
 ============================================================
-TEST 14: a port count that isn't a number
+TEST 14: a single port count for box is an error
+============================================================
+! Package string-diagrams Error: Box ports take four counts, for the north, east, south and west sides, as in 1/2/1/2, not `2'.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 15: five port counts for box are an error
+============================================================
+! Package string-diagrams Error: Box ports take four counts, for the north, east, south and west sides, as in 1/2/1/2, not `1/2/3/4/5'.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 16: a port count that isn't a number
 ============================================================
 ! Package PGF Math Error: Unknown function `x' (in 'x').
 See the PGF Math package documentation for explanation.
@@ -174,6 +196,6 @@ l. ...}
 (That was another \errmessage.)
 ============================================================
 ============================================================
-TEST 15: a negative port count gives no error
+TEST 17: a negative port count gives no error
 ============================================================
 ============================================================

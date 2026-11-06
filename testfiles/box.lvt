@@ -157,7 +157,17 @@
   }
 }
 
-% NOTE: box=2, with a single port count, has its own test file (box-single-count.lvt), since it leaves TeX in a broken state.
+\TEST{a single port count for box is an error}{
+  \PICTURE{
+    \node[box=2, square] (a) at (0pt,0pt) {};
+  }
+}
+
+\TEST{five port counts for box are an error}{
+  \PICTURE{
+    \node[box=1/2/3/4/5, square] (a) at (0pt,0pt) {};
+  }
+}
 
 \TEST{a port count that isn't a number}{
   \PICTURE{
