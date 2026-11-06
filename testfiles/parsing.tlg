@@ -48,8 +48,9 @@ TEST 7: a target whose node name is longer than a letter
 [] [ab].[north] -- [cd].[south]
 ============================================================
 ============================================================
-TEST 8: TBC: a node listed twice keeps only its last wires
+TEST 8: a node listed twice keeps the wires of both entries
 ============================================================
+[] [a].[north] -- [b].[south]
 [] [a].[south] -- [c].[north]
 ============================================================
 ============================================================
@@ -58,6 +59,18 @@ TEST 9: TBC: an anchor listed twice keeps only its last wire
 [] [a].[north] -- [c].[south]
 ============================================================
 ============================================================
-TEST 10: no wires
+TEST 10: a node without wires is an error
+============================================================
+! Package string-diagrams Error: Node `a' has no wires: list them as in a = { north = b.south }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [b].[north] -- [c].[south]
+============================================================
+============================================================
+TEST 11: no wires
 ============================================================
 ============================================================

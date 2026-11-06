@@ -723,10 +723,9 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\l_@@_wires_prop,\l_@@_node_wires_prop,\l_@@_target_node_tl,\l_@@_target_anchor_tl}
-%   Scratch variables for \cmd{\@@_adj_map_function:nnN}: the wires of all nodes and of one node, and the two parts of a target.
+% \begin{variable}{\l_@@_node_wires_prop,\l_@@_target_node_tl,\l_@@_target_anchor_tl}
+%   Scratch variables for \cmd{\@@_adj_map_node:nNnn}: the wires of a node, and the two parts of a target.
 %    \begin{macrocode}
-\prop_new:N \l_@@_wires_prop
 \prop_new:N \l_@@_node_wires_prop
 \tl_new:N \l_@@_target_node_tl
 \tl_new:N \l_@@_target_anchor_tl
@@ -736,21 +735,39 @@
 % \begin{macro}{\@@_adj_map_function:nnN}
 %   Unrolls the nested dictionary of adjacencies into pairs and maps a function over them.
 %   The given list of \TikZ\ keys is passed through to the function.
+%   Nodes are read entry by entry, in order, so a node listed twice keeps the wires of both entries.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
 %     \item nested dictionary of adjacencies
 %     \item function to be mapped over pairs
 %   \end{arguments}
 %    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { node-without-wires }
+  { Node~`#1'~has~no~wires:~list~them~as~in~#1~=~\{~north~=~b.south~\}. }
 \cs_new_protected:Nn \@@_adj_map_function:nnN {
-  \prop_set_from_keyval:Nn \l_@@_wires_prop { #2 }
-  \prop_map_inline:Nn \l_@@_wires_prop {
-    \prop_set_from_keyval:Nn \l_@@_node_wires_prop { ##2 }
-    \prop_map_inline:Nn \l_@@_node_wires_prop {
-      \@@_split_node_anchor:NNn \l_@@_target_node_tl \l_@@_target_anchor_tl { ####2 }
-      \exp_args:Nnnnoo #3
-        { #1 } { ##1 } { ####1 } { \l_@@_target_node_tl } { \l_@@_target_anchor_tl }
-    }
+  \keyval_parse:nnn
+    { \msg_error:nnn { string-diagrams } { node-without-wires } }
+    { \@@_adj_map_node:nNnn { #1 } #3 }
+    { #2 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_adj_map_node:nNnn}
+%   Maps a function over the wires of one node.
+%   \begin{arguments}
+%     \item \TikZ\ keys to pass through
+%     \item function to be mapped over pairs
+%     \item node
+%     \item dictionary of its wires
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_adj_map_node:nNnn {
+  \prop_set_from_keyval:Nn \l_@@_node_wires_prop { #4 }
+  \prop_map_inline:Nn \l_@@_node_wires_prop {
+    \@@_split_node_anchor:NNn \l_@@_target_node_tl \l_@@_target_anchor_tl { ##2 }
+    \exp_args:Nnnnoo #2
+      { #1 } { #3 } { ##1 } { \l_@@_target_node_tl } { \l_@@_target_anchor_tl }
   }
 }
 %    \end{macrocode}

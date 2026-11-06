@@ -80,14 +80,17 @@
   \MAP{ab = {north = cd.south}}
 }
 
-% TBC: should both wires be drawn, or should this be an error?
-\TEST{TBC: a node listed twice keeps only its last wires}{
+\TEST{a node listed twice keeps the wires of both entries}{
   \MAP{a = {north = b.south}, a = {south = c.north}}
 }
 
 % TBC: should both wires be drawn, so that an anchor can fan out, or should this be an error?
 \TEST{TBC: an anchor listed twice keeps only its last wire}{
   \MAP{a = {north = b.south, north = c.south}}
+}
+
+\TEST{a node without wires is an error}{
+  \MAP{a, b = {north = c.south}}
 }
 
 \TEST{no wires}{
