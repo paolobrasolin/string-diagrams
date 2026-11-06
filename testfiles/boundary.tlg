@@ -43,7 +43,7 @@ a.north east -> @.east = (200.0pt, 144.15955pt)
 a.south west -> @.west = (-200.0pt, -148.8794pt)
 ============================================================
 ============================================================
-TEST 6: TBC: wires from other anchors go to the anchor of the boundary
+TEST 6: wires involving other anchors end at the anchor of the boundary
 ============================================================
 a.center -> @.north = (0.0pt, 200.0pt)
 a.north -> @.north east = (200.0pt, 200.0pt)

@@ -25,8 +25,8 @@
   }
 }
 
-% TBC: should box labels accept dollars, as other TikZ nodes do? The box style already puts them in math mode.
-\TEST{TBC: a box label in dollars breaks the node}{
+% NOTE: the box style already puts labels in math mode, so dollars in them break the node; the documentation says so.
+\TEST{a box label in dollars breaks the node}{
   % NOTE: engines log the characters lost in the null font differently, so they aren't logged.
   \tracinglostchars=0
   \PICTURE{

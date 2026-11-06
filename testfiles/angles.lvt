@@ -46,8 +46,8 @@
   \ANGLE{@}{north east}
 }
 
-% TBC: should angle anchors like 30 give their angle? Wires from anchors without angle fail (see wires.lvt).
-\TEST{TBC: other anchors have no angle}{
+% NOTE: directions come from the names of anchors, so only sides, corners and ports have one; wires from other anchors are an error (see wires.lvt).
+\TEST{other anchors have no angle}{
   \ANGLE{a}{center}
   \ANGLE{a}{mid}
   \ANGLE{a}{base}

@@ -22,7 +22,7 @@ TEST 3: the label of a box is in math mode
 math
 ============================================================
 ============================================================
-TEST 4: TBC: a box label in dollars breaks the node
+TEST 4: a box label in dollars breaks the node
 ============================================================
 ! Missing } inserted.
 <inserted text> 

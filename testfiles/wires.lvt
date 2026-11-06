@@ -99,8 +99,8 @@
   }
 }
 
-% TBC: loose ends went in a third argument up to 0.2.1, which is now silently ignored: should it give a warning?
-\TEST{TBC: a third argument of wires is ignored}{
+% NOTE: loose ends went in a third argument up to 0.2.1; they are now wires to the boundary, and the argument is no longer read.
+\TEST{a third argument of wires is ignored}{
   % NOTE: engines log the characters lost in the null font differently, so they aren't logged.
   \tracinglostchars=0
   \PICTURE{

@@ -85,8 +85,8 @@
   }
 }
 
-% TBC: should these wires get a computed end too, or be an error?
-\TEST{TBC: wires from other anchors go to the anchor of the boundary}{
+% NOTE: \wires stops wires from anchors without a direction before they get here (see wires.lvt); wires to other anchors of the boundary, such as its corners, end at them.
+\TEST{wires involving other anchors end at the anchor of the boundary}{
   \PICTURE{
     \SETUP
     \TARGET{a}{center}{north}
