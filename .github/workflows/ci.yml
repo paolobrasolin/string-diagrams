@@ -64,8 +64,13 @@ jobs:
             echo "CHANGELOG.md has no notes for version $VERSION"
             exit 1
           fi
-          # NOTE: CTAN announcements are plain text emails, and l3build trims the leading blank lines.
-          awk 'BEGIN { print "Changes in this release:" } /^### / { print ""; print substr($0, 5) ":"; next } /^[ \t]*$/ { next } { gsub("`", ""); print }' notes.md > announcement.txt
+          # NOTE: CTAN only announces major upgrades, so a summary before the first heading of the changelog entry opts in and becomes the (plain text) announcement.
+          awk '/^### / { exit } { gsub("`", ""); print }' notes.md > announcement.txt
+          if grep -q '[^[:space:]]' announcement.txt; then
+            echo "CTAN will announce this release with the summary from CHANGELOG.md."
+          else
+            echo "No summary in CHANGELOG.md, so CTAN will not announce this release."
+          fi
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

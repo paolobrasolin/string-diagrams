@@ -33,8 +33,9 @@ Builds are reproducible: the version comes from `flake.nix`, and the date comes 
 1. Prepare a release commit:
    - set `version` in `flake.nix` to the new version (e.g. `0.3.0`);
    - move the `[Unreleased]` entries of `CHANGELOG.md` to a section for the new version, and update the links at the bottom;
+   - if the release is a major upgrade worth announcing, start that section with a short summary of the improvements, before its first `###` heading (CTAN doesn't announce bug fixes or minor additions, and without a summary nothing is announced);
    - add the matching `\changes` entries to `string-diagrams.dtx`.
-2. Tag the commit with the version prefixed by `v` (e.g. `v0.3.0`) and push the tag. CI builds and checks it on Linux and macOS, checks that the tag matches `flake.nix` and that the changelog has notes for it, and validates the upload with CTAN. Only then does it publish a GitHub release and upload the zip to CTAN, using the changelog notes for both the release and the CTAN announcement. If anything fails, fix it and rerun the job.
+2. Tag the commit with the version prefixed by `v` (e.g. `v0.3.0`) and push the tag. CI builds and checks it on Linux and macOS, checks that the tag matches `flake.nix` and that the changelog has notes for it, and validates the upload with CTAN. Only then does it publish a GitHub release with the changelog notes and upload the zip to CTAN, using the summary, if any, as the announcement. If anything fails, fix it and rerun the job.
 3. Set `version` in `flake.nix` to the next development version (e.g. `0.3.1-dev`).
 
 To validate an upload with CTAN from your machine, put the zip in place with `nix build .#ctan && cp result string-diagrams-ctan.zip`, run `l3build upload <version>`, and answer `n` when asked whether to submit it.
