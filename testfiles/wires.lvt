@@ -51,6 +51,16 @@
   }
 }
 
+\TEST{fan-out and fan-in}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (-100pt,200pt) {};
+    \node[box=0/0/1/0, square] (c) at (100pt,200pt) {};
+    \LOG{\wires{a = {north.1 = b.south.1, north.1 = c.south.1}}}
+    \LOG{\wires{b = {north = @.north}, c = {north = b.north}}}
+  }
+}
+
 \TEST{the example of boxes and the boundary in the documentation}{
   \PICTURE[scale=0.6]{
     \node[box=0/2/0/1] (A) at (-2, 0) {A};

@@ -54,8 +54,9 @@ TEST 8: a node listed twice keeps the wires of both entries
 [] [a].[south] -- [c].[north]
 ============================================================
 ============================================================
-TEST 9: TBC: an anchor listed twice keeps only its last wire
+TEST 9: an anchor listed twice fans out
 ============================================================
+[] [a].[north] -- [b].[south]
 [] [a].[north] -- [c].[south]
 ============================================================
 ============================================================
@@ -71,6 +72,18 @@ If that doesn't work, type X <return> to quit.
 [] [b].[north] -- [c].[south]
 ============================================================
 ============================================================
-TEST 11: no wires
+TEST 11: an anchor without target is an error
+============================================================
+! Package string-diagrams Error: Wire end `a.north' has no target: give it one as in north = b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [a].[south] -- [b].[north]
+============================================================
+============================================================
+TEST 12: no wires
 ============================================================
 ============================================================

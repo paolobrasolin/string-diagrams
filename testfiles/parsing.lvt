@@ -84,13 +84,16 @@
   \MAP{a = {north = b.south}, a = {south = c.north}}
 }
 
-% TBC: should both wires be drawn, so that an anchor can fan out, or should this be an error?
-\TEST{TBC: an anchor listed twice keeps only its last wire}{
+\TEST{an anchor listed twice fans out}{
   \MAP{a = {north = b.south, north = c.south}}
 }
 
 \TEST{a node without wires is an error}{
   \MAP{a, b = {north = c.south}}
+}
+
+\TEST{an anchor without target is an error}{
+  \MAP{a = {north, south = b.north}}
 }
 
 \TEST{no wires}{
