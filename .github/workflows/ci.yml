@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
-      - name: Check version and changelog
+      - name: Check version and prepare release notes
         run: |
           VERSION=$(nix eval --raw .#ctan.version)
           if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
@@ -63,6 +63,8 @@ jobs:
             echo "CHANGELOG.md has no notes for version $VERSION"
             exit 1
           fi
+          # NOTE: CTAN announcements are plain text emails, and l3build trims the leading blank lines.
+          awk 'BEGIN { print "Changes in this release:" } /^### / { print ""; print substr($0, 5) ":"; next } /^[ \t]*$/ { next } { gsub("`", ""); print }' notes.md > announcement.txt
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
       - uses: actions/download-artifact@v8
@@ -71,7 +73,7 @@ jobs:
 
       # NOTE: l3build validates the upload, then asks whether to submit it.
       - name: "CTAN: validate"
-        run: echo n | nix develop --command l3build upload --file notes.md "$VERSION"
+        run: echo n | nix develop --command l3build upload --file announcement.txt "$VERSION"
 
       - name: "GitHub: release"
         env:
@@ -82,4 +84,4 @@ jobs:
           gh release upload "$GITHUB_REF_NAME" "string-diagrams-$VERSION.zip" --clobber
 
       - name: "CTAN: upload"
-        run: echo y | nix develop --command l3build upload --file notes.md "$VERSION"
+        run: echo y | nix develop --command l3build upload --file announcement.txt "$VERSION"
