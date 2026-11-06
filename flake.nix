@@ -155,7 +155,6 @@
               cat > test.tex <<'EOF'
               \documentclass{article}
               \usepackage{string-diagrams}
-              \usetikzlibrary{fit} % TODO: drop once the package loads it
               \begin{document}
               \begin{tikzpicture}
                 \node[box=0/1/0/1] (A) {A};

@@ -1,8 +1,5 @@
 \input stridi-test.tex\relax
 
-% NOTE: \wires needs the fit library, which the package doesn't load (see no-fit.lvt).
-\usetikzlibrary{fit}
-
 \begin{document}
 
 \START

@@ -1,8 +1,5 @@
 \input stridi-test.tex\relax
 
-% NOTE: \wires needs the fit library, which the package doesn't load (see no-fit.lvt).
-\usetikzlibrary{fit}
-
 \ExplSyntaxOn
 
 % \TARGET{<node>}{<anchor>}{<anchor of @>}: log where a wire from an anchor reaches the boundary.
