@@ -523,6 +523,13 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{variable}{\l_@@_angle_int}
+%   Scratch variable for \cmd{\@@_anchor_to_angle:Nnn}.
+%    \begin{macrocode}
+\int_new:N \l_@@_angle_int
+%    \end{macrocode}
+% \end{variable}
+%
 % \begin{macro}{\@@_anchor_to_angle:Nnn}
 %   Calculates in/out angle given a node/anchor pair.
 %   Accounts for when the node is the boundary.
@@ -536,16 +543,16 @@
 \cs_new_protected:Nn \@@_anchor_to_angle:Nnn {
   \regex_match_case:nnTF
     {
-      { \A north \b } { \int_set:Nn \l_tmpa_int {  90 } }
-      { \A east  \b } { \int_set:Nn \l_tmpa_int {   0 } }
-      { \A south \b } { \int_set:Nn \l_tmpa_int { -90 } }
-      { \A west  \b } { \int_set:Nn \l_tmpa_int { 180 } }
+      { \A north \b } { \int_set:Nn \l_@@_angle_int {  90 } }
+      { \A east  \b } { \int_set:Nn \l_@@_angle_int {   0 } }
+      { \A south \b } { \int_set:Nn \l_@@_angle_int { -90 } }
+      { \A west  \b } { \int_set:Nn \l_@@_angle_int { 180 } }
     }
     { #3 }
     {
       \str_if_eq:nnTF { @ } { #2 }
-        { \int_sub:Nn \l_tmpa_int { 180 } } { }
-      \tl_set:Nf #1 { \int_use:N \l_tmpa_int }
+        { \int_sub:Nn \l_@@_angle_int { 180 } } { }
+      \tl_set:Nf #1 { \int_use:N \l_@@_angle_int }
     }
     { \tl_clear:N #1 }
 }
@@ -656,6 +663,13 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{variable}{\l_@@_split_seq}
+%   Scratch variable for \cmd{\@@_split_node_anchor:NNn}.
+%    \begin{macrocode}
+\seq_new:N \l_@@_split_seq
+%    \end{macrocode}
+% \end{variable}
+%
 % \begin{macro}{\@@_split_node_anchor:NNn}
 %   Parses a token list into a node/anchor pair.
 %   \begin{arguments}
@@ -665,10 +679,10 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_split_node_anchor:NNn {
-  \regex_extract_once:nnN { ([^\.]*) \.? (.*) } { #3 } \l_tmpa_seq
-  \seq_pop:NN \l_tmpa_seq \l_tmpa_tl  % discard match
-  \seq_pop:NN \l_tmpa_seq #1          % keep 1st matching group (node)
-  \seq_pop:NN \l_tmpa_seq #2          % keep 2nd matching group (anchor)
+  \regex_extract_once:nnN { ([^\.]*) \.? (.*) } { #3 } \l_@@_split_seq
+  \seq_pop:NN \l_@@_split_seq #1  % discard match
+  \seq_pop:NN \l_@@_split_seq #1  % keep 1st matching group (node)
+  \seq_pop:NN \l_@@_split_seq #2  % keep 2nd matching group (anchor)
 }
 %    \end{macrocode}
 % \end{macro}
@@ -680,6 +694,16 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{variable}{\l_@@_wires_prop,\l_@@_node_wires_prop,\l_@@_target_node_tl,\l_@@_target_anchor_tl}
+%   Scratch variables for \cmd{\@@_adj_map_function:nnN}: the wires of all nodes and of one node, and the two parts of a target.
+%    \begin{macrocode}
+\prop_new:N \l_@@_wires_prop
+\prop_new:N \l_@@_node_wires_prop
+\tl_new:N \l_@@_target_node_tl
+\tl_new:N \l_@@_target_anchor_tl
+%    \end{macrocode}
+% \end{variable}
+%
 % \begin{macro}{\@@_adj_map_function:nnN}
 %   Unrolls the nested dictionary of adjacencies into pairs and maps a function over them.
 %   The given list of \TikZ\ keys is passed through to the function.
@@ -690,13 +714,13 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_adj_map_function:nnN {
-  \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
-  \prop_map_inline:Nn \l_tmpa_prop {
-    \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
-    \prop_map_inline:Nn \l_tmpb_prop {
-      \@@_split_node_anchor:NNn \l_tmpa_tl \l_tmpb_tl { ####2 }
+  \prop_set_from_keyval:Nn \l_@@_wires_prop { #2 }
+  \prop_map_inline:Nn \l_@@_wires_prop {
+    \prop_set_from_keyval:Nn \l_@@_node_wires_prop { ##2 }
+    \prop_map_inline:Nn \l_@@_node_wires_prop {
+      \@@_split_node_anchor:NNn \l_@@_target_node_tl \l_@@_target_anchor_tl { ####2 }
       \exp_args:Nnnnoo #3
-        { #1 } { ##1 } { ####1 } { \l_tmpa_tl } { \l_tmpb_tl }
+        { #1 } { ##1 } { ####1 } { \l_@@_target_node_tl } { \l_@@_target_anchor_tl }
     }
   }
 }
