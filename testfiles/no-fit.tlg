@@ -16,18 +16,6 @@ q
 0 G 
 0 g 
 Q 
-! LaTeX Error: Inconsistent local/global assignment
-For immediate help type H <return>.
- ...                                              
-l. ...}
-This is a coding error.
-Global assignment to a local variable '\l__stridi_source_tl'.
-! LaTeX Error: Inconsistent local/global assignment
-For immediate help type H <return>.
- ...                                              
-l. ...}
-This is a coding error.
-Global assignment to a local variable '\l__stridi_target_tl'.
 0.0 59.77661 m 
 0.0 90.85806 0.0 108.3973 0.0 139.47876 c 
 S 

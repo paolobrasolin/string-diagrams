@@ -538,9 +538,9 @@
       { \A @ \. } {
         \@@_calctarget:nnnn { #4 } { #5 } { #2 } { #3 }
         \pgfgetlastxy { \l_tmpa_dim } { \l_tmpb_dim }
-        \tl_gset:Nn #1 { \l_tmpa_dim, \l_tmpb_dim }
+        \tl_set:Nn #1 { \l_tmpa_dim, \l_tmpb_dim }
       }
-      { } { \tl_gset:Nn #1 { #2.#3 } }
+      { } { \tl_set:Nn #1 { #2.#3 } }
     }
     { #2.#3 }
 }
