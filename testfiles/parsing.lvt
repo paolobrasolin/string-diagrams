@@ -71,8 +71,8 @@
   \MAP[looseness=1.5, -stealth]{a = {north = b.south}}
 }
 
-% TBC: what should a target without anchor mean? \wires passes it on as (b.).
-\TEST{TBC: a target without anchor}{
+% NOTE: \wires reports such a target as an error (see wires.lvt).
+\TEST{a target without anchor has an empty anchor}{
   \MAP{a = {north = b}}
 }
 

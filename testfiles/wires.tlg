@@ -328,7 +328,22 @@ l. ...}
 S 
 ============================================================
 ============================================================
-TEST 19: a wire from a port that doesn't exist
+TEST 19: a wire to a node without anchor is an error
+============================================================
+q 
+0 G 
+0 g 
+Q 
+! Package string-diagrams Error: Wire end `b' has no anchor, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 20: a wire from a port that doesn't exist
 ============================================================
 q 
 0 G 

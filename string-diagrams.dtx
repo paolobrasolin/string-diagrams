@@ -605,6 +605,29 @@
 %    \end{macrocode}
 % \end{variable}
 %
+% \begin{macro}{\@@_check_end:nnN}
+%   Raises an error if a wire end has no angle to leave at, saying whether it has no anchor or an anchor off the sides.
+%   \begin{arguments}
+%     \item node
+%     \item anchor
+%     \item token list variable holding the angle
+%   \end{arguments}
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { end-without-anchor }
+  { Wire~end~`#1'~has~no~anchor,~so~the~wire~is~not~drawn. }
+\msg_new:nnn { string-diagrams } { end-off-sides }
+  { Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~wires~end~at~north,~east,~south~or~west,~or~at~ports. }
+\cs_new_protected:Nn \@@_check_end:nnN {
+  \tl_if_empty:NT #3
+    {
+      \tl_if_blank:nTF { #2 }
+        { \msg_error:nnn { string-diagrams } { end-without-anchor } { #1 } }
+        { \msg_error:nnnn { string-diagrams } { end-off-sides } { #1 } { #2 } }
+    }
+}
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\@@_draw_wire:nnnnn}
 %   Draws a wire, unless an end has no angle to leave at: then it raises an error for each such end.
 %   \begin{arguments}
@@ -615,15 +638,11 @@
 %     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\msg_new:nnn { string-diagrams } { end-off-sides }
-  { Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~wires~end~at~north,~east,~south~or~west,~or~at~ports. }
 \cs_new_protected:Nn \@@_draw_wire:nnnnn {
   \@@_anchor_to_angle:Nnn   \l_@@_oangle_tl { #2 } { #3 }
   \@@_anchor_to_angle:Nnn   \l_@@_iangle_tl { #4 } { #5 }
-  \tl_if_empty:NT \l_@@_oangle_tl
-    { \msg_error:nnnn { string-diagrams } { end-off-sides } { #2 } { #3 } }
-  \tl_if_empty:NT \l_@@_iangle_tl
-    { \msg_error:nnnn { string-diagrams } { end-off-sides } { #4 } { #5 } }
+  \@@_check_end:nnN { #2 } { #3 } \l_@@_oangle_tl
+  \@@_check_end:nnN { #4 } { #5 } \l_@@_iangle_tl
   \bool_lazy_or:nnF
     { \tl_if_empty_p:N \l_@@_oangle_tl }
     { \tl_if_empty_p:N \l_@@_iangle_tl }

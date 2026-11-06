@@ -178,6 +178,14 @@
   }
 }
 
+\TEST{a wire to a node without anchor is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (0pt,200pt) {};
+    \LOG{\wires{a = {north = b}}}
+  }
+}
+
 \TEST{a wire from a port that doesn't exist}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
