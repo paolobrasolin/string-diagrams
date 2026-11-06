@@ -1,0 +1,81 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: wires between facing sides go straight
+============================================================
+a.north -> @.north = (20.0pt, 200.0pt)
+a.south -> @.north = (20.0pt, 200.0pt)
+a.north -> @.south = (20.0pt, -200.0pt)
+a.south -> @.south = (20.0pt, -200.0pt)
+a.east -> @.east = (200.0pt, 10.0pt)
+a.west -> @.east = (200.0pt, 10.0pt)
+a.east -> @.west = (-200.0pt, 10.0pt)
+a.west -> @.west = (-200.0pt, 10.0pt)
+============================================================
+============================================================
+TEST 2: wires between sides at right angles bend
+============================================================
+a.east -> @.north = (197.41928pt, 200.0pt)
+a.east -> @.south = (209.7792pt, -200.0pt)
+a.west -> @.north = (-157.41928pt, 200.0pt)
+a.west -> @.south = (-169.7792pt, -200.0pt)
+a.north -> @.east = (200.0pt, 181.23932pt)
+a.north -> @.west = (-200.0pt, 205.95917pt)
+a.south -> @.east = (200.0pt, -161.23932pt)
+a.south -> @.west = (-200.0pt, -185.95917pt)
+============================================================
+============================================================
+TEST 3: TBC: a bent wire can end past a corner of the boundary
+============================================================
+a.north -> @.west = (-200.0pt, 205.95917pt)
+============================================================
+============================================================
+TEST 4: wires from ports go like wires from their side
+============================================================
+a.north.1 -> @.north = (20.0pt, 200.0pt)
+a.east.1 -> @.north = (197.41928pt, 200.0pt)
+============================================================
+============================================================
+TEST 5: TBC: wires from corners go like wires from the side named first
+============================================================
+a.north east -> @.north = (80.0pt, 200.0pt)
+a.north east -> @.east = (200.0pt, 144.15955pt)
+a.south west -> @.west = (-200.0pt, -148.8794pt)
+============================================================
+============================================================
+TEST 6: TBC: wires from other anchors go to the anchor of the boundary
+============================================================
+a.center -> @.north = (0.0pt, 200.0pt)
+a.north -> @.north east = (200.0pt, 200.0pt)
+a.north -> @.center = (0.0pt, 0.0pt)
+============================================================
+============================================================
+TEST 7: wire ends on the boundary are computed, others are anchors
+============================================================
+! LaTeX Error: Inconsistent local/global assignment
+For immediate help type H <return>.
+ ...                                              
+l. ...}
+This is a coding error.
+Global assignment to a local variable '\l_test_end_tl'.
+a.north -- b.south -> (a.north) = (20.0pt, 70.0pt)
+! LaTeX Error: Inconsistent local/global assignment
+For immediate help type H <return>.
+ ...                                              
+l. ...}
+This is a coding error.
+Global assignment to a local variable '\l_test_end_tl'.
+@.north -- a.north -> (\l_tmpa_dim ,\l_tmpb_dim ) = (20.0pt, 200.0pt)
+============================================================
+============================================================
+TEST 8: the boundary surrounds the picture
+============================================================
+@.north east = (83.733pt, 73.73299pt)
+@.south west = (-83.733pt, -73.73299pt)
+============================================================
+============================================================
+TEST 9: TBC: each call of wires makes a bigger boundary
+============================================================
+@.north east = (83.733pt, 73.73299pt)
+@.north east = (107.06601pt, 87.06598pt)
+============================================================

@@ -3,3 +3,4 @@ latex-bin
 pdftex
 snapshot
 tex
+xetex

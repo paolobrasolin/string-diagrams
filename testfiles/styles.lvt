@@ -1,0 +1,51 @@
+\input stridi-test.tex\relax
+
+\begin{document}
+
+\START
+
+\TEST{a box is drawn}{
+  \PICTURE{
+    \LOG{\node[box] (a) at (0pt,0pt) {};}
+  }
+}
+
+\TEST{a box is at least 2em wide and high, with .5em of padding}{
+  \PICTURE{
+    \node[box] (a) at (0pt,0pt) {};
+    \node[box] (b) at (0pt,0pt) {\rule{30pt}{0pt}};
+    \SHOWANCHOR{a}{north east}
+    \SHOWANCHOR{b}{north east}
+  }
+}
+
+\TEST{the label of a box is in math mode}{
+  \PICTURE{
+    \node[box] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+  }
+}
+
+% TBC: should box labels accept dollars, as other TikZ nodes do? The box style already puts them in math mode.
+\TEST{TBC: a box label in dollars breaks the node}{
+  % NOTE: engines log the characters lost in the null font differently, so they aren't logged.
+  \tracinglostchars=0
+  \PICTURE{
+    \node[box] (a) at (0pt,0pt) {$f$};
+  }
+}
+
+\TEST{a dot is filled}{
+  \PICTURE{
+    \LOG{\node[dot] (a) at (0pt,0pt) {};}
+  }
+}
+
+\TEST{a dot is .4em wide}{
+  \PICTURE{
+    \node[dot] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north}
+    \SHOWANCHOR{a}{east}
+  }
+}
+
+\END

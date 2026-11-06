@@ -18,6 +18,12 @@ Everything comes from the Nix flake: `nix develop` (or [direnv](https://direnv.n
 
 Run `l3build` commands inside the development shell.
 
+## Tests
+
+The regression tests in `testfiles/` record what the package does: `l3build check` runs them with pdfTeX, XeTeX and LuaTeX, and compares their logs with the `.tlg` files. They all start from `testfiles/support/stridi-test.tex`, which sets them up and provides helpers to log points, anchors and drawings.
+
+A test whose title starts with `BUG:` records behavior known to be wrong, and a comment above it says what should happen instead. `TBC:` marks behavior that is yet to be confirmed as intended, with the open question in a comment. The fix or decision drops the prefix and updates the `.tlg` files.
+
 ## Dependencies
 
 The TeX Live packages we need are listed in `dependencies/`: `runtime` is what the package loads, `build` is what its documentation loads, and `dev` is the tooling.

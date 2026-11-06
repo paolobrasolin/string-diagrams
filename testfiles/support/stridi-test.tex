@@ -1,0 +1,62 @@
+% Shared setup of the regression tests: `\input stridi-test.tex\relax` at the top of each test.
+%
+% The package is loaded here, before \START, so that its version line never reaches the part of the log compared with the .tlg files: `l3build ctan` runs the tests after `l3build tag` has stamped the version.
+% expl3's debug checks are on, so the tests also catch misused variables and deprecated functions.
+\input regression-test.tex\relax
+\documentclass{article}
+\RequirePackage[enable-debug]{expl3}
+\ExplSyntaxOn
+\debug_on:n { check-declarations , check-expressions , deprecation }
+\ExplSyntaxOff
+\RequirePackage{string-diagrams}
+
+% Use Computer Modern on all engines: XeTeX and LuaTeX default to Latin Modern, whose slightly different em would change every size based on it.
+\renewcommand\encodingdefault{OT1}
+\renewcommand\rmdefault{cmr}
+
+% Load the math fonts before \START, so the font messages of the first box label don't reach the logs.
+\AtBeginDocument{\sbox0{$x$}}
+
+% NOTE: TikZ remembers node names across pictures, so a test about a missing node must use a name that no other test defines.
+
+% \PICTURE[<options>]{<code>}: typeset a tikzpicture in a box that is never shipped out.
+\NewDocumentCommand\PICTURE{O{}+m}{%
+  \setbox0\hbox{\begin{tikzpicture}[#1]#2\end{tikzpicture}}%
+}
+
+\makeatletter
+
+% \LOG{<code>}: in a picture, log the PDF operators that <code> draws with, leaving out node labels.
+% NOTE: each driver places labels with its own operators, so they're dropped to keep the logs the same on all engines.
+% NOTE: colors are set through the color stack rather than PDF operators, so they don't show.
+\protected\long\def\LOG#1{%
+  \begingroup
+    \def\pgfsys@invoke##1{\TYPE{##1}}%
+    \def\pgfsys@hbox##1{}%
+    \def\pgfsys@hboxsynced##1{}%
+    #1%
+  \endgroup
+}
+
+% \SHOWPOINT{<label>}{<pgf point>}: log the coordinates of a point.
+\protected\long\def\SHOWPOINT#1#2{%
+  #2%
+  \TYPE{#1 = (\the\pgf@x, \the\pgf@y)}%
+}
+
+% \SHOWANCHOR{<node>}{<anchor>}: log the coordinates of an anchor.
+\protected\def\SHOWANCHOR#1#2{%
+  \SHOWPOINT{#1.#2}{\pgfpointanchor{#1}{#2}}%
+}
+
+% \SHOWCOORD{<coordinate>}: log the point that TikZ makes of a coordinate.
+\protected\def\SHOWCOORD#1{%
+  \SHOWPOINT{(#1)}{\tikz@scan@one@point\pgfutil@firstofone(#1)}%
+}
+
+\makeatother
+
+% A box size that gives round coordinates.
+\tikzset{
+  square/.style={minimum size=120pt, inner sep=0pt, outer sep=0pt},
+}

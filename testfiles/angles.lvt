@@ -1,0 +1,61 @@
+\input stridi-test.tex\relax
+
+\ExplSyntaxOn
+
+\tl_new:N \l_test_angle_tl
+
+% \ANGLE{<node>}{<anchor>}: log the angle at which a wire leaves an anchor.
+\NewDocumentCommand \ANGLE { m m }
+  {
+    \__stridi_anchor_to_angle:Nnn \l_test_angle_tl { #1 } { #2 }
+    \TYPE { #1 . #2 ~ -> ~ [ \tl_to_str:N \l_test_angle_tl ] }
+  }
+
+\ExplSyntaxOff
+
+\begin{document}
+
+\START
+
+\TEST{wires leave sides outwards}{
+  \ANGLE{a}{north}
+  \ANGLE{a}{east}
+  \ANGLE{a}{south}
+  \ANGLE{a}{west}
+}
+
+\TEST{wires leave ports like their side}{
+  \ANGLE{a}{north.1}
+  \ANGLE{a}{east.2}
+  \ANGLE{a}{south.3}
+  \ANGLE{a}{west.4}
+}
+
+\TEST{wires leave the boundary inwards}{
+  \ANGLE{@}{north}
+  \ANGLE{@}{east}
+  \ANGLE{@}{south}
+  \ANGLE{@}{west}
+}
+
+% TBC: should wires leave corners diagonally, e.g. at 45 degrees from north east?
+\TEST{TBC: wires leave corners like the first word of their name}{
+  \ANGLE{a}{north east}
+  \ANGLE{a}{north west}
+  \ANGLE{a}{south east}
+  \ANGLE{a}{south west}
+  \ANGLE{@}{north east}
+}
+
+% TBC: should angle anchors like 30 give their angle? Wires from anchors without angle fail (see wires.lvt).
+\TEST{TBC: other anchors have no angle}{
+  \ANGLE{a}{center}
+  \ANGLE{a}{mid}
+  \ANGLE{a}{base}
+  \ANGLE{a}{30}
+  \ANGLE{a}{northern}
+  \ANGLE{a}{}
+  \ANGLE{@}{center}
+}
+
+\END

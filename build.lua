@@ -1,6 +1,6 @@
 module = "string-diagrams"
 
-checkengines = { "pdftex" } --, "xetex", "luatex" }
+checkengines = { "pdftex", "xetex", "luatex" }
 
 -- NOTE: CTAN maintainers prefer a flat upload (no TDS zip) for simple packages.
 packtdszip = false

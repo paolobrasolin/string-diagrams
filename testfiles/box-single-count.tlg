@@ -1,0 +1,35 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: BUG: a single port count for box
+============================================================
+! Argument of \pgfkeys@code has an extra }.
+<inserted text> 
+                \par 
+l. ...}
+I've run across a `}' that doesn't seem to match anything.
+For example, `\def\a#1{...}' and `\a}' would produce
+this error. If you simply proceed now, the `\par' that
+I've just inserted will cause me to report a runaway
+argument that might be the root of the problem. But if
+your `}' was spurious, just type `2' and it will go away.
+Runaway argument?
+2\pgfeov \fi \fi \pgfkeys@parse  ,\pgfkeys@mainstop \fi \fi \pgfkeys@parse \ETC.
+! Paragraph ended before \pgfkeys@code was complete.
+<to be read again> 
+                   \par 
+l. ...}
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+! Extra }, or forgotten \endgroup.
+<recently read> }
+l. ...}
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+============================================================
+Bad grouping: 19!
+Bad conditionals: 4!

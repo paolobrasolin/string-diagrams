@@ -1,0 +1,100 @@
+\input stridi-test.tex\relax
+
+\ExplSyntaxOn
+
+\tl_new:N \l_test_node_tl
+\tl_new:N \l_test_anchor_tl
+
+% \SPLIT{<end>}: log how the end of a wire is split into node and anchor.
+\NewDocumentCommand \SPLIT { m }
+  {
+    \__stridi_split_node_anchor:NNn \l_test_node_tl \l_test_anchor_tl { #1 }
+    \TYPE
+      {
+        \tl_to_str:n { #1 } ~ -> ~
+        node ~ [ \tl_to_str:N \l_test_node_tl ] ~
+        anchor ~ [ \tl_to_str:N \l_test_anchor_tl ]
+      }
+  }
+
+\cs_new_protected:Npn \test_log_wire:nnnnn #1#2#3#4#5
+  {
+    \TYPE
+      {
+        [ \tl_to_str:n { #1 } ] ~
+        [ \tl_to_str:n { #2 } ] . [ \tl_to_str:n { #3 } ] ~ -- ~
+        [ \tl_to_str:n { #4 } ] . [ \tl_to_str:n { #5 } ]
+      }
+  }
+
+% \MAP[<keys>]{<connectivity>}: log the wires that \wires would draw, as [keys] [node].[anchor] -- [node].[anchor].
+\NewDocumentCommand \MAP { O{} m }
+  { \__stridi_adj_map_function:nnN { #1 } { #2 } \test_log_wire:nnnnn }
+
+\ExplSyntaxOff
+
+\begin{document}
+
+\START
+
+\TEST{splitting ends into node and anchor}{
+  \SPLIT{a.north}
+  \SPLIT{a.north.1}
+  \SPLIT{a.north east}
+  \SPLIT{@.west}
+  \SPLIT{a}
+  \SPLIT{a.}
+  \SPLIT{.north}
+}
+
+% BUG: the nodes should be [ab], [box1], [my node] and [ab].
+\TEST{BUG: node names longer than a letter keep only their last letter}{
+  \SPLIT{ab.north}
+  \SPLIT{box1.north.1}
+  \SPLIT{my node.north}
+  \SPLIT{ab}
+}
+
+\TEST{one wire}{
+  \MAP{a = {north = b.south}}
+}
+
+\TEST{wires come in order, with spaces trimmed}{
+  \MAP{
+    a = { east.1 = c.west
+        , east.2 = d.west
+        , west = @.west },
+    b = { east = @.east },
+  }
+}
+
+\TEST{keys are passed through}{
+  \MAP[looseness=1.5, -stealth]{a = {north = b.south}}
+}
+
+% TBC: what should a target without anchor mean? \wires passes it on as (b.).
+\TEST{TBC: a target without anchor}{
+  \MAP{a = {north = b}}
+}
+
+% BUG: the target should be [cd].
+\TEST{BUG: a target whose node name is longer than a letter keeps only its last letter}{
+  \MAP{ab = {north = cd.south}}
+}
+
+% TBC: should both wires be drawn, or should this be an error?
+\TEST{TBC: a node listed twice keeps only its last wires}{
+  \MAP{a = {north = b.south}, a = {south = c.north}}
+}
+
+% TBC: should both wires be drawn, so that an anchor can fan out, or should this be an error?
+\TEST{TBC: an anchor listed twice keeps only its last wire}{
+  \MAP{a = {north = b.south, north = c.south}}
+}
+
+\TEST{no wires}{
+  \MAP{}
+  \MAP{a = {}}
+}
+
+\END

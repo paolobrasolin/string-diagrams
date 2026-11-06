@@ -1,0 +1,129 @@
+\input stridi-test.tex\relax
+
+% NOTE: \wires needs the fit library, which the package doesn't load (see no-fit.lvt).
+\usetikzlibrary{fit}
+
+\ExplSyntaxOn
+
+% \TARGET{<node>}{<anchor>}{<anchor of @>}: log where a wire from an anchor reaches the boundary.
+\NewDocumentCommand \TARGET { m m m }
+  {
+    \SHOWPOINT { #1.#2 ~ -> ~ @.#3 }
+      { \__stridi_calctarget:nnnn { #1 } { #2 } { @ } { #3 } }
+  }
+
+\tl_new:N \l_test_end_tl
+
+% \PROJ{<node>}{<anchor>}{<node>}{<anchor>}: log the end that the first node and anchor give to a wire, as stored and as TikZ reads it.
+\NewDocumentCommand \PROJ { m m m m }
+  {
+    \__stridi_anchors_to_proj:Nnnnn \l_test_end_tl { #1 } { #2 } { #3 } { #4 }
+    \SHOWPOINT { #1.#2 ~ -- ~ #3.#4 ~ -> ~ ( \tl_to_str:N \l_test_end_tl ) }
+      { \use:c { tikz@scan@one@point } \use:n ( \l_test_end_tl ) }
+  }
+
+\ExplSyntaxOff
+
+% A boundary with sides at 200pt from the origin, and a box beside its center.
+\newcommand\SETUP{
+  \node[minimum size=400pt, inner sep=0pt, outer sep=0pt] (@) at (0pt,0pt) {};
+  \node[box=1/1/1/1, square] (a) at (20pt,10pt) {};
+}
+
+\begin{document}
+
+\START
+
+\TEST{wires between facing sides go straight}{
+  \PICTURE{
+    \SETUP
+    \TARGET{a}{north}{north}
+    \TARGET{a}{south}{north}
+    \TARGET{a}{north}{south}
+    \TARGET{a}{south}{south}
+    \TARGET{a}{east}{east}
+    \TARGET{a}{west}{east}
+    \TARGET{a}{east}{west}
+    \TARGET{a}{west}{west}
+  }
+}
+
+\TEST{wires between sides at right angles bend}{
+  \PICTURE{
+    \SETUP
+    \TARGET{a}{east}{north}
+    \TARGET{a}{east}{south}
+    \TARGET{a}{west}{north}
+    \TARGET{a}{west}{south}
+    \TARGET{a}{north}{east}
+    \TARGET{a}{north}{west}
+    \TARGET{a}{south}{east}
+    \TARGET{a}{south}{west}
+  }
+}
+
+% TBC: a.north is at y=70pt, so the end sits at y=205.95917pt, above the top of the boundary at y=200pt.
+\TEST{TBC: a bent wire can end past a corner of the boundary}{
+  \PICTURE{
+    \SETUP
+    \TARGET{a}{north}{west}
+  }
+}
+
+\TEST{wires from ports go like wires from their side}{
+  \PICTURE{
+    \SETUP
+    \TARGET{a}{north.1}{north}
+    \TARGET{a}{east.1}{north}
+  }
+}
+
+% TBC: should wires from corners reach the boundary diagonally? See the angles of corners in angles.lvt.
+\TEST{TBC: wires from corners go like wires from the side named first}{
+  \PICTURE{
+    \SETUP
+    \TARGET{a}{north east}{north}
+    \TARGET{a}{north east}{east}
+    \TARGET{a}{south west}{west}
+  }
+}
+
+% TBC: should these wires get a computed end too, or be an error?
+\TEST{TBC: wires from other anchors go to the anchor of the boundary}{
+  \PICTURE{
+    \SETUP
+    \TARGET{a}{center}{north}
+    \TARGET{a}{north}{north east}
+    \TARGET{a}{north}{center}
+  }
+}
+
+\TEST{wire ends on the boundary are computed, others are anchors}{
+  \PICTURE{
+    \SETUP
+    \PROJ{a}{north}{b}{south}
+    \PROJ{@}{north}{a}{north}
+  }
+}
+
+\TEST{the boundary surrounds the picture}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \wires{}
+    \SHOWANCHOR{@}{north east}
+    \SHOWANCHOR{@}{south west}
+  }
+}
+
+% TBC: should a second call of \wires reuse the boundary of the first?
+\TEST{TBC: each call of wires makes a bigger boundary}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \wires{}
+    \SHOWANCHOR{@}{north east}
+    \wires{}
+    \SHOWANCHOR{@}{north east}
+  }
+}
+
+\END

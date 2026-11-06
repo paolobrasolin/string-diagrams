@@ -1,0 +1,168 @@
+\input stridi-test.tex\relax
+
+\begin{document}
+
+\START
+
+\ExplSyntaxOn
+\TEST { intersection~of~a~vertical~and~a~horizontal~line }
+  {
+    \SHOWPOINT { (1pt,~2pt)~|-~(4pt,~8pt) }
+      {
+        \__stridi_intersect_hv_lines_through:NN
+          { \pgfpoint { 1pt } { 2pt } }
+          { \pgfpoint { 4pt } { 8pt } }
+      }
+  }
+\ExplSyntaxOff
+
+% NOTE: port anchors are defined globally, by the first box with enough ports on their side, so the order of these tests matters.
+
+\TEST{a box without ports has only the anchors of a rectangle}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north west}
+    \SHOWANCHOR{a}{north}
+    \SHOWANCHOR{a}{north east}
+    \SHOWANCHOR{a}{west}
+    \SHOWANCHOR{a}{center}
+    \SHOWANCHOR{a}{east}
+    \SHOWANCHOR{a}{mid west}
+    \SHOWANCHOR{a}{mid}
+    \SHOWANCHOR{a}{mid east}
+    \SHOWANCHOR{a}{base west}
+    \SHOWANCHOR{a}{base}
+    \SHOWANCHOR{a}{base east}
+    \SHOWANCHOR{a}{south west}
+    \SHOWANCHOR{a}{south}
+    \SHOWANCHOR{a}{south east}
+    \SHOWANCHOR{a}{text}
+    \SHOWANCHOR{a}{30}
+    \SHOWANCHOR{a}{north.1}
+  }
+}
+
+\TEST{ports are spread evenly along each side}{
+  \PICTURE{
+    \node[box=1/2/3/4, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{a}{east.1}
+    \SHOWANCHOR{a}{east.2}
+    \SHOWANCHOR{a}{south.1}
+    \SHOWANCHOR{a}{south.2}
+    \SHOWANCHOR{a}{south.3}
+    \SHOWANCHOR{a}{west.1}
+    \SHOWANCHOR{a}{west.2}
+    \SHOWANCHOR{a}{west.3}
+    \SHOWANCHOR{a}{west.4}
+  }
+}
+
+% NOTE: the first port of a side with n ports is at 120pt/2n from its start, which shows n.
+
+\TEST{port counts can be set side by side}{
+  \PICTURE{
+    \node[box, box ports north=2, box ports east=3, box ports south=4, box ports west=1, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{a}{east.1}
+    \SHOWANCHOR{a}{south.1}
+    \SHOWANCHOR{a}{west.1}
+  }
+}
+
+\TEST{port counts can be set all at once}{
+  \PICTURE{
+    \node[box, box ports=2/3/4/1, square] (a) at (0pt,0pt) {};
+    \node[box=2/3/4/1, square] (b) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{a}{east.1}
+    \SHOWANCHOR{a}{south.1}
+    \SHOWANCHOR{a}{west.1}
+    \SHOWANCHOR{b}{north.1}
+    \SHOWANCHOR{b}{east.1}
+    \SHOWANCHOR{b}{south.1}
+    \SHOWANCHOR{b}{west.1}
+  }
+}
+
+\TEST{port counts are truncated to integers}{
+  \PICTURE{
+    \node[box=2.9/1.5/3.1/1, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{a}{east.1}
+    \SHOWANCHOR{a}{south.1}
+  }
+}
+
+% TBC: should port counts set on a scope apply to boxes in it? The box style sets them all, to 0 by default.
+\TEST{TBC: the box style resets port counts set outside it}{
+  \PICTURE[box ports=2/2/2/2]{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[shape=box, square] (b) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{b}{north.1}
+  }
+}
+
+\TEST{the box shape alone has one port per side}{
+  \PICTURE{
+    \node[shape=box, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{a}{east.1}
+    \SHOWANCHOR{a}{south.1}
+    \SHOWANCHOR{a}{west.1}
+  }
+}
+
+\TEST{ports work in TikZ coordinates}{
+  \PICTURE{
+    \node[box=2/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=2/0/0/0, square] (my node) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWCOORD{a.north.1}
+    \SHOWCOORD{my node.north.2}
+  }
+}
+
+\TEST{ports turn with the box}{
+  \PICTURE{
+    \node[box=1/0/0/0, square, rotate=90] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+  }
+}
+
+% BUG: a box should have only its own ports, so a.north.5 and a.east.1 should be unknown anchors.
+\TEST{BUG: a box has the ports of other boxes too}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.5}
+    \node[box=5/0/0/0, square] (b) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.5}
+    \SHOWANCHOR{a}{east.1}
+  }
+}
+
+\TEST{ports can be numbered past 9}{
+  \PICTURE{
+    \node[box=10/0/0/0, square] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{a}{north.10}
+    \SHOWCOORD{a.north.10}
+  }
+}
+
+% NOTE: box=2, with a single port count, has its own test file (box-single-count.lvt), since it leaves TeX in a broken state.
+
+\TEST{a port count that isn't a number}{
+  \PICTURE{
+    \node[box=x/0/0/0, square] (a) at (0pt,0pt) {};
+  }
+}
+
+\TEST{a negative port count gives no error}{
+  \PICTURE{
+    \node[box=-1/0/0/0, square] (a) at (0pt,0pt) {};
+  }
+}
+
+\END
