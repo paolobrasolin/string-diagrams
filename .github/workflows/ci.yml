@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
 
+# NOTE: actions are pinned to commit SHAs, since tags can be moved to point at other code; Dependabot keeps the pins up to date.
 jobs:
   build:
     strategy:
@@ -18,13 +19,13 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
       - run: nix flake check --print-build-logs
       - run: |
           nix build .#ctan --print-build-logs
           cp result string-diagrams-ctan.zip
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ctan-${{ matrix.os }}
           path: string-diagrams-ctan.zip
@@ -34,7 +35,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       - run: |
           sha256sum ctan-*/string-diagrams-ctan.zip
           cmp ctan-ubuntu-latest/string-diagrams-ctan.zip ctan-macos-latest/string-diagrams-ctan.zip
@@ -48,7 +49,7 @@ jobs:
       contents: write
     concurrency: publish
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
       - name: Check version and prepare release notes
@@ -67,7 +68,7 @@ jobs:
           awk 'BEGIN { print "Changes in this release:" } /^### / { print ""; print substr($0, 5) ":"; next } /^[ \t]*$/ { next } { gsub("`", ""); print }' notes.md > announcement.txt
           echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: ctan-ubuntu-latest
 
