@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Report ports a box doesn't have with an error naming the box, rather than placing them outside it or dividing by zero.
+
 ## [0.2.1] - 2023-06-13
 
 ### Fixed

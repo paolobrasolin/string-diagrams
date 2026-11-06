@@ -336,9 +336,11 @@
 %  \end{macro}
 %
 % \begin{macro}{\@@_subdivide_segment:nNNNNN}
-%   Defines macros numbering equally spaced points on a segment.
+%   Defines the port anchors of a side of a box: equally spaced points on a segment.
+%   Anchors are defined globally, by the first box with enough ports on that side, so each one checks the port count of the box it is asked of.
+%   The box is named in the error when an anchor of a named node is asked for, but not while placing a node by one of its own anchors.
 %   \begin{arguments}
-%     \item Base namespace
+%     \item Side of the box
 %     \item Points count
 %     \item Point containing the x coordinate of the starting point
 %     \item Point containing the y coordinate of the starting point
@@ -346,22 +348,40 @@
 %     \item Point containing the y coordinate of the ending point
 %   \end{arguments}
 %    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { missing-port }
+  { #1~has~no~port~#2.#3,~since~its~#2~side~has~#4. }
 \cs_new_protected:Nn \@@_subdivide_segment:nNNNNN {
   \int_step_inline:nnnn { #2 } { -1 } { 1 } {
     \cs_if_exist:cTF
-      { #1.##1 }
+      { pgf@anchor@box@#1.##1 }
       { \prg_break: }
       { \prg_do_nothing: }
     \cs_new_nopar:cpn
-      { #1.##1 }
+      { pgf@anchor@box@#1.##1 }
       {
-        \pgfmathdivide
-          { 2 * ##1 - 1 }
-          { 2 * #2 }
-        \pgfpointlineattime
-          { \pgfmathresult }
-          { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
-          { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
+        \int_compare:nNnTF { ##1 } > { #2 }
+          {
+            \msg_error:nneeee { string-diagrams } { missing-port }
+              {
+                \cs_if_exist:NTF \pgfreferencednodename
+                  { Box~`\pgfreferencednodename' }
+                  { This~box }
+              }
+              { #1 } { ##1 } { #2 }
+            \pgfpointlineattime
+              { 0.5 }
+              { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
+              { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
+          }
+          {
+            \pgfmathdivide
+              { 2 * ##1 - 1 }
+              { 2 * #2 }
+            \pgfpointlineattime
+              { \pgfmathresult }
+              { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
+              { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
+          }
       }
   }
 }
@@ -401,13 +421,13 @@
 
   % Add ports definitions to shape definition
   \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@box\endcsname{
-    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@north } { \portsnorth }
+    \@@_subdivide_segment:nNNNNN { north } { \portsnorth }
       { \southwest } { \northeast } { \northeast } { \northeast }
-    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@east } { \portseast }
+    \@@_subdivide_segment:nNNNNN { east } { \portseast }
       { \northeast } { \northeast } { \northeast } { \southwest }
-    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@south } { \portssouth }
+    \@@_subdivide_segment:nNNNNN { south } { \portssouth }
       { \southwest } { \southwest } { \northeast } { \southwest }
-    \@@_subdivide_segment:nNNNNN { pgf@anchor@box@west } { \portswest }
+    \@@_subdivide_segment:nNNNNN { west } { \portswest }
       { \southwest } { \northeast } { \southwest } { \southwest }
   }
 

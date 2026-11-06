@@ -80,19 +80,14 @@ a.south.1 = (-40.00122pt, -60.0pt)
 ============================================================
 TEST 7: TBC: the box style resets port counts set outside it
 ============================================================
-! Package PGF Math Error: You've asked me to divide `1.0' by `0.0', but I cannot divide any number by `0.0'.
-See the PGF Math package documentation for explanation.
-Type  H <return>  for immediate help.
+! Package string-diagrams Error: Box `a' has no port north.1, since its north side has 0.
+Type <return> to continue.
  ...                                              
 l. ...}
-(That was another \errmessage.)
-! Arithmetic overflow.
-\pgfmathdivide@ ...\pgfmath@x by\c@pgfmath@counta 
-                                                  \else \ifdim 0pt>\pgfmath@...
-l. ...}
-I can't carry out that multiplication or division,
-since the result is out of range.
-a.north.1 = (60.0pt, 60.0pt)
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+a.north.1 = (0.0pt, 60.0pt)
 b.north.1 = (-30.0pt, 60.0pt)
 ============================================================
 ============================================================
@@ -116,7 +111,7 @@ TEST 10: ports turn with the box
 a.north.1 = (-60.0pt, 0.0pt)
 ============================================================
 ============================================================
-TEST 11: BUG: a box has the ports of other boxes too
+TEST 11: a box has only its own ports
 ============================================================
 ! Package PGF Math Error: Unknown function `north' (in 'north.5').
 See the PGF Math package documentation for explanation.
@@ -125,20 +120,22 @@ Type  H <return>  for immediate help.
 l. ...}
 (That was another \errmessage.)
 a.north.5 = (60.0pt, 0.0pt)
-a.north.5 = (480.0pt, 60.0pt)
-! Package PGF Math Error: You've asked me to divide `1.0' by `0.0', but I cannot divide any number by `0.0'.
-See the PGF Math package documentation for explanation.
-Type  H <return>  for immediate help.
+! Package string-diagrams Error: Box `a' has no port north.5, since its north side has 1.
+Type <return> to continue.
  ...                                              
 l. ...}
-(That was another \errmessage.)
-! Arithmetic overflow.
-\pgfmathdivide@ ...\pgfmath@x by\c@pgfmath@counta 
-                                                  \else \ifdim 0pt>\pgfmath@...
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+a.north.5 = (0.0pt, 60.0pt)
+! Package string-diagrams Error: Box `a' has no port east.1, since its east side has 0.
+Type <return> to continue.
+ ...                                              
 l. ...}
-I can't carry out that multiplication or division,
-since the result is out of range.
-a.east.1 = (60.0pt, -60.0pt)
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+a.east.1 = (60.0pt, 0.0pt)
 ============================================================
 ============================================================
 TEST 12: ports can be numbered past 9
@@ -148,7 +145,26 @@ a.north.10 = (53.99963pt, 60.0pt)
 (a.north.10) = (53.99963pt, 60.0pt)
 ============================================================
 ============================================================
-TEST 13: a port count that isn't a number
+TEST 13: a box placed by a port it doesn't have
+============================================================
+! Package string-diagrams Error: This box has no port north.5, since its north side has 1.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: This box has no port north.5, since its north side has 1.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+a.center = (0.0pt, -60.0pt)
+============================================================
+============================================================
+TEST 14: a port count that isn't a number
 ============================================================
 ! Package PGF Math Error: Unknown function `x' (in 'x').
 See the PGF Math package documentation for explanation.
@@ -158,6 +174,6 @@ l. ...}
 (That was another \errmessage.)
 ============================================================
 ============================================================
-TEST 14: a negative port count gives no error
+TEST 15: a negative port count gives no error
 ============================================================
 ============================================================

@@ -131,8 +131,7 @@
   }
 }
 
-% BUG: a box should have only its own ports, so a.north.5 and a.east.1 should be unknown anchors.
-\TEST{BUG: a box has the ports of other boxes too}{
+\TEST{a box has only its own ports}{
   \PICTURE{
     \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
     \SHOWANCHOR{a}{north.5}
@@ -148,6 +147,13 @@
     \SHOWANCHOR{a}{north.1}
     \SHOWANCHOR{a}{north.10}
     \SHOWCOORD{a.north.10}
+  }
+}
+
+\TEST{a box placed by a port it doesn't have}{
+  \PICTURE{
+    \node[box=1/0/0/0, square, anchor=north.5] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{center}
   }
 }
 
