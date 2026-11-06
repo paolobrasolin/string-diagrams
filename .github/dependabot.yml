@@ -9,3 +9,12 @@ updates:
       actions:
         patterns:
           - "*"
+  - package-ecosystem: nix
+    directory: /
+    schedule:
+      interval: monthly
+    # NOTE: a single monthly pull request for all flake inputs, whose CI runs the tests with the new TeX Live.
+    groups:
+      flake-inputs:
+        patterns:
+          - "*"
