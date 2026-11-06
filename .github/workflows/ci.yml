@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      - run: nix flake check --print-build-logs
+      - run: |
+          nix build .#ctan --print-build-logs
+          cp result string-diagrams-ctan.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ctan-${{ matrix.os }}
+          path: string-diagrams-ctan.zip
+
+  # NOTE: artifacts are platform independent, so they must be bit-for-bit identical across platforms.
+  reproducibility:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+      - run: |
+          sha256sum ctan-*/string-diagrams-ctan.zip
+          cmp ctan-ubuntu-latest/string-diagrams-ctan.zip ctan-macos-latest/string-diagrams-ctan.zip
+
+  # NOTE: nothing is published unless CTAN validates the upload, and after a failure the job can simply be rerun.
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: reproducibility
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency: publish
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+
+      - name: Check version and changelog
+        run: |
+          VERSION=$(nix eval --raw .#ctan.version)
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match version $VERSION in flake.nix"
+            exit 1
+          fi
+          awk -v version="$VERSION" '/^## \[/ || /^\[[^]]*\]: / { found = index($0, "## [" version "]") == 1; next } found' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "CHANGELOG.md has no notes for version $VERSION"
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ctan-ubuntu-latest
+
+      # NOTE: l3build validates the upload, then asks whether to submit it.
+      - name: "CTAN: validate"
+        run: echo n | nix develop --command l3build upload --file notes.md "$VERSION"
+
+      - name: "GitHub: release"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --verify-tag --title "$VERSION" --notes-file notes.md
+          cp string-diagrams-ctan.zip "string-diagrams-$VERSION.zip"
+          gh release upload "$GITHUB_REF_NAME" "string-diagrams-$VERSION.zip" --clobber
+
+      - name: "CTAN: upload"
+        run: echo y | nix develop --command l3build upload --file notes.md "$VERSION"
