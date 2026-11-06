@@ -38,8 +38,7 @@
   \ANGLE{@}{west}
 }
 
-% TBC: should wires leave corners diagonally, e.g. at 45 degrees from north east?
-\TEST{TBC: wires leave corners like the first word of their name}{
+\TEST{wires leave corners diagonally}{
   \ANGLE{a}{north east}
   \ANGLE{a}{north west}
   \ANGLE{a}{south east}

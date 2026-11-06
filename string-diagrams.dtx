@@ -537,6 +537,7 @@
 %
 % \begin{macro}{\@@_anchor_to_angle:Nnn}
 %   Calculates in/out angle given a node/anchor pair.
+%   Wires leave sides and their ports straight out, and corners diagonally.
 %   Accounts for when the node is the boundary.
 %   The result is stored in the given variable.
 %   \begin{arguments}
@@ -548,6 +549,10 @@
 \cs_new_protected:Nn \@@_anchor_to_angle:Nnn {
   \regex_match_case:nnTF
     {
+      { \A north \  east \b } { \int_set:Nn \l_@@_angle_int {   45 } }
+      { \A north \  west \b } { \int_set:Nn \l_@@_angle_int {  135 } }
+      { \A south \  east \b } { \int_set:Nn \l_@@_angle_int {  -45 } }
+      { \A south \  west \b } { \int_set:Nn \l_@@_angle_int { -135 } }
       { \A north \b } { \int_set:Nn \l_@@_angle_int {  90 } }
       { \A east  \b } { \int_set:Nn \l_@@_angle_int {   0 } }
       { \A south \b } { \int_set:Nn \l_@@_angle_int { -90 } }

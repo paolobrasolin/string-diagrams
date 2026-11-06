@@ -25,13 +25,13 @@ TEST 3: wires leave the boundary inwards
 @.west -> [0]
 ============================================================
 ============================================================
-TEST 4: TBC: wires leave corners like the first word of their name
+TEST 4: wires leave corners diagonally
 ============================================================
-a.north east -> [90]
-a.north west -> [90]
-a.south east -> [-90]
-a.south west -> [-90]
-@.north east -> [-90]
+a.north east -> [45]
+a.north west -> [135]
+a.south east -> [-45]
+a.south west -> [-135]
+@.north east -> [-135]
 ============================================================
 ============================================================
 TEST 5: TBC: other anchors have no angle

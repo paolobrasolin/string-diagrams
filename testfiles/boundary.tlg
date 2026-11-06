@@ -36,7 +36,7 @@ a.north.1 -> @.north = (20.0pt, 200.0pt)
 a.east.1 -> @.north = (197.41928pt, 200.0pt)
 ============================================================
 ============================================================
-TEST 5: TBC: wires from corners go like wires from the side named first
+TEST 5: wires from corners end like wires from the side named first
 ============================================================
 a.north east -> @.north = (80.0pt, 200.0pt)
 a.north east -> @.east = (200.0pt, 144.15955pt)
