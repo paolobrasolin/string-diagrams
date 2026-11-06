@@ -327,7 +327,7 @@
 %      \item Point through which the horizontal line passes
 %    \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_intersect_hv_lines_through:NN {
+\cs_new_protected:Nn \@@_intersect_hv_lines_through:NN {
   \pgfextractx { \pgf@xa } { #1 }
   \pgfextracty { \pgf@ya } { #2 }
   \pgfpoint { \pgf@xa } { \pgf@ya }
@@ -346,7 +346,7 @@
 %     \item Point containing the y coordinate of the ending point
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_subdivide_segment:nNNNNN {
+\cs_new_protected:Nn \@@_subdivide_segment:nNNNNN {
   \int_step_inline:nnnn { #2 } { -1 } { 1 } {
     \cs_if_exist:cTF
       { #1.##1 }
@@ -465,7 +465,7 @@
 %     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_calctarget:nnnn {
+\cs_new_protected:Nn \@@_calctarget:nnnn {
   \pgfpointanchor{#1}{#2} \pgf@xa=\pgf@x \pgf@ya=\pgf@y
   \pgfpointanchor{#3}{#4} \pgf@xb=\pgf@x \pgf@yb=\pgf@y
   \regex_match_case:nn
@@ -501,7 +501,7 @@
 %     \item anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_anchor_to_angle:Nnn {
+\cs_new_protected:Nn \@@_anchor_to_angle:Nnn {
   \regex_match_case:nnTF
     {
       { \A north \b } { \int_set:Nn \l_tmpa_int {  90 } }
@@ -532,7 +532,7 @@
 %     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_anchors_to_proj:Nnnnn {
+\cs_new_protected:Nn \@@_anchors_to_proj:Nnnnn {
   \regex_match_case:nn
     {
       { \A @ \. } {
@@ -567,7 +567,7 @@
 %     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_draw_wire:nnnnn {
+\cs_new_protected:Nn \@@_draw_wire:nnnnn {
   \@@_anchor_to_angle:Nnn   \l_@@_oangle_tl { #2 } { #3 }
   \@@_anchor_to_angle:Nnn   \l_@@_iangle_tl { #4 } { #5 }
   \@@_anchors_to_proj:Nnnnn \l_@@_source_tl { #2 } { #3 } { #4 } { #5 }
@@ -589,7 +589,7 @@
 % \begin{macro}{\@@_draw_boundary:nn}
 %   Creates the boundary node.
 %    \begin{macrocode}
-\cs_new:Nn \@@_draw_boundary: {
+\cs_new_protected:Nn \@@_draw_boundary: {
   \node [%draw, box=2/2/0/1, dashed, red,
     name=@, node~contents={},
     fit={
@@ -609,7 +609,7 @@
 %     \item token list to be parsed
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_split_node_anchor:NNn {
+\cs_new_protected:Nn \@@_split_node_anchor:NNn {
   \regex_extract_once:nnN { ([^\.])* \.? (.*) } { #3 } \l_tmpa_seq
   \seq_pop:NN \l_tmpa_seq \l_tmpa_tl  % discard match
   \seq_pop:NN \l_tmpa_seq #1          % keep 1st matching group (node)
@@ -634,7 +634,7 @@
 %     \item function to be mapped over pairs
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new:Nn \@@_adj_map_function:nnN {
+\cs_new_protected:Nn \@@_adj_map_function:nnN {
   \prop_set_from_keyval:Nn \l_tmpa_prop { #2 }
   \prop_map_inline:Nn \l_tmpa_prop {
     \prop_set_from_keyval:Nn \l_tmpb_prop { ##2 }
