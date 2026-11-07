@@ -7,10 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Loose ends are now ordinary wires to the boundary of the picture, a node called `@`, so they run straight out to the side they are wired to, or bend towards it. Wires also leave the corners of nodes diagonally and can fan out from an anchor, boxes take their port counts from the picture or scope around them, and mistakes in wire ends and port counts are reported with clear errors. A new regression test suite, run on pdfTeX, XeTeX and LuaTeX, covers all of this, and found the bugs fixed below.
+
+### Added
+
+- Add the boundary node `@`, which `\wires` draws around the picture: wires to its sides are the loose ends of a diagram.
+
 ### Changed
 
 - Keep the port counts in force, such as those set on a scope, when `box` is given none, rather than resetting them to none. Every box starts with no ports, including the bare `box` shape, which had one per side.
 - Make wires leave corners such as `north east` diagonally, rather than like the side named first.
+- Report wire ends without an anchor, such as `b` instead of `b.south`, with an error.
+- Require expl3 2023-06-05 or later.
+
+### Removed
+
+- **Breaking:** remove the third argument of `\wires`, which listed loose ends: draw them as wires to the boundary instead, as in `f = { south = @.south }` for `f.south`. A third argument is no longer read.
 
 ### Fixed
 
