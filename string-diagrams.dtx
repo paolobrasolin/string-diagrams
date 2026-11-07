@@ -83,6 +83,7 @@
 %
 % \changes{0.1.0}{2023/05/31}{initial version}
 % \changes{0.2.0}{2023/06/12}{make box ports configurable}
+% \changes{0.3.0}{2026/11/07}{replace loose ends with wires to the boundary node \texttt{@}}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -119,9 +120,10 @@
 %
 % \section{Documentation}
 %
-% \begin{function}[added=2023-05-31,updated=2023-06-12]{/pgf/box}
+% \begin{function}[added=2023-05-31,updated=2026-11-07]{/pgf/box}
 %
 %   To draw boxes, you use this style on a node.
+%   Its label is already typeset in math mode, so write it without dollars: \texttt{\{f\}}, as \texttt{\{\$f\$\}} breaks the node.
 %
 %   \begin{tcblisting}{example}
 %     \begin{tikzpicture}
@@ -131,6 +133,7 @@
 %
 %   You can draw multiple boxes using any of your standard \TikZ\ positioning techniques.
 %   Don't forget to label the nodes so you can easily reference them.
+%   The last box below is placed with the \texttt{calc} library of \TikZ, which you load with \cs{usetikzlibrary}\texttt{\{calc\}}.
 %
 %   \begin{tcblisting}{example}
 %     \begin{tikzpicture}
@@ -141,7 +144,7 @@
 %   \end{tcblisting}
 % \end{function}
 %
-% \begin{function}[added=2023-06-12]{
+% \begin{function}[added=2023-06-12,updated=2026-11-07]{
 %   /pgf/box ports north,
 %   /pgf/box ports east,
 %   /pgf/box ports south,
@@ -156,7 +159,8 @@
 %
 %   You can open up any number of ports on any side of a box using the appropriate key; boxes have none until you do.
 %   Like other \TikZ\ keys, these can also be set on a picture or a scope, for all the boxes in it.
-%   Then, you can refer to the opened ports by their index.
+%   Then, you can refer to the opened ports by their index: they are numbered from left to right on the north and south sides, and from top to bottom on the east and west sides.
+%   Asking a box for a port it doesn't have is an error.
 %
 %   \begin{tcblisting}{example,lefthand ratio=0.8}
 %     \begin{tikzpicture}[
@@ -182,7 +186,7 @@
 %
 % \end{function}
 %
-% \begin{function}[added=2023-06-12]{
+% \begin{function}[added=2023-06-12,updated=2026-11-07]{
 %   /pgf/box ports,
 % }
 %   \begin{syntax}
@@ -190,6 +194,7 @@
 %   \end{syntax}
 %
 %   The \texttt{box ports} key is a shortcut to set the number of ports on all sides at once.
+%   It takes exactly four counts, for the north, east, south and west sides.
 %
 %   \begin{tcblisting}{example,lefthand ratio=0.8}
 %     \begin{tikzpicture}[
@@ -209,14 +214,22 @@
 %
 % \end{function}
 %
-% \begin{function}[added=2023-05-31,updated=2023-06-13]{\wires}
+% \begin{function}[added=2023-05-31,updated=2026-11-07]{\wires}
 %   \begin{syntax}
-%     \cs{wires}\oarg{\TikZ\ keys}\marg{connectivity}\marg{loose ends}
+%     \cs{wires}\oarg{\TikZ\ keys}\marg{connectivity}
 %   \end{syntax}
 %
 %   To connect boxes, you can use the \cmd\wires\ macro.
-%   The first argument is \TikZ\ styling for the wires; the second argument is a nested dicionary specifying the connectivity; the third argument is a list of the loose ends to draw.
-%   \texttt{box}es have the following anchors: \texttt{west}, \texttt{west.0}, \texttt{west.1},  \texttt{east}, \texttt{east.0}, and \texttt{east.1}.
+%   Its optional argument is \TikZ\ styling for the wires.
+%   Its mandatory argument lists them, grouped by the node they start from: \meta{node} \texttt{= \{} \meta{anchor} \texttt{=} \meta{node}\texttt{.}\meta{anchor}\texttt{,} \dots\ \texttt{\}}.
+%
+%   Wires start and end at the sides of nodes (\texttt{north}, \texttt{east}, \texttt{south} and \texttt{west}), at their corners (\texttt{north east} and so on), and at the ports of boxes (such as \texttt{east.1}).
+%   They leave sides and ports straight out, and corners diagonally.
+%   Other anchors, such as \texttt{center}, have no direction, so wires can't start or end there.
+%   Every entry is a wire: a node can be listed twice, and an anchor can carry several wires, both going out and coming in.
+%
+%   The boundary of the picture is a node too, called \texttt{@}: wires to its sides are the loose ends of the diagram.
+%   They go straight out to the side they are wired to, or bend towards it.
 %
 %   \begin{tcblisting}{example}
 %     \begin{tikzpicture}[scale=0.6]
@@ -237,9 +250,49 @@
 %
 % \end{function}
 %
-% \begin{function}[added=2023-05-31]{/pgf/dot}
+%   The boundary surrounds the picture as it is when \cmd\wires\ is first called, with a margin, and later calls in the same picture share it: so draw all nodes before the wires.
+%   A wire across the boundary runs through its middle.
+%   To place one elsewhere, as an identity beside a box, wire a coordinate to the boundary both ways.
+%   Place the coordinate with a path, as below, since \cs{coordinate} doesn't count towards the size of the picture, and the boundary might not reach it.
 %
-%   To split and join wires, you can use \texttt{dot}s and their anchors \texttt{north}, \texttt{east}, \texttt{south}, and \texttt{west}.
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \path (0.8,0) coordinate (i);
+%       \wires{
+%         f = { north.1 = @.north
+%             , south.1 = @.south },
+%         i = { north = @.north
+%             , south = @.south },
+%       }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+%   The keys of a call apply to all its wires, and come after the angles that \cmd\wires\ computes, so \texttt{out} and \texttt{in} override them.
+%   To style some wires differently, call \cmd\wires\ more than once.
+%
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \node[box=1/0/1/0] (g) at (0,1.5) {g};
+%       \wires{ f = { south.1 = @.south } }
+%       \wires[dashed]{
+%         f = { north.1 = g.south.1 } }
+%       \wires{ g = { north.1 = @.north } }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+%   Wires take their directions from the names of anchors, in the frame of the picture.
+%   So pictures can be shifted and scaled, but not rotated or mirrored, and rotated nodes aren't supported.
+%
+%   Up to version 0.2.1, \cmd\wires\ took a third argument listing the loose ends.
+%   They are now wires to the boundary, and a third argument is no longer read.
+%
+%
+% \begin{function}[added=2023-05-31,updated=2026-11-07]{/pgf/dot}
+%
+%   To split and join wires, you can use \texttt{dot}s.
+%   Wires attach to their sides and corners, and leave corners diagonally.
 %   Remember to have fun with styling wires.
 %
 %   \begin{tcblisting}{example}
@@ -257,6 +310,19 @@
 %             , south = B.west
 %             , west = @.west },
 %         x = { east = @.east },
+%       }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+%   \begin{tcblisting}{example}
+%     \begin{tikzpicture}
+%       \node[dot] (c) at (0,0) {};
+%       \node[dot] (m) at (0,1.2) {};
+%       \wires{
+%         c = { south = @.south
+%             , north west = m.south west
+%             , north east = m.south east },
+%         m = { north = @.north },
 %       }
 %     \end{tikzpicture}
 %   \end{tcblisting}
@@ -303,13 +369,17 @@
 %    /pgf/box ports west,
 %    /pgf/box ports,
 %  }
+%   \changes{0.3.0}{2026/11/07}{counts start at zero, and the shortcut checks that it gets four}
 %
 %    Define high level keys to configure the number of ports on each side.
 %    Boxes start with no ports.
 %    The shortcut checks that it gets four counts, and sets the keys of the sides to their values; given nothing, it leaves them alone, so that the \texttt{box} style without counts keeps the ones in force.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { port-counts }
-  { Box~ports~take~four~counts,~for~the~north,~east,~south~and~west~sides,~as~in~1/2/1/2,~not~`#1'. }
+  {
+    Box~ports~take~four~counts,~for~the~north,~east,~south~and~west~sides,~
+    as~in~1/2/1/2,~not~`#1'.
+  }
 \seq_new:N \l_@@_port_counts_seq
 \pgfkeys{
   /pgf/box~ports~north/.initial=0,
@@ -405,8 +475,9 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{box}
+% \begin{macro}[no-user-doc]{box}
 %   \changes{0.2.0}{2023/06/12}{make ports configurable through \TikZ\ keys}
+%   \changes{0.3.0}{2026/11/07}{ports a box doesn't have are an error}
 %
 %   Define a rectangular shape with configurable ports.
 %    \begin{macrocode}
@@ -454,6 +525,7 @@
 %
 % \begin{macro}{/pgf/box}
 %   \changes{0.2.0}{2023/06/12}{acts as a shortcut for setting port counts}
+%   \changes{0.3.0}{2026/11/07}{without counts, keeps the ones in force}
 %
 %   Define style to draw boxes.
 %    \begin{macrocode}
@@ -646,7 +718,10 @@
 \msg_new:nnn { string-diagrams } { end-without-anchor }
   { Wire~end~`#1'~has~no~anchor,~so~the~wire~is~not~drawn. }
 \msg_new:nnn { string-diagrams } { end-off-sides }
-  { Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~wires~end~at~north,~east,~south~or~west,~or~at~ports. }
+  {
+    Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~
+    wires~end~at~north,~east,~south~or~west,~or~at~ports.
+  }
 \cs_new_protected:Nn \@@_check_end:nnN {
   \tl_if_empty:NT #3
     {
@@ -753,7 +828,7 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\exp_args:Nnnnoo}
+% \begin{macro}[no-user-doc]{\exp_args:Nnnnoo}
 %   This helper is required by \cmd{\@@_adj_map_function:nnN}.
 %    \begin{macrocode}
 \exp_args_generate:n { nnnoo }
@@ -829,6 +904,10 @@
 %
 % \begin{macro}{\wires}
 %   \changes{0.2.1}{2023/06/13}{now correctly handles optional style parameter}
+%   \changes{0.3.0}{2026/11/07}{loose ends are wires to the boundary node \texttt{@}, replacing the third argument}
+%   \changes{0.3.0}{2026/11/07}{every listed wire is drawn, so nodes can be listed twice and anchors can fan out}
+%   \changes{0.3.0}{2026/11/07}{wires leave corners diagonally}
+%   \changes{0.3.0}{2026/11/07}{wire ends off the sides or without an anchor are errors}
 %   Define our superstar.
 %    \begin{macrocode}
 \NewDocumentCommand{\wires}{ O{} m }
