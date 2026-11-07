@@ -137,11 +137,20 @@
   }
 }
 
-% TBC: a wire across the boundary runs through its middle, here right through the box: should there be a way to place it beside the boxes?
-\TEST{TBC: a wire across the boundary runs through the boxes}{
+% NOTE: a wire across the boundary runs through its middle, here right through the box; to place it elsewhere, wire a coordinate to the boundary both ways, as in the next test and in the documentation.
+\TEST{a wire across the boundary runs through its middle}{
   \PICTURE{
     \node[box=1/0/1/0, square] (a) at (0pt,0pt) {};
     \LOG{\wires{a = {north.1 = @.north, south.1 = @.south}, @ = {south = @.north}}}
+  }
+}
+
+% NOTE: \coordinate doesn't count toward the size of the picture, so the boundary might not reach it; a path to the coordinate does count.
+\TEST{an identity beside a box runs through a coordinate}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a) at (0pt,0pt) {};
+    \path (100pt,0pt) coordinate (i);
+    \LOG{\wires{a = {north.1 = @.north, south.1 = @.south}, i = {north = @.north, south = @.south}}}
   }
 }
 
