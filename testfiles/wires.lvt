@@ -154,8 +154,7 @@
   }
 }
 
-% TBC: wires from corners end on the boundary straight below or beside the corner, after the side named first, so the two loose ends of the lower corners of a dot end about 3pt apart: should they spread out, e.g. along their diagonal?
-\TEST{TBC: loose ends from neighboring corners end close together}{
+\TEST{loose ends from neighboring corners spread along their diagonals}{
   \PICTURE{
     \node[dot] (a) at (0pt,0pt) {};
     \LOG{\wires{a = {south west = @.south, south east = @.south}}}

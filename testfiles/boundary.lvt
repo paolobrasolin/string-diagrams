@@ -75,13 +75,14 @@
   }
 }
 
-% NOTE: such wires leave the corner diagonally (see angles.lvt), then curve to the end of the side named first.
-\TEST{wires from corners end like wires from the side named first}{
+% NOTE: wires to a side named in the corner end offset along its diagonal; wires to other sides end like wires from the side named first.
+\TEST{wires from corners end offset along their diagonal}{
   \PICTURE{
     \SETUP
     \TARGET{a}{north east}{north}
     \TARGET{a}{north east}{east}
     \TARGET{a}{south west}{west}
+    \TARGET{a}{north east}{west}
   }
 }
 
