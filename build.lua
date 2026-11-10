@@ -27,7 +27,7 @@ uploadconfig = {
 	license = "lppl1.3c",
 	summary = "Create string diagrams with LaTeX and TikZ",
 	ctanPath = "/graphics/pgf/contrib/string-diagrams",
-	home = "https://github.com/paolobrasolin/string-diagrams",
+	home = "https://paolobrasolin.github.io/string-diagrams/",
 	repository = "https://github.com/paolobrasolin/string-diagrams",
 	bugtracker = "https://github.com/paolobrasolin/string-diagrams/issues",
 }
