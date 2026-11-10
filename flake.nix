@@ -196,6 +196,9 @@
         };
 
         checks = {
+          # NOTE: building the site checks it too: the showcase compiles, the page lists exactly the examples of site/showcase, and the package has no \endinput, which the live demo can't handle.
+          inherit site;
+
           # NOTE: TeX Live already ships string-diagrams, so this checks our build replaces it; texliveBasic lacks pgf, so this also checks tlDeps.
           with-packages =
             pkgs.runCommand "string-diagrams-with-packages" {
