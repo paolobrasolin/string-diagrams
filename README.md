@@ -13,6 +13,8 @@
 
 Create string diagrams with LaTeX!
 
+Try it on the [project site](https://paolobrasolin.github.io/string-diagrams/): its examples compile in your browser.
+
 `string-diagrams` is a LaTeX package designed for effortless and aesthetically pleasing creation of string diagrams.
 
 ## Getting Started
