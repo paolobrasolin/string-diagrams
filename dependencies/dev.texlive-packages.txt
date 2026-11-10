@@ -1,6 +1,8 @@
+dvisvgm
 l3build
 latex-bin
 pdftex
 snapshot
+standalone
 tex
 xetex
