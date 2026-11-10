@@ -58,6 +58,7 @@
 }
 
 \tcbset{example/.style={
+  listing file={\jobname-example-#1.tex},
   listing engine=listings,
   verbatim ignore percent=true,
   listing side text,
@@ -125,7 +126,7 @@
 %   To draw boxes, you use this style on a node.
 %   Its label is already typeset in math mode, so write it without dollars: \texttt{\{f\}}, as \texttt{\{\$f\$\}} breaks the node.
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=box}
 %     \begin{tikzpicture}
 %       \node[box] {A};
 %     \end{tikzpicture}
@@ -135,7 +136,7 @@
 %   Don't forget to label the nodes so you can easily reference them.
 %   The last box below is placed with the \texttt{calc} library of \TikZ, which you load with \cs{usetikzlibrary}\texttt{\{calc\}}.
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=boxes}
 %     \begin{tikzpicture}
 %       \node[box] (A) at (0,0) {A};
 %       \node[box, right of=A] (B) {B};
@@ -162,7 +163,7 @@
 %   Then, you can refer to the opened ports by their index: they are numbered from left to right on the north and south sides, and from top to bottom on the east and west sides.
 %   Asking a box for a port it doesn't have is an error.
 %
-%   \begin{tcblisting}{example,lefthand ratio=0.8}
+%   \begin{tcblisting}{example=box-ports,lefthand ratio=0.8}
 %     \begin{tikzpicture}[
 %       marker/.style={circle, fill, inner sep=1pt, text=white},
 %     ]
@@ -196,7 +197,7 @@
 %   The \texttt{box ports} key is a shortcut to set the number of ports on all sides at once.
 %   It takes exactly four counts, for the north, east, south and west sides.
 %
-%   \begin{tcblisting}{example,lefthand ratio=0.8}
+%   \begin{tcblisting}{example=box-ports-shortcut,lefthand ratio=0.8}
 %     \begin{tikzpicture}[
 %       marker/.style={circle, fill, inner sep=1pt},
 %     ]
@@ -231,7 +232,7 @@
 %   The boundary of the picture is a node too, called \texttt{@}: wires to its sides are the loose ends of the diagram.
 %   They go straight out to the side they are wired to, or bend towards it.
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=wires}
 %     \begin{tikzpicture}[scale=0.6]
 %       \node[box=0/2/0/1] (A) at (-2, 0) {A};
 %       \node[box=0/1/0/2] (B) at (+2, 0) {B};
@@ -255,7 +256,7 @@
 %   To place one elsewhere, as an identity beside a box, wire a coordinate to the boundary both ways.
 %   Place the coordinate with a path, as below, since \cs{coordinate} doesn't count towards the size of the picture, and the boundary might not reach it.
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=identity}
 %     \begin{tikzpicture}
 %       \node[box=1/0/1/0] (f) at (0,0) {f};
 %       \path (0.8,0) coordinate (i);
@@ -271,7 +272,7 @@
 %   The keys of a call apply to all its wires, and come after the angles that \cmd\wires\ computes, so \texttt{out} and \texttt{in} override them.
 %   To style some wires differently, call \cmd\wires\ more than once.
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=styling}
 %     \begin{tikzpicture}
 %       \node[box=1/0/1/0] (f) at (0,0) {f};
 %       \node[box=1/0/1/0] (g) at (0,1.5) {g};
@@ -295,7 +296,7 @@
 %   Wires attach to their sides and corners, and leave corners diagonally.
 %   Remember to have fun with styling wires.
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=dots}
 %     \begin{tikzpicture}
 %       \node[box=0/1/0/2] (A) at ( 0,+1) {A};
 %       \node[box=0/2/0/1] (B) at ( 0,-1) {B};
@@ -314,7 +315,7 @@
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
-%   \begin{tcblisting}{example}
+%   \begin{tcblisting}{example=bubble}
 %     \begin{tikzpicture}
 %       \node[dot] (c) at (0,0) {};
 %       \node[dot] (m) at (0,1.2) {};
