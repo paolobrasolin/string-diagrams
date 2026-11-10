@@ -1,0 +1,25 @@
+\tikzset{
+  equation/.style={baseline={([yshift=-0.5ex]current bounding box.center)}},
+  spider/.style={dot, draw, fill=#1, minimum width=0.8em},
+}
+\begin{tikzpicture}[equation]
+  \node[spider=red!45]   (m) at (0,0) {};
+  \node[spider=green!45] (d) at (0,1) {};
+  \wires{
+    m = { south west = @.south, south east = @.south, north = d.south },
+    d = { north west = @.north, north east = @.north },
+  }
+\end{tikzpicture}
+$=$
+\begin{tikzpicture}[equation]
+  \node[spider=green!45] (a) at (0,0) {};
+  \node[spider=green!45] (b) at (1,0) {};
+  \node[spider=red!45]   (A) at (0,1) {};
+  \node[spider=red!45]   (B) at (1,1) {};
+  \wires{
+    a = { south = @.south, north west = A.south west, north east = B.south west },
+    b = { south = @.south, north west = A.south east, north east = B.south east },
+    A = { north = @.north },
+    B = { north = @.north },
+  }
+\end{tikzpicture}

@@ -1,0 +1,57 @@
+# string-diagrams
+
+> string-diagrams is a LaTeX package that draws string diagrams with TikZ. It draws boxes with numbered ports, dots that split and join wires, and the wires between them. Wires can also go to the boundary of the picture. This summary is for version {{version}}.
+
+Load the package with `\usepackage{string-diagrams}`. The package loads TikZ and the `fit` library of TikZ. It needs expl3 2023-06-05 or later. A diagram is a usual `tikzpicture` environment. Boxes and dots are TikZ nodes, and you can put them in any position. The `\wires` command draws the wires between them.
+
+Versions before 0.3.0 do not have the boundary node `@`. With these versions, the wires to `@` below fail with "No shape named `@' is known". To update, use `tlmgr update string-diagrams`, or put {{site_url}}string-diagrams.sty in the folder of the document. Online editors such as Overleaf can have an older version than CTAN.
+
+## Reference
+
+### Boxes
+
+- `\node[box] (f) {f};` draws a box. The label of the box is in math mode: write `{f}`, not `{$f$}`, because `{$f$}` breaks the node.
+- `box ports north=<n>`, `box ports east=<n>`, `box ports south=<n>` and `box ports west=<n>` open `<n>` ports on a side. A box has no ports until you open them.
+- `box ports=<north>/<east>/<south>/<west>` sets the four sides at the same time, and `box=<north>/<east>/<south>/<west>` does the same. Without counts, `box` keeps the counts that are set. Thus you can also set the keys on a picture or a scope, for all its boxes.
+- Ports are anchors: `A.east.1` is the first port on the east side of `A`. On the north and south sides, the ports go from left to right. On the east and west sides, they go from top to bottom.
+
+### Dots
+
+- `\node[dot] (x) {};` draws a dot, which splits and joins wires. Wires attach to the sides and the corners of a dot. From a corner, a wire goes out diagonally.
+
+### Wires
+
+- `\wires[<TikZ keys>]{<connectivity>}` draws wires. The connectivity is a list of wires, grouped by the node where they start: `<node> = { <anchor> = <node>.<anchor>, ... }, ...`. Each entry is one wire. You can write a node two times, and an anchor can have more than one wire.
+- Wires start and end at sides (`north`, `east`, `south`, `west`), at corners (`north east` and the other three) and at ports (`east.1`). From a side or a port, a wire goes straight out. From a corner, it goes out diagonally. You cannot use anchors without a direction, such as `center`.
+- The boundary of the picture is a node with the name `@`. A wire to a side of `@`, such as `east = @.east`, is a loose end of the diagram. It goes straight out to that side, or it bends to it.
+- The boundary is around the picture as it is at the first `\wires` command, with a margin. The next `\wires` commands in the same picture use the same boundary. Thus, draw all the nodes before the wires.
+- A wire that crosses the boundary goes through its middle. To put such a wire at a different position, for example as an identity next to a box, connect a coordinate to the boundary in the two directions. Put the coordinate with `\path (x,y) coordinate (i);`, because `\coordinate` does not change the size of the picture.
+- The keys of a `\wires` command apply to all its wires, after the angles that `\wires` calculates. Thus `out` and `in` change these angles. To give a different style to some wires, use more than one `\wires` command, for example `\wires[dashed]{...}`.
+- Wires get their directions from the names of the anchors, in the frame of the picture. You can shift and scale a picture, but you cannot rotate or mirror it. The package does not support rotated nodes.
+- Up to version 0.2.1, `\wires` had a third argument with the loose ends. The package does not read this argument now: write wires to `@` instead.
+
+### Errors
+
+- "Box ports take four counts, for the north, east, south and west sides, as in 1/2/1/2, not `<value>'": `box ports` and `box` need exactly four counts.
+- "Box `<node>' has no port <side>.<index>, since its <side> side has <count>.": open more ports on that side, or use a smaller index. In `\wires`, or in a TikZ coordinate such as `(f.north.2)`, a missing port gives a different error: "Package PGF Math Error: Unknown function `north' (in 'north.2')".
+- "Node `<node>' has no wires: list them as in <node> = { north = b.south }.": in `\wires`, write the wires of a node in braces.
+- "Wire end `<node>.<anchor>' has no target: give it one as in <anchor> = b.south.": each wire needs two ends.
+- "Wire end `<end>' has no anchor, so the wire is not drawn.": write each end as `<node>.<anchor>`.
+- "Wire end `<node>.<anchor>' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.": use a side, a corner or a port.
+
+## Examples
+
+Each example is the body of a document that loads the package and `\usetikzlibrary{calc}`.
+
+<!-- showcase -->
+
+The examples of the manual start with one box:
+
+<!-- manual examples -->
+
+## Links
+
+- [Manual]({{site_url}}string-diagrams.pdf): the full documentation, with the implementation (PDF)
+- [Package]({{site_url}}string-diagrams.sty): the current string-diagrams.sty
+- [CTAN](https://ctan.org/pkg/string-diagrams)
+- [Source and issue tracker](https://github.com/paolobrasolin/string-diagrams)

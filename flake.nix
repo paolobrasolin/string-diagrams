@@ -143,6 +143,58 @@
           };
         };
 
+        # The project site: the examples of the manual, rendered and editable, with the manual itself.
+        site = pkgs.stdenvNoCC.mkDerivation {
+          pname = "string-diagrams-site";
+          inherit version;
+
+          src = lib.fileset.toSource {
+            root = ./.;
+            fileset = lib.fileset.unions [
+              ./build.lua
+              ./string-diagrams.dtx
+              ./string-diagrams.ins
+              ./site
+            ];
+          };
+
+          nativeBuildInputs = [
+            texlive
+            pkgs.poppler-utils
+            pkgs.writableTmpDirAsHomeHook
+          ];
+
+          env = {
+            SOURCE_DATE_EPOCH = toString self.lastModified;
+            FORCE_SOURCE_DATE = "1";
+          };
+
+          dontConfigure = true;
+          dontFixup = true;
+
+          buildPhase = ''
+            runHook preBuild
+            l3build tag --date ${date} ${version}
+            l3build doc
+            runHook postBuild
+          '';
+
+          installPhase = ''
+            runHook preInstall
+            texlua site/generate.lua build $out ${version}
+            runHook postInstall
+          '';
+        };
+
+        serve-site = pkgs.writeShellApplication {
+          name = "string-diagrams-serve-site";
+          runtimeInputs = [pkgs.python3];
+          text = ''
+            echo "Serving the site at http://127.0.0.1:8000/"
+            python3 -m http.server --bind 127.0.0.1 --directory ${site} 8000
+          '';
+        };
+
         checks = {
           # NOTE: TeX Live already ships string-diagrams, so this checks our build replaces it; texliveBasic lacks pgf, so this also checks tlDeps.
           with-packages =
@@ -200,7 +252,7 @@
   in {
     packages =
       lib.mapAttrs (_: s: {
-        inherit (s) ctan string-diagrams;
+        inherit (s) ctan string-diagrams site;
         default = s.string-diagrams;
       })
       perSystem;
@@ -218,6 +270,11 @@
           type = "app";
           program = lib.getExe s.update-deps;
           meta.description = "Regenerate the lists of TeX Live dependencies";
+        };
+        serve-site = {
+          type = "app";
+          program = lib.getExe s.serve-site;
+          meta.description = "Build the site and serve it locally";
         };
       })
       perSystem;

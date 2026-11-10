@@ -1,0 +1,194 @@
+:root {
+  --text: #1d1d1f;
+  --muted: #5b5b66;
+  --background: #ffffff;
+  --surface: #f2f1ee;
+  --border: #dcdad5;
+  --accent: #2448a8;
+  --accent-text: #ffffff;
+  --error: #a32020;
+  /* NOTE: diagrams are drawn in black, so their pane stays white in dark mode too, and so does the spinner over them. */
+  --picture: #ffffff;
+  --spinner: #2448a8;
+  --spinner-track: #dcdad5;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e8e8ea;
+    --muted: #a3a3ad;
+    --background: #17171a;
+    --surface: #222226;
+    --border: #3a3a40;
+    --accent: #8ea8ff;
+    --accent-text: #10131c;
+    --error: #ff8a80;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0 auto;
+  max-width: calc(44rem + 32px);
+  padding: 0 16px;
+  background: var(--background);
+  color: var(--text);
+  font: 17px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+a { color: var(--accent); }
+
+:where(a, button, [contenteditable]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code, pre { font-family: var(--mono); }
+/* NOTE: code blocks set their size once, so editing them can't change it by moving text in or out of their <code>. */
+code { font-size: 0.88em; }
+pre { font-size: 0.775em; }
+pre code { font-size: inherit; }
+
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+h1, h2, h3 { line-height: 1.2; text-wrap: balance; }
+p, li { text-wrap: pretty; }
+h2 { margin-top: 3rem; }
+
+.hero { padding: 3.5rem 0 1.5rem; }
+.hero h1 { margin: 0; font-size: clamp(2.2rem, 7vw, 3.4rem); font-family: var(--mono); font-weight: 400; letter-spacing: -0.02em; }
+.tagline { margin: 0.4rem 0 0; font-size: 1.35rem; }
+.lede { color: var(--muted); }
+
+.links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1.4rem; margin-top: 1.4rem; }
+.links a { text-decoration: none; }
+.links a:hover { text-decoration: underline; }
+
+pre.code {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  overflow-x: auto;
+  background: var(--surface);
+}
+
+/* The demo is one frame: the tabs on top, then the caption, the picture, the buttons, any error, and the code.
+   NOTE: the buttons and any error sit between the picture and the code, so Compile is next to both what it redraws and what you edit. */
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.4rem;
+  padding: 0.4rem 1rem 0;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+}
+.tablist [role="tab"] {
+  padding: 0.35rem 0 0.55rem;
+  font: inherit;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.tablist [role="tab"]:hover { color: var(--text); }
+.tablist [role="tab"][aria-selected="true"] {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.45em;
+}
+/* NOTE: the panels share one place, so switching tabs never moves the page. */
+.showcase.tabbed .panels { display: grid; }
+.showcase.tabbed .panel { grid-area: 1 / 1; }
+.showcase.tabbed .panel:not(.active) { visibility: hidden; }
+
+.example {
+  display: grid;
+  grid-template-areas: "caption" "picture" "tools" "error" "code";
+  margin: 1rem 0;
+}
+.example > * { border: 1px solid var(--border); border-top: 0; }
+.example > .caption {
+  grid-area: caption;
+  margin: 0;
+  padding: 0.7rem 1rem 0.8rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+/* Under the tabs, the caption continues the frame they start. */
+.showcase.tabbed .example { margin: 0; }
+.showcase.tabbed .example > .caption { border-top: 0; }
+.example > .picture { grid-area: picture; }
+.example > .tools { grid-area: tools; padding: 0.3rem 0.4rem; }
+.example > .error { grid-area: error; padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--error); }
+.example > .error summary { cursor: pointer; }
+.example > .error pre {
+  margin: 0.5rem 0 0;
+  padding: 0.7rem 1rem;
+  overflow-x: auto;
+  background: var(--surface);
+}
+.example > .code { grid-area: code; }
+.example > .code[contenteditable] { cursor: text; }
+
+.picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 1.6rem 1rem;
+  background: var(--picture);
+}
+.picture img, .picture svg { display: block; max-width: 100%; height: auto; }
+.picture .parts { display: flex; align-items: center; gap: 0.6em; max-width: 100%; }
+.picture .parts svg { flex: 0 1 auto; min-width: 0; }
+.picture.stale > * { opacity: 0.4; }
+/* While TeX compiles, the old picture stays in place, dimmed, under a spinner. */
+.picture.busy > * { opacity: 0.25; }
+.picture.busy::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 0.7rem);
+  left: calc(50% - 0.7rem);
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 2px solid var(--spinner-track);
+  border-top-color: var(--spinner);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(1turn); } }
+@media (prefers-reduced-motion: reduce) { .picture.busy::after { animation-duration: 3s; } }
+
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; font-size: 0.9rem; }
+/* NOTE: every button has the padding that Compile needs when it fills in, so the spacing is even and nothing moves. */
+.tools button {
+  padding: 0.2rem 0.7rem;
+  font: inherit;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.tools button:hover { text-decoration: underline; }
+.tools button[aria-disabled="true"] { color: var(--muted); cursor: default; text-decoration: none; }
+/* Compile fills in while it has something to do. */
+.tools [data-action="compile"]:not([aria-disabled="true"]) { color: var(--accent-text); background: var(--accent); }
+.tools [data-action="compile"]:not([aria-disabled="true"]):hover { text-decoration: none; }
+/* Compile and Reset go on the left, Copy to clipboard and Open in Overleaf on the right, and wrap together. */
+.tools .end { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-left: auto; }
+/* NOTE: both labels of Copy take the same place, so the button keeps its width and nothing after it moves. */
+.tools [data-action="copy"] { display: inline-grid; }
+.tools [data-action="copy"] > span { grid-area: 1 / 1; }
+.tools [data-action="copy"]:not(.copied) > span:last-child,
+.tools [data-action="copy"].copied > span:first-child { visibility: hidden; }
+.tools .status { padding: 0 0.3rem; color: var(--muted); }
+.tools .status.error { color: var(--error); }
+
+.docs li { margin: 0.4rem 0; }
+
+footer { margin: 4rem 0 2rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }

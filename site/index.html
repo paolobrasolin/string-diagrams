@@ -1,0 +1,90 @@
+<!doctype html>
+<!--
+  The template of the site: site/generate.lua fills in {{…}}, and turns the showcase
+  comment below into tabs, one per line: <name> | <tab> | <caption> | <alt text>,
+  where <name> is site/showcase/<name>.tex, and the caption may hold HTML.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>string-diagrams: string diagrams in LaTeX with TikZ</title>
+<meta name="description" content="string-diagrams is a LaTeX package that draws string diagrams with TikZ. You put boxes and dots in a TikZ picture, and the \wires command draws the wires between them.">
+<link rel="canonical" href="{{site_url}}">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{site_url}}">
+<meta property="og:title" content="string-diagrams">
+<meta property="og:description" content="String diagrams in LaTeX, drawn with TikZ.">
+<meta property="og:image" content="{{site_url}}og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The name string-diagrams above the bialgebra law, drawn as two string diagrams of red and green dots.">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "string-diagrams",
+  "description": "A LaTeX package that draws string diagrams with TikZ.",
+  "url": "{{site_url}}",
+  "codeRepository": "https://github.com/paolobrasolin/string-diagrams",
+  "programmingLanguage": "LaTeX",
+  "license": "https://www.latex-project.org/lppl/lppl-1-3c/",
+  "version": "{{version}}",
+  "author": { "@type": "Person", "name": "Paolo Brasolin" }
+}
+</script>
+<script type="application/json" id="site-data">{{site_data}}</script>
+<script src="playground.js" defer></script>
+</head>
+<body>
+<header class="hero">
+  <h1>string-diagrams</h1>
+  <p class="tagline">String diagrams in LaTeX, drawn with TikZ.</p>
+  <p class="lede">You put boxes and dots in a TikZ picture. Then you write a list of wires. The <code>\wires</code> command draws the wires and their loose ends at the edge of the picture.</p>
+  <nav class="links">
+    <a href="string-diagrams.pdf">Manual</a>
+    <a href="https://ctan.org/pkg/string-diagrams">CTAN</a>
+    <a href="https://github.com/paolobrasolin/string-diagrams">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <section class="showcase" id="demo">
+    <h2>Live demo</h2>
+    <p class="js-only" hidden>You can change the code of each example. Click <em>Compile</em> to draw the picture again. TeX operates in your browser.</p>
+    <!-- showcase
+      bialgebra | Bialgebra law | If you copy the XOR of two bits, you get the XOR of the copies. | Two string diagrams of red and green dots, equal. Left: two wires merge at a red dot, and a green dot splits the result in two. Right: two green dots split the two wires, the inner copies cross, and two red dots merge them pairwise.
+      copy | Copy law | If you copy the result of f, you get the result of f on each copy. | Two string diagrams, equal. Left: a wire goes through a box f and then splits at a dot. Right: the wire splits at a dot first, and each branch goes through its own box f.
+      mousse | Chocolate mousse | Each box is a step, and each wire is an ingredient. | A recipe as a string diagram: an egg is separated into white and yolk; the white is whisked, the chocolate melted and stirred with the yolk, and the two are folded into a mousse.
+    -->
+  </section>
+
+  <section id="start">
+    <h2>Getting started</h2>
+    <p>The package is on CTAN and in TeX Live. Put this line in the preamble of your document. The package loads TikZ.</p>
+    <pre class="code"><code>\usepackage{string-diagrams}</code></pre>
+    <p>The examples need version 0.3 or later. To update an older version, use <code>tlmgr update string-diagrams</code>. You can also put <a href="string-diagrams.sty" download>string-diagrams.sty</a> in the folder of your document. The <em>Open in Overleaf</em> buttons do this.</p>
+    <p>A diagram is a usual <code>tikzpicture</code>. Boxes and dots are TikZ nodes, and you can put them in any position. The <code>\wires</code> command connects them. Each wire goes out of a side, a corner or a port in the correct direction. A wire can also go to the edge of the picture, which is the boundary node <code>@</code>.</p>
+  </section>
+
+  <section id="documentation">
+    <h2>Documentation</h2>
+    <ul class="docs">
+      <li><a href="string-diagrams.pdf">The manual</a> (PDF) starts with one box and gives an example for each key and command. It also contains the implementation, with comments.</li>
+      <li><a href="llms.txt">llms.txt</a> gives a summary of the package and all its examples in plain text, for AI assistants.</li>
+      <li><a href="https://github.com/paolobrasolin/string-diagrams/blob/main/CHANGELOG.md">The changelog</a> shows the changes in each version.</li>
+      <li>Send questions, ideas and bugs to the <a href="https://github.com/paolobrasolin/string-diagrams/issues">issue tracker</a>.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p>string-diagrams {{version}} · <a href="https://www.latex-project.org/lppl/lppl-1-3c/">LPPL 1.3c</a> · Paolo Brasolin · TeX in the browser by <a href="https://github.com/drgrice1/tikzjax">TikZJax</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,15 @@
+% The preview image of the site for social media, 1200x630 pixels once rasterized at 100 dpi.
+\documentclass{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{string-diagrams}
+\input{preamble}
+\begin{document}
+\begin{minipage}[c][6.3in][c]{12in}
+  \centering
+  {\fontsize{64}{72}\selectfont\sffamily string-diagrams}\par
+  \vspace{0.45in}
+  \scalebox{2.2}{\input{body-bialgebra}}
+\end{minipage}
+\end{document}
