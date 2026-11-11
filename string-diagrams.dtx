@@ -1051,37 +1051,147 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{variable}{\l_@@_adj_keys_tl,\l_@@_adj_rest_tl,\l_@@_adj_list_tl}
-%   Scratch variables for the parser of \cmd\wires: the keys of a piece, the rest of the piece, and a list.
+% \begin{variable}{\s_@@_keys,\s_@@_stop}
+%   Scan marks for the parser of \cmd\wires: the first marks the keys of a bracketed group, and the second ends a loop.
+%    \begin{macrocode}
+\scan_new:N \s_@@_keys
+\scan_new:N \s_@@_stop
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_protect_brackets:Nn,\@@_protect_brackets_out:Nw,\@@_protect_brackets_in:Nw,\@@_protect_brackets_skip:w,\@@_before_closing:w}
+%   Replaces each bracketed group that isn't in braces by \cs{s_@@_keys} followed by its keys in braces, so that their commas survive the split of a list into items, and they can't be mistaken for a group in braces.
+%   As in \TikZ, a group ends at the first closing bracket outside braces.
+%   Each piece is read after a quark, so that a piece in braces keeps them.
+%   A bracket outside braces without its match ends the list with an error.
+%   \begin{arguments}
+%     \item token list variable to store the result
+%     \item token list
+%   \end{arguments}
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { unclosed-bracket }
+  { A~`['~in~the~wires~has~no~matching~`]',~so~the~rest~of~the~list~is~ignored. }
+\msg_new:nnn { string-diagrams } { unopened-bracket }
+  { A~`]'~in~the~wires~has~no~matching~`[',~so~the~rest~of~the~list~is~ignored. }
+\cs_new_protected:Nn \@@_protect_brackets:Nn {
+  \tl_clear:N #1
+  \@@_protect_brackets_out:Nw #1 \q_mark #2 [ \q_stop ]
+}
+\cs_generate_variant:Nn \@@_protect_brackets:Nn { NV }
+\cs_new_protected:Npn \@@_protect_brackets_out:Nw #1#2 [ {
+  \tl_if_in:onTF { \use_none:n #2 } { ] }
+    {
+      \msg_error:nn { string-diagrams } { unopened-bracket }
+      \tl_put_right:Ne #1 { \@@_before_closing:w #2 \q_stop }
+      \@@_protect_brackets_skip:w
+    }
+    {
+      \tl_put_right:No #1 { \use_none:n #2 }
+      \@@_protect_brackets_in:Nw #1 \q_mark
+    }
+}
+\cs_new_protected:Npn \@@_protect_brackets_skip:w #1 \q_stop ] { }
+\cs_new:Npn \@@_before_closing:w #1 ] #2 \q_stop { \exp_not:o { \use_none:n #1 } }
+\cs_new_protected:Npn \@@_protect_brackets_in:Nw #1#2 ] {
+  \tl_if_eq:onF { \use_none:n #2 } { \q_stop }
+    {
+      \tl_if_in:onTF { \use_none:n #2 } { \q_stop }
+        { \msg_error:nn { string-diagrams } { unclosed-bracket } }
+        {
+          \tl_put_right:Ne #1
+            { \exp_not:N \s_@@_keys { \exp_not:o { \use_none:n #2 } } }
+          \@@_protect_brackets_out:Nw #1 \q_mark
+        }
+    }
+}
+\prg_generate_conditional_variant:Nnn \tl_if_eq:nn { on } { F }
+\prg_generate_conditional_variant:Nnn \tl_if_in:nn { on } { TF }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_adj_keys_tl,\l_@@_adj_piece_keys_tl,\l_@@_adj_rest_tl,\l_@@_adj_list_tl}
+%   Scratch variables for the parser of \cmd\wires: the keys of a piece with those inherited, the keys of the piece alone, the rest of the piece, and a list whose brackets are protected.
 %    \begin{macrocode}
 \tl_new:N \l_@@_adj_keys_tl
+\tl_new:N \l_@@_adj_piece_keys_tl
 \tl_new:N \l_@@_adj_rest_tl
 \tl_new:N \l_@@_adj_list_tl
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_adj_piece:nn}
-%   Reads a piece of the adjacencies, such as an item or a value: the keys it inherits go in \cs{l_@@_adj_keys_tl}, and the piece goes in \cs{l_@@_adj_rest_tl}, without spaces around it, and without the braces of a group that it would be alone.
+% \begin{macro}{\@@_adj_piece:nn,\@@_adj_piece_loop:,\@@_drop_keys:w}
+%   Splits a piece of the adjacencies, such as an item or a value, into the keys in brackets that begin it and the rest.
+%   The keys are added to those inherited, in \cs{l_@@_adj_keys_tl}, and the rest goes in \cs{l_@@_adj_rest_tl}, without spaces around it, and without the braces of a group that it would be alone.
+%   Keys in brackets anywhere else in the piece are reported and dropped, and so are keys followed by nothing, since they begin no wire.
 %   \begin{arguments}
 %     \item inherited \TikZ\ keys
-%     \item piece
+%     \item piece, with its brackets protected
 %   \end{arguments}
 %    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { misplaced-keys }
+  {
+    Keys~in~brackets~after~the~beginning~of~`#1'~are~ignored:~
+    keys~begin~an~item~or~a~value,~as~in~a.north~=~[red]~b.south.
+  }
+\msg_new:nnn { string-diagrams } { keys-without-wire }
+  { Keys~`[#1]'~begin~no~wire,~so~they~are~ignored. }
 \cs_new_protected:Nn \@@_adj_piece:nn {
-  \tl_set:Nn \l_@@_adj_keys_tl { #1 }
+  \tl_clear:N \l_@@_adj_piece_keys_tl
   \tl_set:Nn \l_@@_adj_rest_tl { #2 }
-  \tl_trim_spaces:N \l_@@_adj_rest_tl
+  \@@_adj_piece_loop:
+  \tl_if_in:NnT \l_@@_adj_rest_tl { \s_@@_keys }
+    {
+      \tl_set:Ne \l_@@_adj_rest_tl
+        {
+          \exp_after:wN \@@_drop_keys:w \exp_after:wN \q_mark
+            \l_@@_adj_rest_tl \s_@@_keys \s_@@_stop
+        }
+      \tl_trim_spaces:N \l_@@_adj_rest_tl
+      \msg_error:nnV { string-diagrams } { misplaced-keys } \l_@@_adj_rest_tl
+    }
   \bool_lazy_and:nnT
     { \tl_if_head_is_group_p:V \l_@@_adj_rest_tl }
     { \int_compare_p:nNn { \tl_count:N \l_@@_adj_rest_tl } = { 1 } }
     { \tl_set:Ne \l_@@_adj_rest_tl { \tl_head:N \l_@@_adj_rest_tl } }
+  \tl_set:Nn \l_@@_adj_keys_tl { #1 }
+  \tl_if_blank:VF \l_@@_adj_piece_keys_tl
+    {
+      \tl_if_blank:VTF \l_@@_adj_rest_tl
+        {
+          \msg_error:nnV { string-diagrams } { keys-without-wire }
+            \l_@@_adj_piece_keys_tl
+        }
+        {
+          \tl_if_blank:nF { #1 } { \tl_put_right:Nn \l_@@_adj_keys_tl { , } }
+          \tl_put_right:NV \l_@@_adj_keys_tl \l_@@_adj_piece_keys_tl
+        }
+    }
 }
+\cs_new_protected:Nn \@@_adj_piece_loop: {
+  \tl_trim_spaces:N \l_@@_adj_rest_tl
+  \tl_if_head_eq_meaning:VNT \l_@@_adj_rest_tl \s_@@_keys
+    {
+      \tl_if_blank:VF \l_@@_adj_piece_keys_tl
+        { \tl_put_right:Nn \l_@@_adj_piece_keys_tl { , } }
+      \tl_put_right:Ne \l_@@_adj_piece_keys_tl
+        { \tl_item:Nn \l_@@_adj_rest_tl { 2 } }
+      \tl_set:Ne \l_@@_adj_rest_tl { \tl_tail:N \l_@@_adj_rest_tl }
+      \tl_set:Ne \l_@@_adj_rest_tl { \tl_tail:N \l_@@_adj_rest_tl }
+      \@@_adj_piece_loop:
+    }
+}
+\cs_new:Npn \@@_drop_keys:w #1 \s_@@_keys #2
+  {
+    \exp_not:o { \use_none:n #1 }
+    \str_if_eq:nnF { #2 } { \s_@@_stop } { \@@_drop_keys:w \q_mark }
+  }
 \prg_generate_conditional_variant:Nnn \tl_if_head_is_group:n { V } { p }
+\prg_generate_conditional_variant:Nnn \tl_if_head_eq_meaning:nN { V } { T }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}[TF]{\@@_adj_if_name:n}
-%   Tests whether a piece of the adjacencies, once read, can be a name: a node, an anchor, or both.
+%   Tests whether a piece of the adjacencies, once its keys are peeled, can be a name: a node, an anchor, or both.
 %   A piece with a comma, an equals sign or braces in it is a group in braces where a name belongs, such as \texttt{\{b.south, c.south\}} in a list of targets, which has no beginning to share: it is reported.
 %   A blank piece is not a name either, silently, like an empty item of a list.
 %    \begin{macrocode}
@@ -1109,6 +1219,7 @@
 %   A wire is written \meta{node}\texttt{.}\meta{anchor} \texttt{=} \meta{node}\texttt{.}\meta{anchor}, and wires that begin alike can share their beginning: it is written once, followed by \texttt{=} and a group of the rest of each wire.
 %   A beginning ends after a node name or at the \texttt{=} of the wire, never inside an anchor, so a group holds anchors after the node a wire starts from, targets after the \texttt{=} of a wire, and anchors after the node of a target.
 %   So the entries at the top are read as wires, or as groups after the node they start from; a node listed twice keeps the wires of both entries, and an anchor listed twice fans out.
+%   Keys in brackets can begin any item or value: they are added to the keys of the call, and of the groups around them, for every wire they reach, so that the keys closest to a wire come last and win.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
 %     \item adjacencies
@@ -1120,7 +1231,7 @@
 \msg_new:nnn { string-diagrams } { end-without-target }
   { Wire~end~`#1'~has~no~target:~give~it~one~as~in~#2~=~b.south. }
 \cs_new_protected:Nn \@@_adj_map_function:nnN {
-  \tl_set:Nn \l_@@_adj_list_tl { #2 }
+  \@@_protect_brackets:Nn \l_@@_adj_list_tl { #2 }
   \keyval_parse:nnV
     { \@@_adj_top_alone:n }
     { \@@_adj_source:nNnn { #1 } #3 }
@@ -1166,7 +1277,7 @@
     {
       \tl_set_eq:NN \l_@@_adj_node_tl \l_@@_adj_rest_tl
       \@@_adj_piece:Vn \l_@@_adj_keys_tl { #2 }
-      \tl_set_eq:NN \l_@@_adj_list_tl \l_@@_adj_rest_tl
+      \@@_protect_brackets:NV \l_@@_adj_list_tl \l_@@_adj_rest_tl
       \@@_adj_node_list:VNVV \l_@@_adj_keys_tl #1 \l_@@_adj_node_tl \l_@@_adj_list_tl
     }
 }
@@ -1253,7 +1364,7 @@
   }
 \cs_new_protected:Nn \@@_adj_targets:nNnnn {
   \@@_adj_piece:nn { #1 } { #5 }
-  \tl_set_eq:NN \l_@@_adj_list_tl \l_@@_adj_rest_tl
+  \@@_protect_brackets:NV \l_@@_adj_list_tl \l_@@_adj_rest_tl
   \@@_adj_target_list:VNnnV \l_@@_adj_keys_tl #2 { #3 } { #4 } \l_@@_adj_list_tl
 }
 \cs_new_protected:Nn \@@_adj_target_list:nNnnn {
@@ -1278,7 +1389,7 @@
     {
       \tl_set_eq:NN \l_@@_adj_node_tl \l_@@_adj_rest_tl
       \@@_adj_piece:Vn \l_@@_adj_keys_tl { #4 }
-      \tl_set_eq:NN \l_@@_adj_list_tl \l_@@_adj_rest_tl
+      \@@_protect_brackets:NV \l_@@_adj_list_tl \l_@@_adj_rest_tl
       \@@_adj_target_anchors:VNnnVV \l_@@_adj_keys_tl #1 { #2 } { #3 }
         \l_@@_adj_node_tl \l_@@_adj_list_tl
     }

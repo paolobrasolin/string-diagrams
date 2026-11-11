@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add the `wire` key, which draws a `to` path or an `edge` of TikZ as a wire, as in `\draw (f.north) to[wire] (g.south);`, and the `every wire` style that it applies.
 - Let `\wires` take wires written whole, as in `a.north = b.south`, and group them by any beginning they share: after the node they start from, as before, at the `=`, as in `a.north = { b.south, c.south }`, or after the node of their target, as in `a.north = { b = { south.1, south.2 } }`.
+- Let keys in brackets begin any entry, group, wire or target of `\wires`, as in `a.north = [dashed] b.south`: they add up from the keys of the call down to each wire, and the closest win.
 
 ### Changed
 

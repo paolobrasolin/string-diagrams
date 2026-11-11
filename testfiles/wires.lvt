@@ -221,4 +221,12 @@
   }
 }
 
+\TEST{keys in the list style single wires}{
+  \PICTURE{
+    \node[box=2/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/2/0, square] (b) at (0pt,200pt) {};
+    \LOG{\wires[line width=2pt]{a = {north.1 = [dashed] b.south.1, north.2 = b.south.2}}}
+  }
+}
+
 \END

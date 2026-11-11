@@ -160,6 +160,48 @@
   \MAP{a.north = {b = {south = c}}}
 }
 
+\TEST{keys before a wire, a value or an item}{
+  \MAP{[red] a.north = b.south}
+  \MAP{a.north = [red] b.south}
+  \MAP{a = {[red] north = b.south, south = [blue] c.north}}
+  \MAP{a.north = {[red] b.south, c.south}}
+  \MAP{a.north = {b = {[red] south.1, south.2}}}
+}
+
+\TEST{keys add up from the call down to each wire}{
+  \MAP[thick]{[red] a = [dashed] {[blue] north = [->] {b.south, [<-] c = [gray] {[cyan] south}}}}
+}
+
+\TEST{keys hold commas, braces and brackets, as in TikZ}{
+  \MAP{a.north = [red, dashed] b.south}
+  \MAP{a.north = [label={[red]x}, "y" {pos=1}] b.south}
+  \MAP{a.north = [red] [thick] b.south}
+}
+
+\TEST{keys keep the spaces of node names and anchors around them}{
+  \MAP{[red] my a.north east = [blue] my b.south west}
+}
+
+\TEST{keys before an entry without wires or target are dropped with it}{
+  \MAP{[red] a}
+  \MAP{[red] a.north}
+}
+
+\TEST{an unclosed bracket is an error}{
+  \MAP{a.north = [red b.south}
+}
+
+\TEST{a group in braces that begins with keys is a group, not keys}{
+  \MAP{a.north = {c = [gray] {[cyan] south}}}
+  \MAP{a = [dashed] {[blue] north = b.south}}
+}
+
+\TEST{keys after the beginning of an item or value are an error}{
+  \MAP{a.north = b.south [red]}
+  \MAP{a [red] = {north = b.south}}
+  \MAP{a = {north [red] = b.south, south = c.north}}
+}
+
 \TEST{empty items and groups give no wires, silently}{
   \MAP{,, a.north = b.south ,,}
   \MAP{a.north = { , b.south , }}
@@ -180,6 +222,21 @@
   \MAP{a.north = {b.south} {c.south}}
   \MAP{{a.north = b.south}}
   \MAP{a = { {north, south} = b.south }}
+}
+
+\TEST{keys followed by nothing are an error}{
+  \MAP{[red]}
+  \MAP{[red] = b.south}
+  \MAP{a = { [red] }}
+  \MAP{a.north = [red]}
+  \MAP{a.north = [red] {}}
+  \MAP{a.north = { b = [red] }}
+  \MAP{a.north = { b = { [red] } }}
+}
+
+\TEST{a closing bracket without its opening one is an error}{
+  \MAP{a.north = b.south], c.north = d.south}
+  \MAP{a.north = b.south, c = {north = d.south]}}
 }
 
 % NOTE: as in TikZ, which reads (a . north) as the node `a ' and the anchor ` north'.

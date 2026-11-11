@@ -224,13 +224,107 @@ Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
 ============================================================
 ============================================================
-TEST 24: empty items and groups give no wires, silently
+TEST 24: keys before a wire, a value or an item
+============================================================
+[red] [a].[north] -- [b].[south]
+[red] [a].[north] -- [b].[south]
+[red] [a].[north] -- [b].[south]
+[blue] [a].[south] -- [c].[north]
+[red] [a].[north] -- [b].[south]
+[] [a].[north] -- [c].[south]
+[red] [a].[north] -- [b].[south.1]
+[] [a].[north] -- [b].[south.2]
+============================================================
+============================================================
+TEST 25: keys add up from the call down to each wire
+============================================================
+[thick,red,dashed,blue,->] [a].[north] -- [b].[south]
+[thick,red,dashed,blue,->,<-,gray,cyan] [a].[north] -- [c].[south]
+============================================================
+============================================================
+TEST 26: keys hold commas, braces and brackets, as in TikZ
+============================================================
+[red, dashed] [a].[north] -- [b].[south]
+[label={[red]x}, "y" {pos=1}] [a].[north] -- [b].[south]
+[red,thick] [a].[north] -- [b].[south]
+============================================================
+============================================================
+TEST 27: keys keep the spaces of node names and anchors around them
+============================================================
+[red,blue] [my a].[north east] -- [my b].[south west]
+============================================================
+============================================================
+TEST 28: keys before an entry without wires or target are dropped with it
+============================================================
+! Package string-diagrams Error: Node `a' has no wires: list them as in a = { north = b.south }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `a.north' has no target: give it one as in a.north = b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 29: an unclosed bracket is an error
+============================================================
+! Package string-diagrams Error: A `[' in the wires has no matching `]', so the rest of the list is ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 30: a group in braces that begins with keys is a group, not keys
+============================================================
+[gray,cyan] [a].[north] -- [c].[south]
+[dashed,blue] [a].[north] -- [b].[south]
+============================================================
+============================================================
+TEST 31: keys after the beginning of an item or value are an error
+============================================================
+! Package string-diagrams Error: Keys in brackets after the beginning of `b.south' are ignored: keys begin an item or a value, as in a.north = [red] b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [a].[north] -- [b].[south]
+! Package string-diagrams Error: Keys in brackets after the beginning of `a' are ignored: keys begin an item or a value, as in a.north = [red] b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [a].[north] -- [b].[south]
+! Package string-diagrams Error: Keys in brackets after the beginning of `north' are ignored: keys begin an item or a value, as in a.north = [red] b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [a].[north] -- [b].[south]
+[] [a].[south] -- [c].[north]
+============================================================
+============================================================
+TEST 32: empty items and groups give no wires, silently
 ============================================================
 [] [a].[north] -- [b].[south]
 [] [a].[north] -- [b].[south]
 ============================================================
 ============================================================
-TEST 25: extra braces around a name or a value are dropped
+TEST 33: extra braces around a name or a value are dropped
 ============================================================
 [] [a].[north] -- [b].[south]
 [] [a].[north] -- [b].[south]
@@ -239,7 +333,7 @@ TEST 25: extra braces around a name or a value are dropped
 [] [a].[north] -- [b].[south]
 ============================================================
 ============================================================
-TEST 26: a group in braces where a name belongs is an error
+TEST 34: a group in braces where a name belongs is an error
 ============================================================
 ! Package string-diagrams Error: `b.south, c.south' is a group without a beginning, so it is ignored: a group follows a node or an anchor and =, as in b = { south.1, south.2 }.
 Type <return> to continue.
@@ -272,18 +366,92 @@ Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
 ============================================================
 ============================================================
-TEST 27: spaces around a dot belong to the node and the anchor
+TEST 35: keys followed by nothing are an error
+============================================================
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Keys `[red]' begin no wire, so they are ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 36: a closing bracket without its opening one is an error
+============================================================
+! Package string-diagrams Error: A `]' in the wires has no matching `[', so the rest of the list is ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [a].[north] -- [b].[south]
+[] [a].[north] -- [b].[south]
+! Package string-diagrams Error: A `]' in the wires has no matching `[', so the rest of the list is ignored.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [c].[north] -- [d].[south]
+============================================================
+============================================================
+TEST 37: spaces around a dot belong to the node and the anchor
 ============================================================
 [] [a ].[ north] -- [b ].[ south]
 ============================================================
 ============================================================
-TEST 28: a node name ends at the first dot
+TEST 38: a node name ends at the first dot
 ============================================================
 [] [x].[y.north] -- [b].[south]
 [] [a].[] -- [b].[south]
 ============================================================
 ============================================================
-TEST 29: the boundary is a node like any other
+TEST 39: the boundary is a node like any other
 ============================================================
 [] [@].[west] -- [a].[west]
 [] [a].[east] -- [@].[east]
