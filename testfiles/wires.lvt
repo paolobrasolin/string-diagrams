@@ -212,4 +212,13 @@
   }
 }
 
+% NOTE: wires drawn by \wires are edges inside, but the edges are an implementation detail, so only every wire reaches them: not every edge, nor every to as up to 0.3.0.
+\TEST{every wire styles the wires, every edge and every to don't}{
+  \PICTURE[every edge/.style={draw, line width=4pt}, every to/.style={out=0}, every wire/.style={dashed}]{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (0pt,200pt) {};
+    \LOG{\wires{a = {north.1 = b.south.1}}}
+  }
+}
+
 \END

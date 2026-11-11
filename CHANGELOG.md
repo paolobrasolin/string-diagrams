@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Require LaTeX 2023-06-01 or later.
+- Draw the wires of `\wires` with the `wire` key, so the `every wire` style applies to them, while the `every to` and `every edge` styles of the picture don't.
+
+### Fixed
+
+- Report a wire to a node that doesn't exist with one error, rather than three, and without drawing a stray curve to the origin.
 
 ## [0.3.0] - 2026-11-07
 

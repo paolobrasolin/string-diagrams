@@ -703,7 +703,7 @@
 % \end{macro}
 %
 % \begin{variable}{\l_@@_oangle_tl,\l_@@_iangle_tl,\l_@@_source_tl,\l_@@_target_tl}
-%   Initialize scratch variables required by \cmd{\@@_draw_wire:nnnnn} and \cmd{\@@_wire:}.
+%   Initialize scratch variables required by \cmd{\@@_wire:}.
 %    \begin{macrocode}
 \tl_new:N \l_@@_oangle_tl
 \tl_new:N \l_@@_iangle_tl
@@ -738,8 +738,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_draw_wire:nnnnn}
-%   Draws a wire, unless an end has no angle to leave at: then it raises an error for each such end.
+% \begin{macro}{\@@_draw_wire:nnnnn,\@@_wire_coordinate:nn}
+%   Draws a wire as an edge with the \texttt{wire} key, followed by the keys of the call, so that it is drawn as on any path of \TikZ: the key sets its angles and moves its ends on the boundary, and raises an error for each end without an angle.
+%   The edge is an implementation detail, so it gets \TikZ's default \texttt{every edge}, which only draws it: the wires of \cmd\wires\ are styled by \texttt{every wire} and the keys of the call, not by the \texttt{every edge} of the picture.
+%   The coordinates are expanded first, since \TikZ\ hands the target to the key as written; an end without an anchor is a bare node.
 %   \begin{arguments}
 %     \item \TikZ\ keys
 %     \item source node
@@ -749,28 +751,16 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_wire:nnnnn {
-  \@@_anchor_to_angle:Nnn   \l_@@_oangle_tl { #2 } { #3 }
-  \@@_anchor_to_angle:Nnn   \l_@@_iangle_tl { #4 } { #5 }
-  \@@_check_end:nnN { #2 } { #3 } \l_@@_oangle_tl
-  \@@_check_end:nnN { #4 } { #5 } \l_@@_iangle_tl
-  \bool_lazy_or:nnF
-    { \tl_if_empty_p:N \l_@@_oangle_tl }
-    { \tl_if_empty_p:N \l_@@_iangle_tl }
+  \use:e
     {
-      \@@_anchors_to_proj:Nnnnn \l_@@_source_tl { #2 } { #3 } { #4 } { #5 }
-      \@@_anchors_to_proj:Nnnnn \l_@@_target_tl { #4 } { #5 } { #2 } { #3 }
-
-      \path
-        [
-          out={\tl_use:N \l_@@_oangle_tl},
-          in= {\tl_use:N \l_@@_iangle_tl},
-          draw, #1,
-        ]
-          (\tl_use:N \l_@@_source_tl) to
-          (\tl_use:N \l_@@_target_tl)
-        ;
+      \exp_not:N \path [ every~edge/.style = { draw } ]
+        ( \@@_wire_coordinate:nn { #2 } { #3 } )
+        edge [ wire, \exp_not:n { #1 } ]
+        ( \@@_wire_coordinate:nn { #4 } { #5 } ) ;
     }
 }
+\cs_new:Nn \@@_wire_coordinate:nn
+  { \exp_not:n { #1 } \tl_if_blank:nF { #2 } { . \exp_not:n { #2 } } }
 %    \end{macrocode}
 % \end{macro}
 %
