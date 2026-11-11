@@ -275,25 +275,13 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 20: a wire from or to a node without anchor is an error
+TEST 20: a wire from or to a node without anchor takes the side it faces
 ============================================================
-! Package string-diagrams Error: Wire end `a' has no anchor, so the wire is not drawn.
-Type <return> to continue.
- ...                                              
-l. ...}
-LaTeX does not know anything more about this error, sorry.
-Try typing <return> to proceed.
-If that doesn't work, type X <return> to quit.
-99.62769 139.47876 m 
-S 
-! Package string-diagrams Error: Wire end `b' has no anchor, so the wire is not drawn.
-Type <return> to continue.
- ...                                              
-l. ...}
-LaTeX does not know anything more about this error, sorry.
-Try typing <return> to proceed.
-If that doesn't work, type X <return> to quit.
 0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
 S 
 ============================================================
 ============================================================
@@ -306,7 +294,7 @@ l. ...}
 LaTeX does not know anything more about this error, sorry.
 Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
-! Package string-diagrams Error: Wire end `b' has no anchor, so the wire is not drawn.
+! Package string-diagrams Error: Node `b' has no anchor `northh', so the wire is not drawn.
 Type <return> to continue.
  ...                                              
 l. ...}

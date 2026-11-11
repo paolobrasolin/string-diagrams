@@ -1,0 +1,243 @@
+\input stridi-test.tex\relax
+
+\begin{document}
+
+\START
+
+% NOTE: wires from a node without anchor take the side they cross going straight; a side with one port gives the port.
+\TEST{a bare target takes the side the wire arrives at}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \node[box, square] (c) at (-100pt,200pt) {};
+    \LOG{\wires{a = {north.1 = b}}}
+    \TYPE{-- anchored:}
+    \LOG{\wires{a = {north.1 = b.south.1}}}
+    \TYPE{-- without ports:}
+    \LOG{\wires{a = {north.1 = c}}}
+  }
+}
+
+\TEST{a bare start takes the side the wire leaves through}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\wires{a = b.south.1}}
+    \TYPE{-- anchored:}
+    \LOG{\wires{a = {north.1 = b.south.1}}}
+  }
+}
+
+\TEST{with both ends bare, the axis that separates the nodes more decides}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (100pt,200pt) {};
+    \node[box, square] (c) at (300pt,100pt) {};
+    \LOG{\wires{a = b}}
+    \TYPE{-- sideways:}
+    \LOG{\wires{a = c}}
+    \TYPE{-- backwards:}
+    \LOG{\wires{b = a}}
+  }
+}
+
+% NOTE: near a diagonal, a small move of a node flips the axis; a flow keeps it.
+\TEST{near a diagonal the layout flips, and a flow decides}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (200pt,190pt) {};
+    \node[box, square] (c) at (190pt,200pt) {};
+    \LOG{\wires{a = b}}
+    \LOG{\wires{a = c}}
+    \TYPE{-- with a flow:}
+    \LOG{\wires[wire flow=north]{a = b}}
+    \LOG{\wires[wire flow=north]{a = c}}
+  }
+}
+
+\TEST{a flow sets the direction of wires between bare ends}{
+  \PICTURE[wire flow=east]{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (200pt,100pt) {};
+    \LOG{\wires{a = b}}
+    \TYPE{-- against the flow:}
+    \LOG{\wires{b = a}}
+  }
+}
+
+\TEST{a flow set after the wire key counts, and none unsets it}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (200pt,100pt) {};
+    \LOG{\draw (a) to[wire, wire flow=north] (b);}
+    \LOG{\draw (a) to[wire flow=north, wire] (b);}
+    \LOG{\path (a) edge[wire, wire flow=north] (b);}
+    \TYPE{-- in the keys of a call, a group or a wire:}
+    \LOG{\wires[wire flow=north]{a = b}}
+    \LOG{\wires{a = [wire flow=north] b}}
+    \TYPE{-- none:}
+    \LOG{\wires[wire flow=north]{a = [wire flow=none] b}}
+  }
+}
+
+% NOTE: a corner points diagonally; the end it leads to is snapped to an axis: the flow's, else the one that separates the ends more.
+\TEST{a wire from a corner snaps to an axis}{
+  \PICTURE{
+    \node[dot] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (300pt,100pt) {};
+    \node[box, square] (c) at (100pt,300pt) {};
+    \LOG{\wires{a = {north east = b, north east = c}}}
+    \TYPE{-- with a flow:}
+    \LOG{\wires[wire flow=north]{a = {north east = b}}}
+  }
+}
+
+% NOTE: the boundary contains the nodes, so it is left behind them and reached ahead of them.
+\TEST{bare ends on the boundary, with a flow}{
+  \PICTURE[wire flow=north]{
+    \node[box=1/0/1/0, square] (a) at (0pt,0pt) {};
+    \LOG{\wires{@ = a, a = @}}
+    \TYPE{-- anchored:}
+    \LOG{\wires{@.south = a.south.1, a.north.1 = @.north}}
+  }
+}
+
+% NOTE: which end faces inwards comes from the boxes of the two nodes: a node that holds the other faces inwards, as a frame drawn by hand around a box.
+\TEST{an end faces inwards when its node holds the other}{
+  \PICTURE{
+    \node[minimum size=400pt, inner sep=0pt, outer sep=0pt] (f) at (0pt,0pt) {};
+    \node[box=0/1/0/1, square] (a) at (20pt,10pt) {};
+    \LOG{\draw (f.west) to[wire] (a.west.1);}
+    \LOG{\draw (a.east.1) to[wire] (f.east);}
+    \TYPE{-- with a bare end:}
+    \LOG{\draw (f.west) to[wire] (a);}
+    \LOG{\draw (a) to[wire] (f.east);}
+    \TYPE{-- with both ends bare, along the layout or the flow:}
+    \LOG{\wires{f = a}}
+    \LOG{\wires[wire flow=east]{a = f}}
+  }
+}
+
+\TEST{a node holds another that touches its border}{
+  \PICTURE[wire flow=east]{
+    \node[minimum width=400pt, minimum height=120pt, inner sep=0pt, outer sep=0pt] (f) at (0pt,0pt) {};
+    \node[box=0/1/0/1, square] (a) at (0pt,0pt) {};
+    \LOG{\wires{f = a, a = f}}
+  }
+}
+
+\TEST{a box holds a dot}{
+  \PICTURE{
+    \node[box, square, minimum width=400pt] (f) at (0pt,0pt) {};
+    \node[dot] (d) at (100pt,20pt) {};
+    \LOG{\wires{f = d}}
+  }
+}
+
+% NOTE: nodes apart face out, even when the wire has to loop round; borders that touch don't overlap.
+\TEST{ends on nodes apart face out}{
+  \PICTURE{
+    \node[minimum size=200pt, inner sep=0pt, outer sep=0pt] (f) at (0pt,0pt) {};
+    \node[box=0/1/0/1, square] (a) at (200pt,0pt) {};
+    \node[box=0/1/0/1, square] (b) at (0pt,200pt) {};
+    \node[square] (c) at (-160pt,0pt) {};
+    \LOG{\wires{f.east = a}}
+    \LOG{\wires[wire flow=east]{b = f}}
+    \TYPE{-- touching:}
+    \LOG{\wires{c = f}}
+  }
+}
+
+% NOTE: when two nodes overlap and neither holds the other, a bare end can't tell which way the wire goes.
+\TEST{a bare end on nodes that overlap is an error, anchored ends face out}{
+  \PICTURE{
+    \node[minimum size=200pt, inner sep=0pt, outer sep=0pt] (f) at (0pt,0pt) {};
+    \node[box=0/1/0/1, square] (a) at (100pt,0pt) {};
+    \LOG{\wires{f.west = a}}
+    \LOG{\wires[wire flow=east]{a = f}}
+    \TYPE{-- anchored:}
+    \LOG{\wires{f.west = a.west.1}}
+  }
+}
+
+\TEST{a bare end on nodes with the same box is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (0pt,0pt) {};
+    \LOG{\wires[wire flow=east]{a = b}}
+  }
+}
+
+% NOTE: the boundary is drawn around the picture by the first \wires; a node drawn later that sticks out of it overlaps it, and wires to it face out.
+\TEST{a node that sticks out of the boundary overlaps it}{
+  \PICTURE{
+    \node[box=0/1/0/1, square] (a) at (0pt,0pt) {};
+    \wires{a = @.east}
+    \node[box=0/1/0/1, square] (b) at (120pt,120pt) {};
+    \LOG{\wires{@ = b}}
+    \TYPE{-- anchored:}
+    \LOG{\wires{@.west = b.west.1}}
+  }
+}
+
+% NOTE: a wire from the boundary to itself crosses it, both ends facing inwards; a wire from any other node to itself loops round it.
+\TEST{bare self-wires follow the flow}{
+  \PICTURE[wire flow=east]{
+    \node[box=0/1/0/1, square] (a) at (0pt,0pt) {};
+    \LOG{\wires{a = a}}
+    \LOG{\wires{@ = @}}
+    \TYPE{-- one end anchored:}
+    \LOG{\wires{a.north = a}}
+    \LOG{\wires{@.north = @}}
+    \TYPE{-- both anchored:}
+    \LOG{\wires{a.east.1 = a.west.1}}
+    \LOG{\wires{@.west = @.east}}
+  }
+}
+
+\TEST{a bare self-wire without a flow is an error}{
+  \PICTURE{
+    \node[box=0/1/0/1, square] (a) at (0pt,0pt) {};
+    \LOG{\wires{a = a}}
+    \LOG{\wires{@ = @}}
+  }
+}
+
+\TEST{a bare end on a side with more than one port is an error}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/2/0, square] (b) at (100pt,200pt) {};
+    \LOG{\wires{a = {north.1 = b}}}
+  }
+}
+
+\TEST{bare ends on nodes with the same center are an error, unless a flow is set}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[dot] (b) at (0pt,0pt) {};
+    \LOG{\wires{a = b}}
+    \TYPE{-- with a flow:}
+    \LOG{\wires[wire flow=north]{b = a}}
+  }
+}
+
+\TEST{a flow can be up, right, down or left}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (200pt,100pt) {};
+    \LOG{\wires[wire flow=up]{a = b}}
+    \LOG{\wires[wire flow=right]{a = b}}
+    \LOG{\wires[wire flow=down]{a = b}}
+    \LOG{\wires[wire flow=left]{a = b}}
+  }
+}
+
+\TEST{a flow that is not a direction is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (0pt,200pt) {};
+    \LOG{\wires[wire flow=sideways]{a = b}}
+  }
+}
+
+\END

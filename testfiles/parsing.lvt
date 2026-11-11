@@ -127,7 +127,6 @@
   \MAP{a.north = b.south, c = {west = @.west}, @.east = c.east}
 }
 
-% NOTE: the wires start from a node without anchor, which \wires reports until such ends are supported.
 \TEST{an item without equals sign after a node is a target, if the node exists}{
   \PICTURE{\node (b) {}; \node (c) {};}
   \MAP{a = {b, c.west}}

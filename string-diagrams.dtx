@@ -589,7 +589,7 @@
 % \end{macro}
 %
 % \begin{macro}{\@@_calctarget:nnnn}
-%   Performs the core calculation for \cmd{\@@_anchors_to_proj:Nnnnn}.
+%   Performs the core calculation for \cmd{\@@_end_coordinate:NnnnnN}.
 %   The result is stored in the internal \texttt{pgf} variables.
 %   A wire from a corner to a side named in it, such as south west to south or west, ends offset along its diagonal.
 %   A bend that would end past a corner of the boundary ends at that corner.
@@ -636,24 +636,22 @@
 % \end{macro}
 %
 % \begin{variable}{\l_@@_angle_int}
-%   Scratch variable for \cmd{\@@_anchor_to_angle:Nnn}.
+%   Scratch variable for \cmd{\@@_anchor_to_angle:Nn}.
 %    \begin{macrocode}
 \int_new:N \l_@@_angle_int
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_anchor_to_angle:Nnn}
-%   Calculates in/out angle given a node/anchor pair.
-%   Wires leave sides and their ports straight out, and corners diagonally.
-%   Accounts for when the node is the boundary.
-%   The result is stored in the given variable.
+% \begin{macro}{\@@_anchor_to_angle:Nn}
+%   Calculates the angle at which a wire leaves an anchor outwards, from its name.
+%   Wires leave sides and their ports straight out, and corners diagonally; other anchors have no angle, and leave the variable empty.
+%   An end that faces inwards turns this angle round (see \cmd{\@@_wire:}).
 %   \begin{arguments}
 %     \item token list variable
-%     \item node
 %     \item anchor
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new_protected:Nn \@@_anchor_to_angle:Nnn {
+\cs_new_protected:Nn \@@_anchor_to_angle:Nn {
   \regex_match_case:nnTF
     {
       { \A north \  east \b } { \int_set:Nn \l_@@_angle_int {   45 } }
@@ -665,43 +663,14 @@
       { \A south \b } { \int_set:Nn \l_@@_angle_int { -90 } }
       { \A west  \b } { \int_set:Nn \l_@@_angle_int { 180 } }
     }
-    { #3 }
-    {
-      \str_if_eq:nnTF { @ } { #2 }
-        { \int_sub:Nn \l_@@_angle_int { 180 } } { }
-      \tl_set:Nf #1 { \int_use:N \l_@@_angle_int }
-    }
+    { #2 }
+    { \tl_set:Nf #1 { \int_use:N \l_@@_angle_int } }
     { \tl_clear:N #1 }
 }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_anchors_to_proj:Nnnnn}
-%   Calculates a target point given two node/anchor pairs.
-%   The first pair can be on the boundary.
-%   The result is stored in the given token list variable.
-%   \begin{arguments}
-%     \item token list variable
-%     \item source node
-%     \item source anchor
-%     \item target node
-%     \item target anchor
-%   \end{arguments}
-%    \begin{macrocode}
-\cs_new_protected:Nn \@@_anchors_to_proj:Nnnnn {
-  \regex_match_case:nn
-    {
-      { \A @ \. } {
-        \@@_calctarget:nnnn { #4 } { #5 } { #2 } { #3 }
-        \tl_set:Ne #1 { \dim_use:N \pgf@x, \dim_use:N \pgf@y }
-      }
-      { } { \tl_set:Nn #1 { #2.#3 } }
-    }
-    { #2.#3 }
-}
-%    \end{macrocode}
-% \end{macro}
-%
+
 % \begin{variable}{\l_@@_oangle_tl,\l_@@_iangle_tl,\l_@@_source_tl,\l_@@_target_tl}
 %   Initialize scratch variables required by \cmd{\@@_wire:}.
 %    \begin{macrocode}
@@ -991,19 +960,19 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_wire_end:nNNNN,\@@_wire_end_angle:NNN}
-%   Finds the node and anchor of an end of a to path, and the angle a wire leaves or enters it at.
+% \begin{macro}{\@@_wire_end:nNNNN,\@@_wire_end_side:NNN}
+%   Finds the node and anchor of an end of a to path; the anchor is empty for a bare node.
+%   An anchor must be on a side, so that the wire has an angle to leave or enter it at; otherwise the end raises an error, whatever the other end.
 %   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
 %   A point is looked up among the anchors resolved in the picture.
-%   An end that is no anchor of a node, or a boundary from another picture, raises an error and leaves the angle empty.
-%   So do the ends that \cmd\wires\ refuses: a bare node, and anchors off the sides.
-%   An end on a node that doesn't exist, or at an anchor its node doesn't have, leaves the angle empty too, but raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
-%   \TikZ\ resolves the start of a to path before its keys, and a target only if it computes it.
+%   An end that is no anchor of a node, or a boundary from another picture, raises an error.
+%   An end on a node that doesn't exist, or at an anchor its node doesn't have, raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
+%   \TikZ\ resolves the start of a to path while reading the path, and a target only if it computes it.
 %   \begin{arguments}
 %     \item end, as \TikZ\ gives it
 %     \item token list variable to store the node
 %     \item token list variable to store the anchor
-%     \item token list variable to store the angle
+%     \item boolean variable, set true if the end is fine
 %     \item boolean, true if \TikZ\ has already resolved the end
 %   \end{arguments}
 %    \begin{macrocode}
@@ -1022,7 +991,7 @@
 \bool_new:N \l_@@_end_missing_bool
 \bool_new:N \l_@@_end_resolved_bool
 \cs_new_protected:Nn \@@_wire_end:nNNNN {
-  \tl_clear:N #4
+  \bool_set_false:N #4
   \bool_set_eq:NN \l_@@_end_resolved_bool #5
   \regex_match:nnTF { \A [^,]* pt , [^,]* pt \Z } { #1 }
     {
@@ -1041,10 +1010,10 @@
             { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
             {
               \tl_if_empty:NTF #3
-                { \@@_wire_end_angle:NNN #2 #3 #4 }
+                { \bool_set_true:N #4 }
                 {
                   \@@_if_anchor:VVTF #2 #3
-                    { \@@_wire_end_angle:NNN #2 #3 #4 }
+                    { \@@_wire_end_side:NNN #2 #3 #4 }
                     {
                       \bool_if:NF \l_@@_end_resolved_bool
                         {
@@ -1068,75 +1037,511 @@
         }
     }
 }
-\cs_new_protected:Nn \@@_wire_end_angle:NNN {
-  \@@_anchor_to_angle:NVV #3 #1 #2
-  \@@_check_end:VVN #1 #2 #3
+\tl_new:N \l_@@_end_angle_tl
+\cs_new_protected:Nn \@@_wire_end_side:NNN {
+  \@@_anchor_to_angle:NV \l_@@_end_angle_tl #2
+  \tl_if_empty:NTF \l_@@_end_angle_tl
+    { \@@_check_end:VVN #1 #2 \l_@@_end_angle_tl }
+    { \bool_set_true:N #3 }
 }
 \cs_generate_variant:Nn \@@_wire_end:nNNNN { V }
-\cs_generate_variant:Nn \@@_anchor_to_angle:Nnn { NVV }
+\cs_generate_variant:Nn \@@_anchor_to_angle:Nn { NV }
 \cs_generate_variant:Nn \@@_check_end:nnN { VV }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\l_@@_start_node_tl,\l_@@_start_anchor_tl,\l_@@_end_node_tl,\l_@@_end_anchor_tl}
-%   Scratch variables for \cmd{\@@_wire:}: the two ends of a wire.
+% \begin{variable}{\l_@@_start_node_tl,\l_@@_start_anchor_tl,\l_@@_end_node_tl,\l_@@_end_anchor_tl,\l_@@_start_ok_bool,\l_@@_end_ok_bool,\l_@@_start_x_dim,\l_@@_start_y_dim,\l_@@_end_x_dim,\l_@@_end_y_dim,\l_@@_start_in_bool,\l_@@_end_in_bool}
+%   Scratch variables for \cmd{\@@_wire:}: the two ends of a wire, whether each is fine, their points, and whether each faces inwards.
 %    \begin{macrocode}
 \tl_new:N \l_@@_start_node_tl
 \tl_new:N \l_@@_start_anchor_tl
 \tl_new:N \l_@@_end_node_tl
 \tl_new:N \l_@@_end_anchor_tl
+\bool_new:N \l_@@_start_ok_bool
+\bool_new:N \l_@@_end_ok_bool
+\dim_new:N \l_@@_start_x_dim
+\dim_new:N \l_@@_start_y_dim
+\dim_new:N \l_@@_end_x_dim
+\dim_new:N \l_@@_end_y_dim
+\bool_new:N \l_@@_start_in_bool
+\bool_new:N \l_@@_end_in_bool
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_wire:}
-%   Turns a to path into a wire, for the \texttt{wire} key: it sets the angles that \TikZ's own \texttt{out} and \texttt{in} keys draw a curve with, and moves the ends on the boundary as \cmd\wires\ does.
-%   An end on the boundary becomes a point, and a start on it needs a move there, since the path is already at the anchor.
-%   An end that has no angle raises at most one error, and the wire becomes a move to its target, so it is not drawn; it becomes nothing if its target is on a node that doesn't exist, which \TikZ\ would report again.
+% \begin{macro}{\@@_point_of_end:nnNN}
+%   Stores the point of an end: its anchor, or the center of a bare node.
+%   \begin{arguments}
+%     \item node
+%     \item anchor, or nothing
+%     \item dimension variable to store the x coordinate
+%     \item dimension variable to store the y coordinate
+%   \end{arguments}
 %    \begin{macrocode}
-\cs_new_protected:Nn \@@_wire: {
-  \bool_set_false:N \l_@@_end_missing_bool
-  \@@_wire_end:VNNNN \tikztostart
-    \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_oangle_tl \c_true_bool
-  \@@_wire_end:VNNNN \tikztotarget
-    \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_iangle_tl \c_false_bool
-  \bool_lazy_or:nnTF
-    { \tl_if_empty_p:N \l_@@_oangle_tl }
-    { \tl_if_empty_p:N \l_@@_iangle_tl }
-    {
-      \bool_if:NTF \l_@@_end_missing_bool
-        { \pgfkeysalso { to~path = { } } }
-        { \pgfkeysalso { to~path = { (\tikztotarget) } } }
-    }
-    {
-      \@@_anchors_to_proj:NVVVV \l_@@_source_tl
-        \l_@@_start_node_tl \l_@@_start_anchor_tl
-        \l_@@_end_node_tl \l_@@_end_anchor_tl
-      \@@_anchors_to_proj:NVVVV \l_@@_target_tl
-        \l_@@_end_node_tl \l_@@_end_anchor_tl
-        \l_@@_start_node_tl \l_@@_start_anchor_tl
-      \tl_set_eq:NN \tikztotarget \l_@@_target_tl
-      \exp_args:Ne \pgfkeysalso
-        {
-          out = \tl_use:N \l_@@_oangle_tl ,
-          in = \tl_use:N \l_@@_iangle_tl ,
-        }
-      \str_if_eq:VnT \l_@@_start_node_tl { @ }
-        {
-          \tl_set_eq:NN \tikztostart \l_@@_source_tl
-          \pgfkeysalso { to~path = { (\tikztostart) \tikz@to@curve@path } }
-        }
-    }
+\cs_new_protected:Nn \@@_point_of_end:nnNN {
+  \tl_if_empty:nTF { #2 }
+    { \pgfpointanchor { #1 } { center } }
+    { \pgfpointanchor { #1 } { #2 } }
+  \dim_set:Nn #3 { \pgf@x }
+  \dim_set:Nn #4 { \pgf@y }
 }
-\cs_generate_variant:Nn \@@_anchors_to_proj:Nnnnn { NVVVV }
+\cs_generate_variant:Nn \@@_point_of_end:nnNN { VVNN }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{/tikz/wire,/tikz/every wire}
-%   Defines the key that draws a to path or an edge as a wire, and the style it applies after it, as \texttt{every edge} or \texttt{every to} would.
+% \begin{variable}{\l_@@_start_west_dim,\l_@@_start_south_dim,\l_@@_start_east_dim,\l_@@_start_north_dim,\l_@@_end_west_dim,\l_@@_end_south_dim,\l_@@_end_east_dim,\l_@@_end_north_dim,\l_@@_start_holds_bool,\l_@@_end_holds_bool}
+%   Scratch variables for \cmd{\@@_faces_inwards:}: the bounding boxes of the nodes of the two ends of a wire, and whether each holds the other.
 %    \begin{macrocode}
+\dim_new:N \l_@@_start_west_dim
+\dim_new:N \l_@@_start_south_dim
+\dim_new:N \l_@@_start_east_dim
+\dim_new:N \l_@@_start_north_dim
+\dim_new:N \l_@@_end_west_dim
+\dim_new:N \l_@@_end_south_dim
+\dim_new:N \l_@@_end_east_dim
+\dim_new:N \l_@@_end_north_dim
+\bool_new:N \l_@@_start_holds_bool
+\bool_new:N \l_@@_end_holds_bool
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_node_box:nNNNN}
+%   Stores the bounding box of a node, from its south west and north east anchors, which lie on the outer edge of its stroke, since \TikZ's default \texttt{outer sep} is half the line width.
+%   \begin{arguments}
+%     \item node
+%     \item dimension variable to store the west border
+%     \item dimension variable to store the south border
+%     \item dimension variable to store the east border
+%     \item dimension variable to store the north border
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_node_box:nNNNN {
+  \pgfpointanchor { #1 } { south~west }
+  \dim_set:Nn #2 { \pgf@x }
+  \dim_set:Nn #3 { \pgf@y }
+  \pgfpointanchor { #1 } { north~east }
+  \dim_set:Nn #4 { \pgf@x }
+  \dim_set:Nn #5 { \pgf@y }
+}
+\cs_generate_variant:Nn \@@_node_box:nNNNN { V }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_if_box_within_p:nn,\@@_if_boxes_apart_p:}
+%   \cmd{\@@_if_box_within_p:nn} tests whether the box of one end of a wire, \texttt{start} or \texttt{end}, lies within the box of the other, a shared border counting as inside within 0.01pt.
+%   \cmd{\@@_if_boxes_apart_p:} tests whether the two boxes don't overlap, borders that touch included.
+%    \begin{macrocode}
+\prg_new_conditional:Nnn \@@_if_box_within:nn { p }
+  {
+    \bool_lazy_all:nTF
+      {
+        { \dim_compare_p:n { \use:c { l_@@_#2_west_dim } <= \use:c { l_@@_#1_west_dim } + 0.01pt } }
+        { \dim_compare_p:n { \use:c { l_@@_#2_south_dim } <= \use:c { l_@@_#1_south_dim } + 0.01pt } }
+        { \dim_compare_p:n { \use:c { l_@@_#2_east_dim } >= \use:c { l_@@_#1_east_dim } - 0.01pt } }
+        { \dim_compare_p:n { \use:c { l_@@_#2_north_dim } >= \use:c { l_@@_#1_north_dim } - 0.01pt } }
+      }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_new_conditional:Nnn \@@_if_boxes_apart: { p }
+  {
+    \bool_lazy_any:nTF
+      {
+        { \dim_compare_p:n { \l_@@_start_east_dim <= \l_@@_end_west_dim + 0.01pt } }
+        { \dim_compare_p:n { \l_@@_end_east_dim <= \l_@@_start_west_dim + 0.01pt } }
+        { \dim_compare_p:n { \l_@@_start_north_dim <= \l_@@_end_south_dim + 0.01pt } }
+        { \dim_compare_p:n { \l_@@_end_north_dim <= \l_@@_start_south_dim + 0.01pt } }
+      }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_faces_inwards:}
+%   Tells which ends of a wire face inwards, from the boxes of their nodes.
+%   The end on a node that holds the other faces inwards.
+%   Otherwise both ends face out: the nodes are apart, or they overlap, or have the same box, and then a bare end is an error, since neither node is the outer one, and the wire is not drawn.
+%   A wire from a node to itself faces inwards at both ends on the boundary \texttt{@}, which it crosses, and outwards on any other node, which it loops round.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { bare-overlap }
+  {
+    Wire~from~`#1'~to~`#2'~has~an~end~without~anchor,~and~the~two~nodes~overlap,~
+    so~it~is~not~drawn:~give~both~ends~anchors.
+  }
+\cs_new_protected:Nn \@@_faces_inwards: {
+  \bool_set_false:N \l_@@_start_in_bool
+  \bool_set_false:N \l_@@_end_in_bool
+  \str_if_eq:VVTF \l_@@_start_node_tl \l_@@_end_node_tl
+    {
+      \str_if_eq:VnT \l_@@_start_node_tl { @ }
+        {
+          \bool_set_true:N \l_@@_start_in_bool
+          \bool_set_true:N \l_@@_end_in_bool
+        }
+    }
+    {
+      \@@_node_box:VNNNN \l_@@_start_node_tl
+        \l_@@_start_west_dim \l_@@_start_south_dim \l_@@_start_east_dim \l_@@_start_north_dim
+      \@@_node_box:VNNNN \l_@@_end_node_tl
+        \l_@@_end_west_dim \l_@@_end_south_dim \l_@@_end_east_dim \l_@@_end_north_dim
+      \bool_set:Nn \l_@@_start_holds_bool { \@@_if_box_within_p:nn { end } { start } }
+      \bool_set:Nn \l_@@_end_holds_bool { \@@_if_box_within_p:nn { start } { end } }
+      \bool_if:nTF { \l_@@_start_holds_bool && ! \l_@@_end_holds_bool }
+        { \bool_set_true:N \l_@@_start_in_bool }
+        {
+          \bool_if:nTF { \l_@@_end_holds_bool && ! \l_@@_start_holds_bool }
+            { \bool_set_true:N \l_@@_end_in_bool }
+            {
+              \bool_lazy_or:nnF
+                { \@@_if_boxes_apart_p: }
+                { ! \tl_if_empty_p:N \l_@@_start_anchor_tl && ! \tl_if_empty_p:N \l_@@_end_anchor_tl }
+                {
+                  \msg_error:nnVV { string-diagrams } { bare-overlap }
+                    \l_@@_start_node_tl \l_@@_end_node_tl
+                  \bool_set_false:N \l_@@_start_ok_bool
+                }
+            }
+        }
+    }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_flow_tl}
+%   The flow of the wires, set by \texttt{wire flow}: a side, or nothing.
+%    \begin{macrocode}
+\tl_new:N \l_@@_flow_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_set_flow:n}
+%   Sets the flow of the wires: \texttt{north}, \texttt{east}, \texttt{south} or \texttt{west}, or \texttt{up}, \texttt{right}, \texttt{down} or \texttt{left}, as \TikZ's \texttt{grow} takes, or \texttt{none} to have none.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { flow-value }
+  {
+    Wire~flow~`#1'~is~not~a~direction:~
+    use~north,~east,~south,~west,~up,~right,~down,~left~or~none.
+  }
+\cs_new_protected:Nn \@@_set_flow:n {
+  \str_case:nnF { #1 }
+    {
+      { north } { \tl_set:Nn \l_@@_flow_tl { north } }
+      { east } { \tl_set:Nn \l_@@_flow_tl { east } }
+      { south } { \tl_set:Nn \l_@@_flow_tl { south } }
+      { west } { \tl_set:Nn \l_@@_flow_tl { west } }
+      { up } { \tl_set:Nn \l_@@_flow_tl { north } }
+      { right } { \tl_set:Nn \l_@@_flow_tl { east } }
+      { down } { \tl_set:Nn \l_@@_flow_tl { south } }
+      { left } { \tl_set:Nn \l_@@_flow_tl { west } }
+      { none } { \tl_clear:N \l_@@_flow_tl }
+    }
+    { \msg_error:nnn { string-diagrams } { flow-value } { #1 } }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_dir_int,\l_@@_side_tl}
+%   Scratch variables for the inference of anchors: the direction of travel of a wire, in degrees, and a side.
+%    \begin{macrocode}
+\int_new:N \l_@@_dir_int
+\tl_new:N \l_@@_side_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_side_of:n,\@@_opposite:n,\@@_side_anchor:NNnn}
+%   Turn directions into sides and sides into anchors.
+%   \cmd{\@@_side_of:n} expands to the side a direction, a multiple of 90 degrees, points to, and \cmd{\@@_opposite:n} to the side opposite a side.
+%   \cmd{\@@_side_anchor:NNnn} gives the anchor of a bare end on a side: the side without ports, its only port, and an error asking which if it has more, which leaves the anchor empty and stops the wire.
+%    \begin{macrocode}
+\cs_new:Nn \@@_side_of:n
+  {
+    \int_case:nn { \int_mod:nn { #1 + 720 } { 360 } }
+      { { 0 } { east } { 90 } { north } { 180 } { west } { 270 } { south } }
+  }
+\cs_new:Nn \@@_opposite:n
+  { \str_case:nn { #1 } { { north } { south } { south } { north } { east } { west } { west } { east } } }
+\msg_new:nnn { string-diagrams } { bare-many-ports }
+  {
+    Wire~end~`#1'~has~no~anchor,~and~its~#2~side~has~#3~ports,~so~the~wire~is~not~drawn:~
+    name~one,~as~in~#1.#2.1.
+  }
+\cs_new_protected:Nn \@@_side_anchor:NNnn {
+  \@@_side_ports:nnN { #3 } { #4 } \l_@@_ports_int
+  \int_case:nnF { \l_@@_ports_int }
+    {
+      { 0 } { \tl_set:Nn #1 { #4 } }
+      { 1 } { \tl_set:Nn #1 { #4.1 } }
+    }
+    {
+      \msg_error:nnnnV { string-diagrams } { bare-many-ports } { #3 } { #4 } \l_@@_ports_int
+      \bool_set_false:N #2
+    }
+}
+\cs_generate_variant:Nn \@@_side_anchor:NNnn { NNVe }
+\cs_generate_variant:Nn \msg_error:nnnnn { nnnnV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_snap:,\@@_both_bare_direction:,\@@_infer_anchors:}
+%   Infer the anchors of bare ends from the direction a wire travels in.
+%   With one end anchored, the wire travels as it leaves that end, or as it enters it; a diagonal, from a corner, is snapped to the axis of the flow, if set, else to the axis that separates the two ends more.
+%   With both ends bare, it travels along the flow, if set, else along the axis that separates the centers of the two nodes more, and nodes with the same center are an error, as is a wire from a node to itself.
+%   Then a bare start is the side the wire leaves through, and a bare target the side it enters through; an end that faces inwards uses the opposite side, so that a wire from a node around the other starts behind it, and a wire to that node ends ahead of it.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { bare-no-direction }
+  {
+    Wire~from~`#1'~to~`#2'~has~no~anchors,~and~their~centers~coincide,~so~it~is~not~drawn:~
+    give~an~end~an~anchor,~or~set~a~wire~flow.
+  }
+\msg_new:nnn { string-diagrams } { bare-self-no-direction }
+  {
+    Wire~from~`#1'~to~itself~has~no~anchors,~so~it~is~not~drawn:~
+    give~an~end~an~anchor,~or~set~a~wire~flow.
+  }
+\cs_new_protected:Nn \@@_snap: {
+  \int_compare:nNnF { \int_mod:nn { \l_@@_dir_int + 720 } { 90 } } = { 0 }
+    {
+      \bool_if:nTF
+        {
+          \tl_if_empty_p:N \l_@@_flow_tl
+          && \dim_compare_p:n
+            {
+              \dim_abs:n { \l_@@_end_x_dim - \l_@@_start_x_dim }
+              >= \dim_abs:n { \l_@@_end_y_dim - \l_@@_start_y_dim }
+            }
+          || \str_if_eq_p:Vn \l_@@_flow_tl { east }
+          || \str_if_eq_p:Vn \l_@@_flow_tl { west }
+        }
+        { \int_set:Nn \l_@@_dir_int { \fp_eval:n { cosd ( \l_@@_dir_int ) > 0 ? 0 : 180 } } }
+        { \int_set:Nn \l_@@_dir_int { \fp_eval:n { sind ( \l_@@_dir_int ) > 0 ? 90 : 270 } } }
+    }
+}
+\cs_new_protected:Nn \@@_both_bare_direction: {
+  \tl_if_empty:NTF \l_@@_flow_tl
+    {
+      \bool_if:nTF
+        {
+          \dim_compare_p:n { \dim_abs:n { \l_@@_end_x_dim - \l_@@_start_x_dim } < 0.1pt }
+          && \dim_compare_p:n { \dim_abs:n { \l_@@_end_y_dim - \l_@@_start_y_dim } < 0.1pt }
+        }
+        {
+          \str_if_eq:VVTF \l_@@_start_node_tl \l_@@_end_node_tl
+            { \msg_error:nnV { string-diagrams } { bare-self-no-direction } \l_@@_start_node_tl }
+            {
+              \msg_error:nnVV { string-diagrams } { bare-no-direction }
+                \l_@@_start_node_tl \l_@@_end_node_tl
+            }
+          \bool_set_false:N \l_@@_start_ok_bool
+        }
+        {
+          \dim_compare:nNnTF
+            { \dim_abs:n { \l_@@_end_x_dim - \l_@@_start_x_dim } }
+            >
+            { \dim_abs:n { \l_@@_end_y_dim - \l_@@_start_y_dim } }
+            {
+              \dim_compare:nNnTF { \l_@@_end_x_dim } > { \l_@@_start_x_dim }
+                { \int_set:Nn \l_@@_dir_int { 0 } }
+                { \int_set:Nn \l_@@_dir_int { 180 } }
+            }
+            {
+              \dim_compare:nNnTF { \l_@@_end_y_dim } > { \l_@@_start_y_dim }
+                { \int_set:Nn \l_@@_dir_int { 90 } }
+                { \int_set:Nn \l_@@_dir_int { 270 } }
+            }
+        }
+    }
+    {
+      \int_set:Nn \l_@@_dir_int
+        { \str_case:Vn \l_@@_flow_tl { { east } { 0 } { north } { 90 } { west } { 180 } { south } { 270 } } }
+    }
+}
+\cs_new_protected:Nn \@@_infer_anchors: {
+  \tl_if_empty:NTF \l_@@_start_anchor_tl
+    {
+      \tl_if_empty:NTF \l_@@_end_anchor_tl
+        { \@@_both_bare_direction: }
+        {
+          \int_set:Nn \l_@@_dir_int
+            { \l_@@_iangle_tl \bool_if:NF \l_@@_end_in_bool { + 180 } }
+        }
+    }
+    {
+      \int_set:Nn \l_@@_dir_int
+        { \l_@@_oangle_tl \bool_if:NT \l_@@_start_in_bool { + 180 } }
+    }
+  \bool_if:NT \l_@@_start_ok_bool
+    {
+      \@@_snap:
+      \tl_if_empty:NT \l_@@_start_anchor_tl
+        {
+          \tl_set:Ne \l_@@_side_tl { \@@_side_of:n { \l_@@_dir_int } }
+          \bool_if:NT \l_@@_start_in_bool
+            { \tl_set:Ne \l_@@_side_tl { \@@_opposite:V \l_@@_side_tl } }
+          \@@_side_anchor:NNVV \l_@@_start_anchor_tl \l_@@_start_ok_bool
+            \l_@@_start_node_tl \l_@@_side_tl
+        }
+      \tl_if_empty:NT \l_@@_end_anchor_tl
+        {
+          \tl_set:Ne \l_@@_side_tl { \@@_side_of:n { \l_@@_dir_int } }
+          \bool_if:NF \l_@@_end_in_bool
+            { \tl_set:Ne \l_@@_side_tl { \@@_opposite:V \l_@@_side_tl } }
+          \@@_side_anchor:NNVV \l_@@_end_anchor_tl \l_@@_end_ok_bool
+            \l_@@_end_node_tl \l_@@_side_tl
+        }
+    }
+}
+\cs_generate_variant:Nn \@@_opposite:n { V }
+\cs_generate_variant:Nn \@@_side_anchor:NNnn { NNVV }
+\cs_generate_variant:Nn \str_case:nn { V }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_end_coordinate:NnnnnN}
+%   Calculates where a wire ends at an anchor: the anchor itself, unless the end faces inwards and the anchor is a side without a port, which the wire reaches straight across from the other end, as \cmd{\@@_calctarget:nnnn} finds.
+%   The result is stored in the given token list variable, as a point or as \meta{node}\texttt{.}\meta{anchor}.
+%   \begin{arguments}
+%     \item token list variable
+%     \item node of the end
+%     \item anchor of the end
+%     \item node of the other end
+%     \item anchor of the other end
+%     \item boolean, true if the end faces inwards
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_end_coordinate:NnnnnN {
+  \bool_lazy_and:nnTF { #6 } { \@@_if_side_name_p:n { #3 } }
+    {
+      \@@_calctarget:nnnn { #4 } { #5 } { #2 } { #3 }
+      \tl_set:Ne #1 { \dim_use:N \pgf@x , \dim_use:N \pgf@y }
+    }
+    { \tl_set:Nn #1 { #2.#3 } }
+}
+\cs_generate_variant:Nn \@@_end_coordinate:NnnnnN { NVVVVN }
+\prg_new_conditional:Nnn \@@_if_side_name:n { p }
+  {
+    \str_case:nnF { #1 }
+      {
+        { north } { \prg_return_true: } { east } { \prg_return_true: }
+        { south } { \prg_return_true: } { west } { \prg_return_true: }
+      }
+      { \prg_return_false: }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_wire_bool,\l_@@_wire_drawn_bool,\l_@@_start_moved_bool,\l_@@_given_target_tl,\s_@@_auto}
+%   Scratch variables for the \texttt{wire} key: whether the to path at hand is a wire, whether it is drawn, whether its start moves, and its target as \TikZ\ gave it; and the scan mark that stands for the angles the key computes.
+%    \begin{macrocode}
+\bool_new:N \l_@@_wire_bool
+\bool_new:N \l_@@_wire_drawn_bool
+\bool_new:N \l_@@_start_moved_bool
+\tl_new:N \l_@@_given_target_tl
+\scan_new:N \s_@@_auto
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_wire:,\@@_wire_ends:,\@@_wire_path:}
+%   Turn a to path into a wire, just before \TikZ\ computes its curve, after all the keys of the path, so that \texttt{wire flow} counts wherever it is set.
+%   \cmd{\@@_wire:} finds the ends, infers the anchors of bare ends, and sets the angles that \TikZ's own \texttt{out} and \texttt{in} draw the curve with, unless keys after \texttt{wire} have set them.
+%   An end faces inwards when its node holds the other, as \cmd{\@@_faces_inwards:} tells: then its angle turns round, and a side without a port is reached straight across, as on the boundary.
+%   An end that becomes a point, or a bare start, moves the start, which \cmd{\@@_wire_path:} does after the computation; it also turns a wire that isn't drawn into a move to its target, or into nothing if its target is on a node that doesn't exist, which \TikZ\ would report again.
+%   Each wrong end raises an error.
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_wire: {
+  \bool_set_false:N \l_@@_end_missing_bool
+  \bool_set_false:N \l_@@_start_moved_bool
+  \tl_set_eq:NN \l_@@_given_target_tl \tikztotarget
+  \@@_wire_end:VNNNN \tikztostart
+    \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_start_ok_bool \c_true_bool
+  \@@_wire_end:VNNNN \tikztotarget
+    \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_end_ok_bool \c_false_bool
+  \bool_lazy_and:nnT { \l_@@_start_ok_bool } { \l_@@_end_ok_bool } { \@@_wire_ends: }
+  \bool_lazy_and:nnTF { \l_@@_start_ok_bool } { \l_@@_end_ok_bool }
+    {
+      \bool_set_true:N \l_@@_wire_drawn_bool
+      \tl_set_eq:NN \tikztotarget \l_@@_target_tl
+      \str_if_eq:eeT { \exp_not:o { \tikz@to@out } } { \exp_not:N \s_@@_auto }
+        { \cs_set:Npe \tikz@to@out { \tl_use:N \l_@@_oangle_tl } }
+      \str_if_eq:eeT { \exp_not:o { \tikz@to@in } } { \exp_not:N \s_@@_auto }
+        { \cs_set:Npe \tikz@to@in { \tl_use:N \l_@@_iangle_tl } }
+      \bool_if:NT \l_@@_start_moved_bool
+        { \tl_set_eq:NN \tikztostart \l_@@_source_tl }
+    }
+    {
+      \bool_set_false:N \l_@@_wire_drawn_bool
+      \cs_set:Npn \tikz@to@out { 0 }
+      \cs_set:Npn \tikz@to@in { 180 }
+      \tl_set:Nn \tikztostart { 0pt , 0pt }
+      \tl_set:Nn \tikztotarget { 0pt , 0pt }
+    }
+}
+\cs_new_protected:Nn \@@_wire_ends: {
+  \@@_point_of_end:VVNN \l_@@_start_node_tl \l_@@_start_anchor_tl
+    \l_@@_start_x_dim \l_@@_start_y_dim
+  \@@_point_of_end:VVNN \l_@@_end_node_tl \l_@@_end_anchor_tl
+    \l_@@_end_x_dim \l_@@_end_y_dim
+  \@@_faces_inwards:
+  \bool_set:Nn \l_@@_start_moved_bool { \tl_if_empty_p:N \l_@@_start_anchor_tl }
+  \@@_anchor_to_angle:NV \l_@@_oangle_tl \l_@@_start_anchor_tl
+  \@@_anchor_to_angle:NV \l_@@_iangle_tl \l_@@_end_anchor_tl
+  \bool_lazy_and:nnT
+    { \l_@@_start_ok_bool }
+    { \tl_if_empty_p:N \l_@@_start_anchor_tl || \tl_if_empty_p:N \l_@@_end_anchor_tl }
+    {
+      \@@_infer_anchors:
+      \@@_anchor_to_angle:NV \l_@@_oangle_tl \l_@@_start_anchor_tl
+      \@@_anchor_to_angle:NV \l_@@_iangle_tl \l_@@_end_anchor_tl
+    }
+  \bool_lazy_and:nnT { \l_@@_start_ok_bool } { \l_@@_end_ok_bool }
+    {
+      \bool_if:NT \l_@@_start_in_bool
+        { \tl_set:Ne \l_@@_oangle_tl { \int_eval:n { \l_@@_oangle_tl - 180 } } }
+      \bool_if:NT \l_@@_end_in_bool
+        { \tl_set:Ne \l_@@_iangle_tl { \int_eval:n { \l_@@_iangle_tl - 180 } } }
+      \@@_end_coordinate:NVVVVN \l_@@_source_tl
+        \l_@@_start_node_tl \l_@@_start_anchor_tl
+        \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_start_in_bool
+      \@@_end_coordinate:NVVVVN \l_@@_target_tl
+        \l_@@_end_node_tl \l_@@_end_anchor_tl
+        \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_end_in_bool
+      \bool_lazy_and:nnT { \l_@@_start_in_bool } { \@@_if_side_name_p:V \l_@@_start_anchor_tl }
+        { \bool_set_true:N \l_@@_start_moved_bool }
+    }
+}
+\cs_new_protected:Nn \@@_wire_path: {
+  \bool_if:NTF \l_@@_wire_drawn_bool
+    {
+      \bool_if:NT \l_@@_start_moved_bool
+        { \tl_put_left:Ne \tikz@computed@path { ( \exp_not:V \tikztostart ) ~ } }
+    }
+    {
+      \bool_if:NTF \l_@@_end_missing_bool
+        { \tl_clear:N \tikz@computed@path }
+        { \tl_set:Ne \tikz@computed@path { ( \exp_not:V \l_@@_given_target_tl ) } }
+    }
+}
+\prg_generate_conditional_variant:Nnn \@@_if_side_name:n { V } { p }
+\AddToHook { cmd/tikz@to@compute/before }
+  { \bool_if:NT \l_@@_wire_bool { \@@_wire: } }
+\AddToHook { cmd/tikz@to@compute/after }
+  { \bool_if:NT \l_@@_wire_bool { \@@_wire_path: } }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{/tikz/wire,/tikz/every wire,/tikz/wire flow}
+%   Defines the key that draws a to path or an edge as a wire, the style it applies after it, as \texttt{every edge} or \texttt{every to} would, and the key that sets the flow of the wires.
+%   The \texttt{wire} key only marks the path as a wire, draws it as a curve, and leaves its angles to be computed, unless keys after it set them.
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_wire_key: {
+  \bool_set_true:N \l_@@_wire_bool
+  \cs_set:Npn \tikz@to@out { \s_@@_auto }
+  \cs_set:Npn \tikz@to@in { \s_@@_auto }
+  \tikz@to@switch@on
+}
 \tikzset{
   every~wire/.style = { },
-  wire/.code = { \@@_wire: \pgfkeysalso { every~wire } },
+  wire/.code = { \@@_wire_key: \pgfkeysalso { every~wire } },
+  wire~flow/.code = { \@@_set_flow:n { #1 } },
 }
 %    \end{macrocode}
 % \end{macro}

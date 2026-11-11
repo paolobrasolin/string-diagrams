@@ -1,0 +1,532 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: a bare target takes the side the wire arrives at
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+-- anchored:
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+-- without ports:
+q 
+0.0 59.77661 m 
+0.0 109.70135 -99.62769 89.554 -99.62769 139.47876 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 2: a bare start takes the side the wire leaves through
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+-- anchored:
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 3: with both ends bare, the axis that separates the nodes more decides
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+-- sideways:
+q 
+59.77661 0.0 m 
+140.01274 0.0 158.8703 99.62769 239.10645 99.62769 c 
+S 
+Q 
+-- backwards:
+q 
+99.62769 139.47876 m 
+99.62769 89.554 0.0 109.70135 0.0 59.77661 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 4: near a diagonal the layout flips, and a flow decides
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+59.77661 0.0 m 
+140.16386 0.0 59.09149 189.2926 139.47876 189.2926 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 140.16386 189.2926 59.09149 189.2926 139.47876 c 
+S 
+Q 
+-- with a flow:
+q 
+0.0 59.77661 m 
+0.0 142.29678 199.25537 46.9958 199.25537 129.51599 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 140.16386 189.2926 59.09149 189.2926 139.47876 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 5: a flow sets the direction of wires between bare ends
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+59.77661 0.0 m 
+109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
+S 
+Q 
+-- against the flow:
+q 
+259.03198 99.62769 m 
+389.44759 99.62769 -190.19221 0.0 -59.77661 0.0 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 6: a flow set after the wire key counts, and none unsets it
+============================================================
+0.0 59.77661 m 
+0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
+S 
+0.0 59.77661 m 
+0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
+S 
+q 
+0.0 59.77661 m 
+0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
+S 
+Q 
+-- in the keys of a call, a group or a wire:
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
+S 
+Q 
+-- none:
+q 
+59.77661 0.0 m 
+109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 7: a wire from a corner snaps to an axis
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+1.5498 1.5498 m 
+72.5844 72.5844 138.64845 99.62769 239.10645 99.62769 c 
+S 
+Q 
+q 
+1.5498 1.5498 m 
+72.5844 72.5844 99.62769 138.64845 99.62769 239.10645 c 
+S 
+Q 
+-- with a flow:
+q 
+1.5498 1.5498 m 
+84.50829 84.50829 298.88306 -77.46982 298.88306 39.85107 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 8: bare ends on the boundary, with a flow
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 -73.45847 m 
+0.0 -68.12297 0.0 -65.11209 0.0 -59.77661 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+S 
+Q 
+-- anchored:
+q 
+0.0 -73.45847 m 
+0.0 -73.45847 m 
+0.0 -68.12297 0.0 -65.11209 0.0 -59.77661 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 9: an end faces inwards when its node holds the other
+============================================================
+-199.25537 0.0 m 
+-199.25537 9.96277 m 
+-137.09235 9.96277 -102.01408 9.96277 -39.85107 9.96277 c 
+S 
+79.70215 9.96277 m 
+126.32443 9.96277 152.63307 9.96277 199.25537 9.96277 c 
+S 
+-- with a bare end:
+-199.25537 0.0 m 
+-199.25537 9.96277 m 
+-137.09235 9.96277 -102.01408 9.96277 -39.85107 9.96277 c 
+S 
+79.70215 9.96277 m 
+126.32443 9.96277 152.63307 9.96277 199.25537 9.96277 c 
+S 
+-- with both ends bare, along the layout or the flow:
+q 
+0 G 
+0 g 
+Q 
+q 
+-199.25537 9.96277 m 
+-137.09235 9.96277 -102.01408 9.96277 -39.85107 9.96277 c 
+S 
+Q 
+q 
+79.70215 9.96277 m 
+126.32443 9.96277 152.63307 9.96277 199.25537 9.96277 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 10: a node holds another that touches its border
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+-199.25537 0.0 m 
+-144.86272 0.0 -114.16925 0.0 -59.77661 0.0 c 
+S 
+Q 
+q 
+59.77661 0.0 m 
+114.16925 0.0 144.86272 0.0 199.25537 0.0 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 11: a box holds a dot
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+-199.25537 19.92554 m 
+-83.5543 19.92554 -18.26514 19.92554 97.4359 19.92554 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 12: ends on nodes apart face out
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+99.62769 0.0 m 
+115.1684 0.0 123.93803 0.0 139.47876 0.0 c 
+S 
+Q 
+q 
+59.77661 199.25537 m 
+159.62611 199.25537 -199.47719 0.0 -99.62769 0.0 c 
+S 
+Q 
+-- touching:
+q 
+-99.62769 0.0 m 
+-99.62769 0.0 -99.62769 0.0 -99.62769 0.0 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 13: a bare end on nodes that overlap is an error, anchored ends face out
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+! Package string-diagrams Error: Wire from `f' to `a' has an end without anchor, and the two nodes overlap, so it is not drawn: give both ends anchors.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+-99.62769 0.0 m 
+S 
+Q 
+q 
+! Package string-diagrams Error: Wire from `a' to `f' has an end without anchor, and the two nodes overlap, so it is not drawn: give both ends anchors.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+S 
+Q 
+-- anchored:
+q 
+-99.62769 0.0 m 
+-154.02032 0.0 -14.54156 0.0 39.85107 0.0 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 14: a bare end on nodes with the same box is an error
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+! Package string-diagrams Error: Wire from `a' to `b' has an end without anchor, and the two nodes overlap, so it is not drawn: give both ends anchors.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+S 
+Q 
+============================================================
+============================================================
+TEST 15: a node that sticks out of the boundary overlaps it
+============================================================
+q 
+! Package string-diagrams Error: Wire from `@' to `b' has an end without anchor, and the two nodes overlap, so it is not drawn: give both ends anchors.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+S 
+Q 
+-- anchored:
+q 
+-83.42125 0.0 m 
+-156.2723 0.0 -13.07442 119.55322 59.77661 119.55322 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 16: bare self-wires follow the flow
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+59.77661 0.0 m 
+106.3989 0.0 -106.3989 0.0 -59.77661 0.0 c 
+S 
+Q 
+q 
+-83.42125 0.0 m 
+-18.35751 0.0 18.35751 0.0 83.42125 0.0 c 
+S 
+Q 
+-- one end anchored:
+q 
+0.0 59.77661 m 
+0.0 106.3989 0.0 -106.3989 0.0 -59.77661 c 
+S 
+Q 
+q 
+0.0 73.45847 m 
+0.0 73.45847 m 
+0.0 16.16508 0.0 -16.16508 0.0 -73.45847 c 
+S 
+Q 
+-- both anchored:
+q 
+59.77661 0.0 m 
+106.3989 0.0 -106.3989 0.0 -59.77661 0.0 c 
+S 
+Q 
+q 
+-83.42125 0.0 m 
+-83.42125 0.0 m 
+-18.35751 0.0 18.35751 0.0 83.42125 0.0 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 17: a bare self-wire without a flow is an error
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+! Package string-diagrams Error: Wire from `a' to itself has no anchors, so it is not drawn: give an end an anchor, or set a wire flow.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+S 
+Q 
+q 
+! Package string-diagrams Error: Wire from `@' to itself has no anchors, so it is not drawn: give an end an anchor, or set a wire flow.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+S 
+Q 
+============================================================
+============================================================
+TEST 18: a bare end on a side with more than one port is an error
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+! Package string-diagrams Error: Wire end `b' has no anchor, and its south side has 2 ports, so the wire is not drawn: name one, as in b.south.1.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+S 
+Q 
+============================================================
+============================================================
+TEST 19: bare ends on nodes with the same center are an error, unless a flow is set
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+! Package string-diagrams Error: Wire from `a' to `b' has no anchors, and their centers coincide, so it is not drawn: give an end an anchor, or set a wire flow.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+S 
+Q 
+-- with a flow:
+q 
+0.0 2.19177 m 
+0.0 24.64813 0.0 37.32024 0.0 59.77661 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 20: a flow can be up, right, down or left
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
+S 
+Q 
+q 
+59.77661 0.0 m 
+109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
+S 
+Q 
+q 
+0.0 -59.77661 m 
+0.0 -175.39175 199.25537 275.01944 199.25537 159.4043 c 
+S 
+Q 
+q 
+-59.77661 0.0 m 
+-190.19221 0.0 389.44759 99.62769 259.03198 99.62769 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 21: a flow that is not a direction is an error
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+! Package string-diagrams Error: Wire flow `sideways' is not a direction: use north, east, south, west, up, right, down, left or none.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+0.0 90.85806 0.0 108.3973 0.0 139.47876 c 
+S 
+Q 
+============================================================

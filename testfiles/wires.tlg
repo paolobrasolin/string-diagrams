@@ -289,7 +289,7 @@ S
 Q 
 q 
 59.77661 0.0 m 
-59.77661 121.89127 -252.78827 -121.89127 -252.78827 0.0 c 
+59.77661 2.43477 53.5329 2.43477 53.5329 0.0 c 
 S 
 Q 
 ============================================================
@@ -450,21 +450,15 @@ S
 Q 
 ============================================================
 ============================================================
-TEST 21: a wire to a node without anchor is an error
+TEST 21: a wire to a node without anchor takes the side it faces
 ============================================================
 q 
 0 G 
 0 g 
 Q 
 q 
-! Package string-diagrams Error: Wire end `b' has no anchor, so the wire is not drawn.
-Type <return> to continue.
- ...                                              
-l. ...}
-LaTeX does not know anything more about this error, sorry.
-Try typing <return> to proceed.
-If that doesn't work, type X <return> to quit.
 0.0 59.77661 m 
+0.0 90.85806 0.0 108.3973 0.0 139.47876 c 
 S 
 Q 
 ============================================================

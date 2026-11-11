@@ -11,10 +11,15 @@
 
 \tl_new:N \l_test_end_tl
 
-% \PROJ{<node>}{<anchor>}{<node>}{<anchor>}: log the end that the first node and anchor give to a wire, as stored and as TikZ reads it.
-\NewDocumentCommand \PROJ { m m m m }
+% \PROJ{<node>}{<anchor>}{<node>}{<anchor>}{<true or false>}: log the end that the first node and anchor give to a wire, facing inwards or not, as stored and as TikZ reads it.
+\NewDocumentCommand \PROJ { m m m m m }
   {
-    \__stridi_anchors_to_proj:Nnnnn \l_test_end_tl { #1 } { #2 } { #3 } { #4 }
+    \use:e
+      {
+        \exp_not:N \__stridi_end_coordinate:NnnnnN \exp_not:N \l_test_end_tl
+          { \exp_not:n { #1 } } { \exp_not:n { #2 } } { \exp_not:n { #3 } } { \exp_not:n { #4 } }
+          \exp_not:c { c_ #5 _bool }
+      }
     \SHOWPOINT { #1.#2 ~ -- ~ #3.#4 ~ -> ~ ( \tl_to_str:N \l_test_end_tl ) }
       { \use:c { tikz@scan@one@point } \use:n ( \l_test_end_tl ) }
   }
@@ -96,11 +101,12 @@
   }
 }
 
-\TEST{wire ends on the boundary are computed, others are anchors}{
+\TEST{ends facing inwards on a side are computed, others are anchors}{
   \PICTURE{
     \SETUP
-    \PROJ{a}{north}{b}{south}
-    \PROJ{@}{north}{a}{north}
+    \PROJ{a}{north}{b}{south}{false}
+    \PROJ{@}{north}{a}{north}{true}
+    \PROJ{@}{north east}{a}{north}{true}
   }
 }
 

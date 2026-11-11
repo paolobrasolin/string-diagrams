@@ -196,7 +196,8 @@
   }
 }
 
-\TEST{a wire to a node without anchor is an error}{
+% NOTE: a bare end takes the side it faces (see bare-ends.lvt), here b.south.
+\TEST{a wire to a node without anchor takes the side it faces}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \node[box, square] (b) at (0pt,200pt) {};

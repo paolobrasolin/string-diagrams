@@ -4,11 +4,11 @@
 
 \tl_new:N \l_test_angle_tl
 
-% \ANGLE{<node>}{<anchor>}: log the angle at which a wire leaves an anchor.
-\NewDocumentCommand \ANGLE { m m }
+% \ANGLE{<anchor>}: log the angle at which a wire leaves an anchor outwards.
+\NewDocumentCommand \ANGLE { m }
   {
-    \__stridi_anchor_to_angle:Nnn \l_test_angle_tl { #1 } { #2 }
-    \TYPE { #1 . #2 ~ -> ~ [ \tl_to_str:N \l_test_angle_tl ] }
+    \__stridi_anchor_to_angle:Nn \l_test_angle_tl { #1 }
+    \TYPE { #1 ~ -> ~ [ \tl_to_str:N \l_test_angle_tl ] }
   }
 
 \ExplSyntaxOff
@@ -18,43 +18,34 @@
 \START
 
 \TEST{wires leave sides outwards}{
-  \ANGLE{a}{north}
-  \ANGLE{a}{east}
-  \ANGLE{a}{south}
-  \ANGLE{a}{west}
+  \ANGLE{north}
+  \ANGLE{east}
+  \ANGLE{south}
+  \ANGLE{west}
 }
 
 \TEST{wires leave ports like their side}{
-  \ANGLE{a}{north.1}
-  \ANGLE{a}{east.2}
-  \ANGLE{a}{south.3}
-  \ANGLE{a}{west.4}
-}
-
-\TEST{wires leave the boundary inwards}{
-  \ANGLE{@}{north}
-  \ANGLE{@}{east}
-  \ANGLE{@}{south}
-  \ANGLE{@}{west}
+  \ANGLE{north.1}
+  \ANGLE{east.2}
+  \ANGLE{south.3}
+  \ANGLE{west.4}
 }
 
 \TEST{wires leave corners diagonally}{
-  \ANGLE{a}{north east}
-  \ANGLE{a}{north west}
-  \ANGLE{a}{south east}
-  \ANGLE{a}{south west}
-  \ANGLE{@}{north east}
+  \ANGLE{north east}
+  \ANGLE{north west}
+  \ANGLE{south east}
+  \ANGLE{south west}
 }
 
-% NOTE: directions come from the names of anchors, so only sides, corners and ports have one; wires from other anchors are an error (see wires.lvt).
+% NOTE: directions come from the names of anchors, so only sides, corners and ports have one; wires from other anchors are an error (see wires.lvt). An end that faces inwards, as on the boundary, turns its angle round (see wire-key.lvt).
 \TEST{other anchors have no angle}{
-  \ANGLE{a}{center}
-  \ANGLE{a}{mid}
-  \ANGLE{a}{base}
-  \ANGLE{a}{30}
-  \ANGLE{a}{northern}
-  \ANGLE{a}{}
-  \ANGLE{@}{center}
+  \ANGLE{center}
+  \ANGLE{mid}
+  \ANGLE{base}
+  \ANGLE{30}
+  \ANGLE{northern}
+  \ANGLE{}
 }
 
 \END
