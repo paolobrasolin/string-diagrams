@@ -229,4 +229,25 @@
   }
 }
 
+% NOTE: \wires checks the start before TikZ reads it, so the error is its own.
+\TEST{a wire from a node that doesn't exist, or an anchor its node doesn't have}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (0pt,200pt) {};
+    \LOG{\wires{nowhere = {north = b.south}}}
+    \LOG{\wires{a = {northh = b.south}}}
+  }
+}
+
+% NOTE: ports are defined for all boxes by the first with enough, here c, so the check counts the ports of a itself.
+\TEST{a wire from a port beyond the count of its box, when another box has it}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (0pt,200pt) {};
+    \node[box=3/0/0/0, square] (c) at (200pt,0pt) {};
+    \LOG{\wires{a = {north.3 = b.south.1}}}
+    \LOG{\wires{b = {south.1 = a.north.3}}}
+  }
+}
+
 \END

@@ -361,3 +361,48 @@ q
 S 
 Q 
 ============================================================
+============================================================
+TEST 25: a wire to an anchor its node doesn't have is an error
+============================================================
+! Package string-diagrams Error: Node `b' has no anchor `northh', so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+S 
+! Package string-diagrams Error: Box `b' has no port south.3, since its south side has 1.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+S 
+! Package string-diagrams Error: Wire end `a.30' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+59.77661 34.51366 m 
+99.62769 139.47876 m 
+S 
+============================================================
+============================================================
+TEST 26: a wire from an anchor its node doesn't have is an error
+============================================================
+! Package PGF Math Error: Unknown function `northh' (in 'northh').
+See the PGF Math package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+l. ...}
+(That was another \errmessage.)
+59.77661 0.0 m 
+99.62769 139.47876 m 
+S 
+============================================================

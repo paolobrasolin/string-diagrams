@@ -157,7 +157,7 @@ l. ...}
 LaTeX does not know anything more about this error, sorry.
 Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
-! Package string-diagrams Error: Wire end `30' is on a node that doesn't exist, so the wire is not drawn.
+! Package string-diagrams Error: Wire end `a.30' has no target: give it one as in 30 = b.south.
 Type <return> to continue.
  ...                                              
 l. ...}

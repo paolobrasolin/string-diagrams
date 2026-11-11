@@ -229,4 +229,24 @@
   }
 }
 
+% NOTE: a node may have an anchor by name, or by angle, which pgf reads as a point of its border; a box asked for a port beyond its count reports it as such.
+\TEST{a wire to an anchor its node doesn't have is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north) to[wire] (b.northh);}
+    \LOG{\draw (a.north) to[wire] (b.south.3);}
+    \LOG{\draw (a.30) to[wire] (b.south.1);}
+  }
+}
+
+% NOTE: TikZ resolves the start before the key, and reports it itself, in terms of a mathematical function.
+\TEST{a wire from an anchor its node doesn't have is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.northh) to[wire] (b.south.1);}
+  }
+}
+
 \END

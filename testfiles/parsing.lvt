@@ -134,7 +134,7 @@
   \MAP{a = b}
 }
 
-% NOTE: the shape of the node the wires start from tells its anchors, as for a.north.1, a box with a port; a.30 is no named anchor.
+% NOTE: the shape of the node the wires start from tells its anchors, as for a.north.1, a box with a port; an angle, as in a.30, is an anchor too.
 \TEST{an anchor without target, after a node, is an error}{
   \MAP{a = {north.1}}
   \MAP{a = {south west}}

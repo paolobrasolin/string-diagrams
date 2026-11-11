@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Report a wire to a node that doesn't exist with one error, rather than three, and without drawing a stray curve to the origin.
+- Report a wire end at an anchor that its node doesn't have, such as `@.north.1` or a port beyond the count of a box, with one error of the package, rather than an error of PGF about an unknown function `north`, and without drawing a stray curve. `\wires` checks the start of each wire too, and so reports a start on a node that doesn't exist itself.
 
 ## [0.3.0] - 2026-11-07
 

@@ -738,10 +738,11 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_draw_wire:nnnnn,\@@_wire_coordinate:nn}
+% \begin{macro}{\@@_draw_wire:nnnnn,\@@_draw_wire_edge:nnnnn,\@@_wire_coordinate:nn}
 %   Draws a wire as an edge with the \texttt{wire} key, followed by the keys of the call, so that it is drawn as on any path of \TikZ: the key sets its angles and moves its ends on the boundary, and raises an error for each end without an angle.
 %   The edge is an implementation detail, so it gets \TikZ's default \texttt{every edge}, which only draws it: the wires of \cmd\wires\ are styled by \texttt{every wire} and the keys of the call, not by the \texttt{every edge} of the picture.
 %   The coordinates are expanded first, since \TikZ\ hands the target to the key as written; an end without an anchor is a bare node.
+%   \TikZ\ resolves the start of a path while reading it, before any key, so a start on a node that doesn't exist, or at an anchor its node lacks, would get only the error of pgf, which for an anchor is about a mathematical function: the start is checked first, and such a wire is reported and not drawn.
 %   \begin{arguments}
 %     \item \TikZ\ keys
 %     \item source node
@@ -751,6 +752,22 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_wire:nnnnn {
+  \cs_if_exist:cTF { pgf@sh@ns@ #2 }
+    {
+      \tl_if_empty:nTF { #3 }
+        { \@@_draw_wire_edge:nnnnn { #1 } { #2 } { #3 } { #4 } { #5 } }
+        {
+          \@@_if_anchor:nnTF { #2 } { #3 }
+            { \@@_draw_wire_edge:nnnnn { #1 } { #2 } { #3 } { #4 } { #5 } }
+            { \@@_no_anchor:nn { #2 } { #3 } }
+        }
+    }
+    {
+      \msg_error:nne { string-diagrams } { end-no-node }
+        { \@@_wire_coordinate:nn { #2 } { #3 } }
+    }
+}
+\cs_new_protected:Nn \@@_draw_wire_edge:nnnnn {
   \use:e
     {
       \exp_not:N \path [ every~edge/.style = { draw } ]
@@ -899,13 +916,88 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_wire_end:nNNNN}
+% \begin{macro}[TF]{\@@_if_anchor:nn}
+%   Tests whether a node has an anchor: a name its shape defines, or an angle, which pgf reads as a point of the border.
+%   The ports of boxes are defined for all boxes at once, by the first box with enough ports on a side, so a port of a box is checked against the count of that box.
+%    \begin{macrocode}
+\prg_new_protected_conditional:Nnn \@@_if_anchor:nn { TF }
+  {
+    \@@_port_of_box:nn { #1 } { #2 }
+    \seq_if_empty:NTF \l_@@_port_seq
+      {
+        \cs_if_exist:cTF { pgf@anchor@ \use:c { pgf@sh@ns@ #1 } @ #2 }
+          { \prg_return_true: }
+          {
+            \regex_match:nnTF { \A [+\-]? [0-9.]+ \Z } { #2 }
+              { \prg_return_true: }
+              { \prg_return_false: }
+          }
+      }
+      {
+        \@@_side_ports:neN { #1 } { \seq_item:Nn \l_@@_port_seq { 2 } } \l_@@_ports_int
+        \int_compare:nTF
+          { 1 <= \seq_item:Nn \l_@@_port_seq { 3 } <= \l_@@_ports_int }
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+  }
+\prg_generate_conditional_variant:Nnn \@@_if_anchor:nn { nV , VV } { TF }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_side_ports:nnN,\@@_port_of_box:nn,\@@_no_anchor:nn}
+%   \cmd{\@@_side_ports:nnN} counts the ports of a side of a node, none unless it is a box, from the counts saved in the node.
+%   \cmd{\@@_port_of_box:nn} splits the anchor of a box into side and number, in \cs{l_@@_port_seq}, if it is a port, and leaves the sequence empty otherwise.
+%   \cmd{\@@_no_anchor:nn} reports an anchor that a node doesn't have, as a missing port for a box asked for a port beyond its count, and pgf would otherwise fail to read it, with an error about a mathematical function.
+%    \begin{macrocode}
+\int_new:N \l_@@_ports_int
+\int_new:N \g_@@_ports_int
+\cs_new_protected:Nn \@@_side_ports:nnN {
+  \int_zero:N #3
+  \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { box }
+    {
+      \group_begin:
+        \use:c { pgf@sh@ma@ #1 }
+        \int_gset:Nn \g_@@_ports_int { \use:c { ports #2 } }
+      \group_end:
+      \int_set_eq:NN #3 \g_@@_ports_int
+    }
+}
+\msg_new:nnn { string-diagrams } { no-anchor }
+  { Node~`#1'~has~no~anchor~`#2',~so~the~wire~is~not~drawn. }
+\seq_new:N \l_@@_port_seq
+\cs_new_protected:Nn \@@_port_of_box:nn {
+  \seq_clear:N \l_@@_port_seq
+  \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { box }
+    {
+      \regex_extract_once:nnN { \A (north|east|south|west) \. ([0-9]+) \Z }
+        { #2 } \l_@@_port_seq
+    }
+}
+\cs_new_protected:Nn \@@_no_anchor:nn {
+  \@@_port_of_box:nn { #1 } { #2 }
+  \seq_if_empty:NTF \l_@@_port_seq
+    { \msg_error:nnnn { string-diagrams } { no-anchor } { #1 } { #2 } }
+    {
+      \@@_side_ports:neN { #1 } { \seq_item:Nn \l_@@_port_seq { 2 } } \l_@@_ports_int
+      \msg_error:nnneeV { string-diagrams } { missing-port } { Box~`#1' }
+        { \seq_item:Nn \l_@@_port_seq { 2 } } { \seq_item:Nn \l_@@_port_seq { 3 } }
+        \l_@@_ports_int
+    }
+}
+\cs_generate_variant:Nn \@@_side_ports:nnN { ne }
+\cs_generate_variant:Nn \msg_error:nnnnnn { nnneeV }
+\cs_generate_variant:Nn \@@_no_anchor:nn { VV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_wire_end:nNNNN,\@@_wire_end_angle:NNN}
 %   Finds the node and anchor of an end of a to path, and the angle a wire leaves or enters it at.
 %   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
 %   A point is looked up among the anchors resolved in the picture.
 %   An end that is no anchor of a node, or a boundary from another picture, raises an error and leaves the angle empty.
 %   So do the ends that \cmd\wires\ refuses: a bare node, and anchors off the sides.
-%   An end on a node that doesn't exist leaves the angle empty too, but raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
+%   An end on a node that doesn't exist, or at an anchor its node doesn't have, leaves the angle empty too, but raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
 %   \TikZ\ resolves the start of a to path before its keys, and a target only if it computes it.
 %   \begin{arguments}
 %     \item end, as \TikZ\ gives it
@@ -948,8 +1040,19 @@
             { ! \@@_if_boundary_in_picture_p: }
             { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
             {
-              \@@_anchor_to_angle:NVV #4 #2 #3
-              \@@_check_end:VVN #2 #3 #4
+              \tl_if_empty:NTF #3
+                { \@@_wire_end_angle:NNN #2 #3 #4 }
+                {
+                  \@@_if_anchor:VVTF #2 #3
+                    { \@@_wire_end_angle:NNN #2 #3 #4 }
+                    {
+                      \bool_if:NF \l_@@_end_resolved_bool
+                        {
+                          \@@_no_anchor:VV #2 #3
+                          \bool_set_true:N \l_@@_end_missing_bool
+                        }
+                    }
+                }
             }
         }
         {
@@ -964,6 +1067,10 @@
             }
         }
     }
+}
+\cs_new_protected:Nn \@@_wire_end_angle:NNN {
+  \@@_anchor_to_angle:NVV #3 #1 #2
+  \@@_check_end:VVN #1 #2 #3
 }
 \cs_generate_variant:Nn \@@_wire_end:nNNNN { V }
 \cs_generate_variant:Nn \@@_anchor_to_angle:Nnn { NVV }
@@ -1298,10 +1405,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_adj_node_alone:nNnn,\@@_adj_node_alone_name:Nn,\@@_if_anchor:nn}
+% \begin{macro}{\@@_adj_node_alone:nNnn,\@@_adj_node_alone_name:Nn}
 %   Reads an item without \texttt{=} in a group after the node a wire starts from.
 %   It is the target of a wire from that node without an anchor, as in \texttt{f = \{ g \}}, if it names a node that exists.
-%   Otherwise it is an error: an anchor left without a target, if it is an anchor of the node the wires start from, as the shape of that node tells, or else a node that doesn't exist; if that node doesn't exist either, the error names it, since the item can't be told apart.
+%   Otherwise it is an error: an anchor left without a target, if it is an anchor of the node the wires start from, as the shape of that node tells, or an angle, which pgf reads as a point of the border; or else a node that doesn't exist; if the node the wires start from doesn't exist either, the error names it, since the item can't be told apart.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
 %     \item function to be mapped over wires
@@ -1331,13 +1438,6 @@
         { \msg_error:nnn { string-diagrams } { end-no-node } { #2 } }
     }
 }
-\prg_new_conditional:Nnn \@@_if_anchor:nn { TF }
-  {
-    \cs_if_exist:cTF { pgf@anchor@ \use:c { pgf@sh@ns@ #1 } @ #2 }
-      { \prg_return_true: }
-      { \prg_return_false: }
-  }
-\prg_generate_conditional_variant:Nnn \@@_if_anchor:nn { nV } { TF }
 %    \end{macrocode}
 % \end{macro}
 %
