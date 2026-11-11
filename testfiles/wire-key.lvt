@@ -189,7 +189,7 @@
   }
 }
 
-\TEST{a wire with two wrong ends raises one error}{
+\TEST{a wire with two wrong ends raises an error for each}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \node[box, square] (b) at (100pt,200pt) {};

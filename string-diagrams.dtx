@@ -994,19 +994,17 @@
 % \begin{macro}{\@@_wire:}
 %   Turns a to path into a wire, for the \texttt{wire} key: it sets the angles that \TikZ's own \texttt{out} and \texttt{in} keys draw a curve with, and moves the ends on the boundary as \cmd\wires\ does.
 %   An end on the boundary becomes a point, and a start on it needs a move there, since the path is already at the anchor.
-%   The first end that has no angle stops it, with at most one error, and the wire becomes a move to its target, so it is not drawn; it becomes nothing if its target is on a node that doesn't exist, which \TikZ\ would report again.
+%   An end that has no angle raises at most one error, and the wire becomes a move to its target, so it is not drawn; it becomes nothing if its target is on a node that doesn't exist, which \TikZ\ would report again.
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_wire: {
-  \tl_clear:N \l_@@_iangle_tl
   \bool_set_false:N \l_@@_end_missing_bool
   \@@_wire_end:VNNNN \tikztostart
     \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_oangle_tl \c_true_bool
-  \tl_if_empty:NF \l_@@_oangle_tl
-    {
-      \@@_wire_end:VNNNN \tikztotarget
-        \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_iangle_tl \c_false_bool
-    }
-  \tl_if_empty:NTF \l_@@_iangle_tl
+  \@@_wire_end:VNNNN \tikztotarget
+    \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_iangle_tl \c_false_bool
+  \bool_lazy_or:nnTF
+    { \tl_if_empty_p:N \l_@@_oangle_tl }
+    { \tl_if_empty_p:N \l_@@_iangle_tl }
     {
       \bool_if:NTF \l_@@_end_missing_bool
         { \pgfkeysalso { to~path = { } } }

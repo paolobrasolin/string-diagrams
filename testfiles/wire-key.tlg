@@ -290,9 +290,16 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 21: a wire with two wrong ends raises one error
+TEST 21: a wire with two wrong ends raises an error for each
 ============================================================
 ! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `b' has no anchor, so the wire is not drawn.
 Type <return> to continue.
  ...                                              
 l. ...}
