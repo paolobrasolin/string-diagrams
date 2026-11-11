@@ -1,0 +1,119 @@
+\input stridi-test.tex\relax
+
+% A label 10pt wide, with no margins, so that its center lies 5pt from the point it is placed at, along each axis it is moved on.
+\tikzset{lab/.style={name=l, minimum size=10pt, inner sep=0pt, outer sep=0pt}}
+
+% \PLACE{<code>}: in a picture, run the code, which places a label named l, and log the center of the label.
+\NewDocumentCommand\PLACE{m}{#1\SHOWANCHOR{l}{center}}
+
+\begin{document}
+
+\START
+
+% NOTE: the package loads the quotes library, so labels are written as quotes without loading it.
+\TEST{beyond end and beyond start place a label past a loose end}{
+  \PICTURE{
+    \node[box=1/1/1/1, square] (a) at (0pt,0pt) {};
+    \PLACE{\wires{a.north.1 = ["" {beyond end, lab}] @.north}}
+    \PLACE{\wires{a.east.1 = ["" {beyond end, lab}] @.east}}
+    \PLACE{\wires{a.south.1 = ["" {beyond end, lab}] @.south}}
+    \PLACE{\wires{a.west.1 = ["" {beyond end, lab}] @.west}}
+    \TYPE{-- from the boundary:}
+    \PLACE{\wires{@.north = ["" {beyond start, lab}] a.north.1}}
+    \PLACE{\wires{@.west = ["" {beyond start, lab}] a.west.1}}
+  }
+}
+
+\TEST{beyond end past a loose end from a corner, and with a flow}{
+  \PICTURE[wire flow=east]{
+    \node[dot] (d) at (0pt,0pt) {};
+    \node[box=0/1/0/1, square] (a) at (-200pt,0pt) {};
+    \PLACE{\wires{d.north east = ["" {beyond end, lab}] @}}
+    \PLACE{\wires{@ = ["" {beyond start, lab}] a}}
+  }
+}
+
+% NOTE: beside turns a label 45 degrees further than auto, so that it clears the box: away from it, near the start of a wire, and back along the wire, near its end.
+\TEST{beside end and beside start place a label beside a port}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (0pt,200pt) {};
+    \PLACE{\wires{a.north.1 = ["" {beside start, lab}] b.south.1}}
+    \PLACE{\wires{a.north.1 = ["" {beside end, lab}] b.south.1}}
+    \TYPE{-- to the right, with swap before or after:}
+    \PLACE{\wires{a.north.1 = [""' {beside start, lab}] b.south.1}}
+    \PLACE{\wires{a.north.1 = ["" {beside end, swap, lab}] b.south.1}}
+  }
+}
+
+\TEST{on a path, beyond and beside act as at the end they are nearer}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (0pt,200pt) {};
+    \PLACE{\wires{a.north.1 = ["" {pos=.2, beyond, lab}] b.south.1}}
+    \PLACE{\wires{a.north.1 = ["" {pos=.8, beside, lab}] b.south.1}}
+  }
+}
+
+% NOTE: the keys read the tangent of the path at the label, as auto does.
+\TEST{beyond and beside on paths that aren't wires}{
+  \PICTURE{
+    \PLACE{\path (0pt,0pt) -- node[beyond end, lab] {} (100pt,100pt);}
+    \PLACE{\path (0pt,0pt) |- node[beyond end, lab] {} (100pt,100pt);}
+    \PLACE{\path (0pt,0pt) -- node[beyond start, lab] {} (100pt,0pt);}
+    \PLACE{\path (0pt,0pt) to[out=90, in=180] node[beside end, lab] {} (100pt,100pt);}
+  }
+}
+
+\TEST{beyond end on a bent wire}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \PLACE{\wires{a.north.1 = [bend left, "" {beyond end, lab}] @.north}}
+  }
+}
+
+% NOTE: in label, the keys place the label of a port as at the start of a wire leaving it, at the anchor itself.
+\TEST{beyond and beside in the label of a port}{
+  \PICTURE{
+    \node[box=2/1/1/0, square,
+      label={[beyond, lab, name=n1]north.1:{}},
+      label={[beside, lab, name=n2]north.2:{}},
+      label={[beside, swap, lab, name=e1]east.1:{}},
+      label={[swap, beside, lab, name=s1]south.1:{}},
+      label={[beyond, lab, name=ne]north east:{}},
+    ] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{n1}{center}
+    \SHOWANCHOR{a}{north.2}
+    \SHOWANCHOR{n2}{center}
+    \SHOWANCHOR{a}{east.1}
+    \SHOWANCHOR{e1}{center}
+    \SHOWANCHOR{a}{south.1}
+    \SHOWANCHOR{s1}{center}
+    \SHOWANCHOR{a}{north east}
+    \SHOWANCHOR{ne}{center}
+  }
+}
+
+\TEST{in the label of an anchor without an angle, the keys do nothing}{
+  \PICTURE{
+    \node[square, label={[beside, lab, name=k]center:{}}] (a) at (0pt,0pt) {};
+    \node[square, label={[lab, name=t]center:{}}] (b) at (0pt,0pt) {};
+    \SHOWANCHOR{k}{center}
+    \SHOWANCHOR{t}{center}
+    \TYPE{-- nor on a node of its own:}
+    \node[beside, lab] at (10pt,20pt) {};
+    \SHOWANCHOR{l}{center}
+  }
+}
+
+% NOTE: a wire of no length has no direction, and pgf takes its tangent as pointing up; the label is placed all the same.
+\TEST{a label on a wire of no length}{
+  \PICTURE{
+    \node[box=0/1/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/0/1, square] (b) at (120pt,0pt) {};
+    \PLACE{\wires{a.east.1 = ["" {beside end, lab}] b.west.1}}
+  }
+}
+
+\END

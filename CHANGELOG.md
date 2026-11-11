@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Let keys in brackets begin any entry, group, wire or target of `\wires`, as in `a.north = [dashed] b.south`: they add up from the keys of the call down to each wire, and the closest win.
 - Let wire ends leave out their anchor, as in `f = g`, `f.north.1 = g` or `\draw (f) to[wire] (g);`: a bare end is the side that the wire crosses going straight on, or the only port of that side. With one end anchored, the wire leaves or enters as that end says; with both ends bare, it follows the `wire flow`, if set, else the axis that separates the two nodes more. Loose ends need no anchors either, as in `@ = f`.
 - Add the `wire flow` key, which sets the direction of the wires between bare ends: `north`, `east`, `south` or `west`, or their synonyms `up`, `right`, `down` and `left`, as for the `grow` key of TikZ, or `none`.
+- Load the `quotes` library of TikZ, so wires take labels written as quotes, as in `a.north = ["$A$"] b.south`.
+- Add the `beyond` and `beside` keys, which place labels as the `auto` key of TikZ does, and with its `swap`, but past the end of a wire, as in `"$A$" beyond end` for a loose end, or beside it and clear of the box, as in `"$A$" beside start` for a port. In the `label` of a node, they place the label of a port, as in `label={[beside]north.1:$A$}`. The keys `beyond end`, `beyond start`, `beside end` and `beside start` add the position, as `at end` and `at start` do.
 
 ### Changed
 

@@ -349,13 +349,14 @@
 %<@@=stridi>
 %    \end{macrocode}
 %
-% Require a \LaTeX\ with hooks that take arguments, and load the essential support (\pkg{expl3}, and \TikZ\ with the \texttt{fit} library that the boundary of \cmd\wires\ needs) \enquote{up-front}.
+% Require a \LaTeX\ with hooks that take arguments, and load the essential support (\pkg{expl3}, and \TikZ\ with the \texttt{fit} library that the boundary of \cmd\wires\ needs, and the \texttt{quotes} library that labels wires) \enquote{up-front}.
 %
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}[2023/06/01]
 \RequirePackage{expl3}[2023/06/05]
 \RequirePackage{tikz}[2023/01/15]
 \usetikzlibrary{fit}
+\usetikzlibrary{quotes}
 %    \end{macrocode}
 %
 % Identify the package and give the over all version information.
@@ -1549,6 +1550,99 @@
   every~wire/.style = { },
   wire/.code = { \@@_wire_key: \pgfkeysalso { every~wire } },
   wire~flow/.code = { \@@_set_flow:n { #1 } },
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_compass:n,\@@_side_turn:nn}
+%   \cmd{\@@_compass:n} expands to the compass anchor of a direction, in degrees, a multiple of 45.
+%   \cmd{\@@_side_turn:nn} expands to its first argument for a label to the left of a path, and to its second for one to the right, as \texttt{swap} sets.
+%    \begin{macrocode}
+\cs_new:Nn \@@_compass:n
+  {
+    \int_case:nn { \int_mod:nn { #1 + 720 } { 360 } }
+      {
+        { 0 } { east } { 45 } { north~east } { 90 } { north } { 135 } { north~west }
+        { 180 } { west } { 225 } { south~west } { 270 } { south } { 315 } { south~east }
+      }
+  }
+\cs_new:Nn \@@_side_turn:nn
+  { \str_if_eq:VnTF \tikz@auto@anchor@direction { left } { #1 } { #2 } }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_label_fp,\l_@@_label_angle_tl}
+%   Scratch variables for the placement of labels: a direction of travel, and the angle of the anchor a label belongs to.
+%    \begin{macrocode}
+\fp_new:N \l_@@_label_fp
+\tl_new:N \l_@@_label_angle_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_label_key:nnnnnn,\@@_label_on_path:nnnn}
+%   Choose the anchor of a label, as \TikZ's \texttt{auto} does, but turned from the direction of travel by the given angles, the first of each pair to the left and the second to the right.
+%   For a label on a path, the direction is the tangent of the path at the label, which \TikZ\ reads when it places the label, as for \texttt{auto}, and the turn depends on which end of the path the label is nearer.
+%   For a label of a node, given with \texttt{label}, the direction is that of a wire leaving the anchor the label belongs to, from the anchor's name; an anchor without an angle, such as \texttt{center}, leaves the placement to \TikZ.
+%   The label is then placed at the anchor itself, and its own anchor is a macro, expanded when the node is made.
+%   In both cases the side is read once all the keys of the label are set, so a \texttt{swap} after the key counts.
+%   \begin{arguments}
+%     \item turn near the start of a path, to the left
+%     \item turn near the start of a path, to the right
+%     \item turn near the end of a path, to the left
+%     \item turn near the end of a path, to the right
+%     \item turn for the label of a node, to the left
+%     \item turn for the label of a node, to the right
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_label_key:nnnnnn {
+  \cs_set:Npn \tikz@do@auto@anchor
+    { \@@_label_on_path:nnnn { #1 } { #2 } { #3 } { #4 } }
+  \str_if_eq:VnT \tikz@anchor { @auto }
+    {
+      \@@_anchor_to_angle:NV \l_@@_label_angle_tl \tikz@label@angle
+      \tl_if_empty:NF \l_@@_label_angle_tl
+        {
+          \pgfkeysalso { label~distance = 0pt }
+          \cs_set:Npe \tikz@anchor
+            {
+              \exp_not:N \@@_compass:n
+                { \l_@@_label_angle_tl + \exp_not:N \@@_side_turn:nn { #5 } { #6 } }
+            }
+        }
+    }
+}
+\cs_new_protected:Nn \@@_label_on_path:nnnn {
+  \tikz@auto@pre
+    \fp_set:Nn \l_@@_label_fp
+      { round ( atand ( \dim_to_fp:n { \pgf@y } , \dim_to_fp:n { \pgf@x } ) / 45 ) * 45 }
+    \cs_set:Npe \tikz@anchor
+      {
+        \@@_compass:n
+          {
+            \fp_to_int:N \l_@@_label_fp
+            + \fp_compare:nNnTF { \tikz@time } < { 0.5 }
+              { \@@_side_turn:nn { #1 } { #2 } }
+              { \@@_side_turn:nn { #3 } { #4 } }
+          }
+      }
+  \tikz@auto@post
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{/tikz/beyond,/tikz/beside,/tikz/beyond end,/tikz/beyond start,/tikz/beside end,/tikz/beside start}
+%   Define the keys that place labels of wires and ports, as \TikZ's \texttt{auto} and \texttt{swap} do, but past the end of a wire or beside it, clear of the box.
+%   On a path, \texttt{beyond} faces the label back along the path, past its end, and \texttt{beside} turns it 45 degrees further than \texttt{auto} does: away from the box the wire enters, near its end, or leaves, near its start.
+%   In \texttt{label}, they place the label of a port as at the start of a wire leaving it: straight out, or beside the wire.
+%   The others add the position, as \texttt{at end} and \texttt{at start}.
+%    \begin{macrocode}
+\tikzset{
+  beyond/.code = { \@@_label_key:nnnnnn { 0 } { 0 } { 180 } { 180 } { 180 } { 180 } },
+  beside/.code = { \@@_label_key:nnnnnn { -135 } { 135 } { -45 } { 45 } { -135 } { 135 } },
+  beyond~end/.style = { at~end, beyond },
+  beyond~start/.style = { at~start, beyond },
+  beside~end/.style = { at~end, beside },
+  beside~start/.style = { at~start, beside },
 }
 %    \end{macrocode}
 % \end{macro}
