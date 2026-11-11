@@ -146,6 +146,32 @@
   }
 }
 
+\TEST{a wire to a coordinate is an error}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \LOG{\draw (a.north.1) to[wire] (1,2);}
+    \LOG{\draw (a.north.1) to[wire] (30:2);}
+  }
+}
+
+% NOTE: the target isn't resolved afterwards, so pgf doesn't report the missing node again.
+\TEST{a wire to a node that doesn't exist raises one error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \LOG{\draw (a.north) to[wire] (nowhere.south);}
+    \LOG{\path (a.north) edge[wire] (nowhere);}
+  }
+}
+
+% NOTE: TikZ resolves the start before the key, and reports the missing node itself.
+\TEST{a wire from a node that doesn't exist raises one error}{
+  \PICTURE{
+    \node[box, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (nowhere.north) to[wire] (b.south);}
+    \LOG{\draw (nowhere) to[wire] (b.south);}
+  }
+}
+
 \TEST{a wire from an anchor that isn't on a side is an error}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};

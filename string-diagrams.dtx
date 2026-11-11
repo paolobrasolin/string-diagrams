@@ -909,17 +909,20 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_wire_end:nNNN}
+% \begin{macro}{\@@_wire_end:nNNNN}
 %   Finds the node and anchor of an end of a to path, and the angle a wire leaves or enters it at.
 %   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
 %   A point is looked up among the anchors resolved in the picture.
 %   An end that is no anchor of a node, or a boundary from another picture, raises an error and leaves the angle empty.
 %   So do the ends that \cmd\wires\ refuses: a bare node, and anchors off the sides.
+%   An end on a node that doesn't exist leaves the angle empty too, but raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
+%   \TikZ\ resolves the start of a to path before its keys, and a target only if it computes it.
 %   \begin{arguments}
 %     \item end, as \TikZ\ gives it
 %     \item token list variable to store the node
 %     \item token list variable to store the anchor
 %     \item token list variable to store the angle
+%     \item boolean, true if \TikZ\ has already resolved the end
 %   \end{arguments}
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { end-not-anchor }
@@ -927,32 +930,52 @@
     Wire~end~`(#1)'~is~not~an~anchor~of~a~node,~so~the~wire~is~not~drawn:~
     wires~go~between~anchors,~as~in~(f.north)~to[wire]~(g.south).
   }
+\msg_new:nnn { string-diagrams } { end-no-node }
+  { Wire~end~`#1'~is~on~a~node~that~doesn't~exist,~so~the~wire~is~not~drawn. }
 \msg_new:nnn { string-diagrams } { end-boundary-elsewhere }
   {
     Wire~end~`@.#1'~is~on~the~boundary~of~another~picture,~so~the~wire~is~not~drawn:~
     \iow_char:N\\wires~draws~the~boundary~of~this~picture.
   }
-\cs_new_protected:Nn \@@_wire_end:nNNN {
+\bool_new:N \l_@@_end_missing_bool
+\bool_new:N \l_@@_end_resolved_bool
+\cs_new_protected:Nn \@@_wire_end:nNNNN {
   \tl_clear:N #4
+  \bool_set_eq:NN \l_@@_end_resolved_bool #5
   \regex_match:nnTF { \A [^,]* pt , [^,]* pt \Z } { #1 }
-    { \@@_find_anchor:NNw #2 #3 #1 \q_stop }
+    {
+      \bool_set_true:N \l_@@_end_resolved_bool
+      \@@_find_anchor:NNw #2 #3 #1 \q_stop
+    }
     { \@@_split_node_anchor:NNn #2 #3 { #1 } }
-  \bool_lazy_or:nnTF
-    { \tl_if_empty_p:N #2 }
-    { ! \cs_if_exist_p:c { pgf@sh@ns@ #2 } }
+  \tl_if_empty:NTF #2
     { \msg_error:nnn { string-diagrams } { end-not-anchor } { #1 } }
     {
-      \bool_lazy_and:nnTF
-        { \str_if_eq_p:Vn #2 { @ } }
-        { ! \@@_if_boundary_in_picture_p: }
-        { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
+      \cs_if_exist:cTF { pgf@sh@ns@ #2 }
         {
-          \@@_anchor_to_angle:NVV #4 #2 #3
-          \@@_check_end:VVN #2 #3 #4
+          \bool_lazy_and:nnTF
+            { \str_if_eq_p:Vn #2 { @ } }
+            { ! \@@_if_boundary_in_picture_p: }
+            { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
+            {
+              \@@_anchor_to_angle:NVV #4 #2 #3
+              \@@_check_end:VVN #2 #3 #4
+            }
+        }
+        {
+          \bool_if:NF \l_@@_end_resolved_bool
+            {
+              \regex_match:nnTF { [,:] } { #1 }
+                { \msg_error:nnn { string-diagrams } { end-not-anchor } { #1 } }
+                {
+                  \msg_error:nnn { string-diagrams } { end-no-node } { #1 }
+                  \bool_set_true:N \l_@@_end_missing_bool
+                }
+            }
         }
     }
 }
-\cs_generate_variant:Nn \@@_wire_end:nNNN { V }
+\cs_generate_variant:Nn \@@_wire_end:nNNNN { V }
 \cs_generate_variant:Nn \@@_anchor_to_angle:Nnn { NVV }
 \cs_generate_variant:Nn \@@_check_end:nnN { VV }
 %    \end{macrocode}
@@ -971,19 +994,24 @@
 % \begin{macro}{\@@_wire:}
 %   Turns a to path into a wire, for the \texttt{wire} key: it sets the angles that \TikZ's own \texttt{out} and \texttt{in} keys draw a curve with, and moves the ends on the boundary as \cmd\wires\ does.
 %   An end on the boundary becomes a point, and a start on it needs a move there, since the path is already at the anchor.
-%   The first end that has no angle stops it with an error, and the wire becomes a move to its target, so it is not drawn.
+%   The first end that has no angle stops it, with at most one error, and the wire becomes a move to its target, so it is not drawn; it becomes nothing if its target is on a node that doesn't exist, which \TikZ\ would report again.
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_wire: {
   \tl_clear:N \l_@@_iangle_tl
-  \@@_wire_end:VNNN \tikztostart
-    \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_oangle_tl
+  \bool_set_false:N \l_@@_end_missing_bool
+  \@@_wire_end:VNNNN \tikztostart
+    \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_oangle_tl \c_true_bool
   \tl_if_empty:NF \l_@@_oangle_tl
     {
-      \@@_wire_end:VNNN \tikztotarget
-        \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_iangle_tl
+      \@@_wire_end:VNNNN \tikztotarget
+        \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_iangle_tl \c_false_bool
     }
   \tl_if_empty:NTF \l_@@_iangle_tl
-    { \pgfkeysalso { to~path = { (\tikztotarget) } } }
+    {
+      \bool_if:NTF \l_@@_end_missing_bool
+        { \pgfkeysalso { to~path = { } } }
+        { \pgfkeysalso { to~path = { (\tikztotarget) } } }
+    }
     {
       \@@_anchors_to_proj:NVVVV \l_@@_source_tl
         \l_@@_start_node_tl \l_@@_start_anchor_tl
