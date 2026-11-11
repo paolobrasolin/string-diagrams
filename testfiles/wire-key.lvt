@@ -198,6 +198,20 @@
   }
 }
 
+% NOTE: the labels of a wire go with it, so a wire that isn't drawn has none; here each label is a node with a frame, so that it shows in the log.
+\TEST{a wire that isn't drawn has no labels}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.center) to[wire] node[draw] {} (b.south.1);}
+    \LOG{\path (a.center) edge[wire] node[draw] {} (b.south.1);}
+    \LOG{\draw (a.north) to[wire] node[draw] {} (nowhere.south);}
+    \LOG{\wires{a.north = [edge node={node[draw] {}}] b.south.2}}
+    \TYPE{-- a wire that is drawn keeps them:}
+    \LOG{\draw (a.north) to[wire] node[draw] {} (b.south.1);}
+  }
+}
+
 % NOTE: node names outlive their pictures, so the boundary of the first picture is still there in the second.
 \TEST{a wire to the boundary of another picture is an error}{
   \PICTURE{

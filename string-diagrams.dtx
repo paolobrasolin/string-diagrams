@@ -1444,7 +1444,7 @@
 %   Turn a to path into a wire, just before \TikZ\ computes its curve, after all the keys of the path, so that \texttt{wire flow} counts wherever it is set.
 %   \cmd{\@@_wire:} finds the ends, infers the anchors of bare ends, and sets the angles that \TikZ's own \texttt{out} and \texttt{in} draw the curve with, unless keys after \texttt{wire} have set them.
 %   An end faces inwards when its node holds the other, as \cmd{\@@_faces_inwards:} tells: then its angle turns round, and a side without a port is reached straight across, as on the boundary.
-%   An end that becomes a point, or a bare start, moves the start, which \cmd{\@@_wire_path:} does after the computation; it also turns a wire that isn't drawn into a move to its target, or into nothing if its target is on a node that doesn't exist, which \TikZ\ would report again.
+%   An end that becomes a point, or a bare start, moves the start, which \cmd{\@@_wire_path:} does after the computation; it also turns a wire that isn't drawn into a move to its target, or into nothing if its target is on a node that doesn't exist, which \TikZ\ would report again, and drops its labels, the nodes \TikZ\ would place along it.
 %   Each wrong end raises an error.
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_wire: {
@@ -1515,6 +1515,7 @@
         { \tl_put_left:Ne \tikz@computed@path { ( \exp_not:V \tikztostart ) ~ } }
     }
     {
+      \cs_set:Npn \tikztonodes { }
       \bool_if:NTF \l_@@_end_missing_bool
         { \tl_clear:N \tikz@computed@path }
         { \tl_set:Ne \tikz@computed@path { ( \exp_not:V \l_@@_given_target_tl ) } }
