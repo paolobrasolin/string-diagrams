@@ -1,0 +1,277 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: a wire on a to path draws what wires draws
+============================================================
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+-- wires:
+q 
+0 G 
+0 g 
+Q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 2: a wire on an edge
+============================================================
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 3: a wire between sides
+============================================================
+59.77661 0.0 m 
+109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
+S 
+============================================================
+============================================================
+TEST 4: a wire from a corner
+============================================================
+1.5498 1.5498 m 
+48.319 48.319 99.62769 73.33717 99.62769 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 5: wires to and from the boundary
+============================================================
+0.0 59.77661 m 
+0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+S 
+-83.42125 0.0 m 
+-83.42125 0.0 m 
+-74.20053 0.0 -68.99731 0.0 -59.77661 0.0 c 
+S 
+-- wires:
+0.0 59.77661 m 
+0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+S 
+-83.42125 0.0 m 
+-74.20053 0.0 -68.99731 0.0 -59.77661 0.0 c 
+S 
+============================================================
+============================================================
+TEST 6: a wire right after another starts at its target
+============================================================
+59.77661 0.0 m 
+109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
+52.27403 99.62769 251.5294 0.0 338.73413 0.0 c 
+S 
+============================================================
+============================================================
+TEST 7: edges start at the coordinate before them
+============================================================
+q 
+0.0 59.77661 m 
+0.0 109.70135 -99.62769 89.554 -99.62769 139.47876 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 8: wires in a foreach inside a path
+============================================================
+-29.8883 59.77661 m 
+-29.8883 109.70135 69.73938 89.554 69.73938 139.47876 c 
+29.8883 59.77661 m 
+29.8883 109.70135 129.51599 89.554 129.51599 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 9: wires in a shifted or scaled scope are drawn as without it
+============================================================
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+-- shifted:
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+-- scaled:
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 10: keys after wire override its angles
+============================================================
+0.0 59.77661 m 
+49.92474 59.77661 99.62769 89.554 99.62769 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 11: every wire styles the stroke of an edge, not of a to path
+============================================================
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+-- edge:
+q 
+q 
+1.99255 w 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+Q 
+============================================================
+============================================================
+TEST 12: a wire leaves the anchor written, of two in the same place
+============================================================
+59.77661 0.0 m 
+5.38396 0.0 59.77661 85.0861 59.77661 139.47876 c 
+S 
+-- the other:
+59.77661 0.0 m 
+114.16925 0.0 59.77661 85.0861 59.77661 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 13: a wire between nodes with spaces in their names
+============================================================
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+============================================================
+============================================================
+TEST 14: a wire from a point is an error
+============================================================
+! Package string-diagrams Error: Wire end `(0.0pt,0.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 0.0 m 
+99.62769 139.47876 m 
+S 
+============================================================
+============================================================
+TEST 15: a wire to a computed point is an error
+============================================================
+! Package string-diagrams Error: Wire end `(0.0pt,160.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+0.0 159.4043 m 
+S 
+! Package string-diagrams Error: Wire end `(110.0pt,140.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+109.59045 139.47876 m 
+S 
+============================================================
+============================================================
+TEST 16: a wire from an anchor that isn't on a side is an error
+============================================================
+! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 0.0 m 
+99.62769 139.47876 m 
+S 
+============================================================
+============================================================
+TEST 17: a wire from or to a node without anchor is an error
+============================================================
+! Package string-diagrams Error: Wire end `a' has no anchor, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+99.62769 139.47876 m 
+S 
+! Package string-diagrams Error: Wire end `b' has no anchor, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+S 
+============================================================
+============================================================
+TEST 18: a wire with two wrong ends raises one error
+============================================================
+! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 0.0 m 
+S 
+============================================================
+============================================================
+TEST 19: a wire to the boundary of another picture is an error
+============================================================
+! Package string-diagrams Error: Wire end `@.north' is on the boundary of another picture, so the wire is not drawn: \wires draws the boundary of this picture.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+0.0 73.45847 m 
+S 
+============================================================
+============================================================
+TEST 20: anchors of earlier pictures are forgotten
+============================================================
+! Package string-diagrams Error: Wire end `(0.0pt,60.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 59.77661 m 
+99.62769 139.47876 m 
+S 
+============================================================
+============================================================
+TEST 21: a picture nested between the start of a wire and its key
+============================================================
+q 
+0 G 
+0 g 
+0.3985 w 
+q 
+Q 
+n 
+Q 
+q 
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+Q 
+============================================================

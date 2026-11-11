@@ -1,0 +1,206 @@
+\input stridi-test.tex\relax
+
+\begin{document}
+
+\START
+
+\TEST{a wire on a to path draws what wires draws}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north.1) to[wire] (b.south.1);}
+    \TYPE{-- wires:}
+    \LOG{\wires{a = {north.1 = b.south.1}}}
+  }
+}
+
+\TEST{a wire on an edge}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\path (a.north.1) edge[wire] (b.south.1);}
+  }
+}
+
+\TEST{a wire between sides}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (200pt,100pt) {};
+    \LOG{\draw (a.east) to[wire] (b.west);}
+  }
+}
+
+\TEST{a wire from a corner}{
+  \PICTURE{
+    \node[dot] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north east) to[wire] (b.south.1);}
+  }
+}
+
+\TEST{wires to and from the boundary}{
+  \PICTURE{
+    \node[box=1/0/1/1, square] (a) at (0pt,0pt) {};
+    \wires{a = {south.1 = @.south}}
+    \LOG{\draw (a.north.1) to[wire] (@.north);}
+    \LOG{\draw (@.west) to[wire] (a.west.1);}
+    \TYPE{-- wires:}
+    \LOG{\wires{a = {north.1 = @.north}, @ = {west = a.west.1}}}
+  }
+}
+
+% NOTE: without a move, a wire starts where the one before it ended, and leaves that anchor by its own side: here b.west.1, leftwards.
+\TEST{a wire right after another starts at its target}{
+  \PICTURE{
+    \node[box=0/1/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/0/1, square] (b) at (200pt,100pt) {};
+    \node[box=0/0/0/1, square] (c) at (400pt,0pt) {};
+    \LOG{\draw (a.east.1) to[wire] (b.west.1) to[wire] (c.west.1);}
+  }
+}
+
+\TEST{edges start at the coordinate before them}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (-100pt,200pt) {};
+    \node[box=0/0/1/0, square] (c) at (100pt,200pt) {};
+    \LOG{\path (a.north.1) edge[wire] (b.south.1) edge[wire] (c.south.1);}
+  }
+}
+
+\TEST{wires in a foreach inside a path}{
+  \PICTURE{
+    \node[box=2/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/2/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw \foreach \i in {1,2} {(a.north.\i) to[wire] (b.south.\i)};}
+  }
+}
+
+\TEST{wires in a shifted or scaled scope are drawn as without it}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north.1) to[wire] (b.south.1);}
+    \TYPE{-- shifted:}
+    \begin{scope}[shift={(100pt,50pt)}]
+      \LOG{\draw (a.north.1) to[wire] (b.south.1);}
+    \end{scope}
+    \TYPE{-- scaled:}
+    \begin{scope}[scale=2]
+      \LOG{\draw (a.north.1) to[wire] (b.south.1);}
+    \end{scope}
+  }
+}
+
+\TEST{keys after wire override its angles}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north.1) to[wire, out=0] (b.south.1);}
+  }
+}
+
+% NOTE: as with every edge and every to, the stroke of a to path is set by its path, not by its keys.
+\TEST{every wire styles the stroke of an edge, not of a to path}{
+  \PICTURE[every wire/.style={line width=2pt}]{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north.1) to[wire] (b.south.1);}
+    \TYPE{-- edge:}
+    \LOG{\path (a.north.1) edge[wire] (b.south.1);}
+  }
+}
+
+\TEST{a wire leaves the anchor written, of two in the same place}{
+  \PICTURE{
+    \node[box=0/1/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/0/1, square] (b) at (120pt,0pt) {};
+    \node[box=0/0/1/0, square] (c) at (60pt,200pt) {};
+    \LOG{\draw (b.west.1) to[wire] (c.south.1);}
+    \TYPE{-- the other:}
+    \LOG{\draw (a.east.1) to[wire] (c.south.1);}
+  }
+}
+
+\TEST{a wire between nodes with spaces in their names}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (my a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (my b) at (100pt,200pt) {};
+    \LOG{\draw (my a.north.1) to[wire] (my b.south.1);}
+  }
+}
+
+\TEST{a wire from a point is an error}{
+  \PICTURE{
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (0pt,0pt) to[wire] (b.south.1);}
+  }
+}
+
+\TEST{a wire to a computed point is an error}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north.1) to[wire] ++(0pt,100pt);}
+    \LOG{\draw (a.north.1) to[wire] ([xshift=10pt]b.south.1);}
+  }
+}
+
+\TEST{a wire from an anchor that isn't on a side is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.center) to[wire] (b.south);}
+  }
+}
+
+\TEST{a wire from or to a node without anchor is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a) to[wire] (b.south);}
+    \LOG{\draw (a.north) to[wire] (b);}
+  }
+}
+
+\TEST{a wire with two wrong ends raises one error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.center) to[wire] (b);}
+  }
+}
+
+% NOTE: node names outlive their pictures, so the boundary of the first picture is still there in the second.
+\TEST{a wire to the boundary of another picture is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \wires{a = {north = @.north}}
+  }
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \LOG{\draw (a.north) to[wire] (@.north);}
+  }
+}
+
+\TEST{anchors of earlier pictures are forgotten}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \path (a.north);
+  }
+  \PICTURE{
+    \node[box, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (0pt,60pt) to[wire] (b.south);}
+  }
+}
+
+% NOTE: the nested picture resolves an anchor of its own after the start of the edge has been resolved, and before the key looks it up.
+\TEST{a picture nested between the start of a wire and its key}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\path (a.north.1) \pgfextra{\setbox1\hbox{\tikz \path (a.south);}} edge[wire] (b.south.1);}
+  }
+}
+
+\END

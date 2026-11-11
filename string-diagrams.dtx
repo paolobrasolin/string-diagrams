@@ -703,7 +703,7 @@
 % \end{macro}
 %
 % \begin{variable}{\l_@@_oangle_tl,\l_@@_iangle_tl,\l_@@_source_tl,\l_@@_target_tl}
-%   Initialize scratch variables required by \cmd{\@@_draw_wire:nnnnn}.
+%   Initialize scratch variables required by \cmd{\@@_draw_wire:nnnnn} and \cmd{\@@_wire:}.
 %    \begin{macrocode}
 \tl_new:N \l_@@_oangle_tl
 \tl_new:N \l_@@_iangle_tl
@@ -774,19 +774,31 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}[pTF]{\@@_if_boundary_in_picture:}
+%   Tests whether the current picture has a boundary, by the picture that pgf records for each node: node names outlive their pictures.
+%    \begin{macrocode}
+\prg_new_conditional:Nnn \@@_if_boundary_in_picture: { p, T, F, TF }
+  {
+    % NOTE: the space keeps docstrip from turning the @@ of the name of node @ into the module prefix.
+    \bool_lazy_and:nnTF
+      { \cs_if_exist_p:c { pgf@sh@pi@ @ } }
+      { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ @ } } { \pgfpictureid } }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\@@_draw_boundary:,\@@_draw_boundary_around:nn}
 %   Creates the boundary node around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds).
-%   A picture gets a single boundary: later calls of \cmd\wires\ in it reuse the first one, found by the picture that pgf records for each node.
+%   A picture gets a single boundary: later calls of \cmd\wires\ in it reuse the first one.
 %   \begin{arguments}
 %     \item north east corner to surround
 %     \item south west corner to surround
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_boundary: {
-  % NOTE: the space keeps docstrip from turning the @@ of the name of node @ into the module prefix.
-  \bool_lazy_and:nnF
-    { \cs_if_exist_p:c { pgf@sh@pi@ @ } }
-    { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ @ } } { \pgfpictureid } }
+  \@@_if_boundary_in_picture:F
     {
       \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
         { \@@_draw_boundary_around:nn { 0pt, 0pt } { 0pt, 0pt } }
@@ -829,6 +841,179 @@
   \seq_pop:NN \l_@@_split_seq #1  % discard match
   \seq_pop:NN \l_@@_split_seq #1  % keep 1st matching group (node)
   \seq_pop:NN \l_@@_split_seq #2  % keep 2nd matching group (anchor)
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\g_@@_anchors_seq}
+%   The anchors resolved in the outermost picture so far, pictures nested in it included, newest first: each as the picture it was resolved in, its node, its anchor and the two coordinates of its point.
+%    \begin{macrocode}
+\seq_new:N \g_@@_anchors_seq
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_record_anchor:nn}
+%   Records an anchor that pgf has just resolved in a picture, with the point it gave.
+%   \TikZ\ gives a to path its start as a point, not as the anchor that was written, so the \texttt{wire} key looks the point up in this record.
+%   It runs after every \cs{pgfpointanchor}; \TikZ\ passes it node names wrapped in their prefix and suffix, and anchors that may hold macros, such as the variable of a \cs{foreach}, so both are expanded.
+%   The record is cleared when an outermost picture begins: pgf defines \cs{pgfpictureid} only inside pictures, and restores it when a nested one ends.
+%   \begin{arguments}
+%     \item node
+%     \item anchor
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_record_anchor:nn {
+  \cs_if_exist:NT \pgfpictureid
+    {
+      \seq_gput_left:Ne \g_@@_anchors_seq
+        {
+          { \pgfpictureid } { #1 } { #2 }
+          { \dim_use:N \pgf@x } { \dim_use:N \pgf@y }
+        }
+    }
+}
+\AddToHookWithArguments { cmd/pgfpointanchor/after }
+  { \@@_record_anchor:nn {#1} {#2} }
+\AddToHook { cmd/pgfpicture/before }
+  { \cs_if_exist:NF \pgfpictureid { \seq_gclear:N \g_@@_anchors_seq } }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_find_anchor:NNw,\@@_find_anchor_check:NNnnnnnnn}
+%   Finds the newest anchor recorded at a point in the current picture, within 0.01pt, and stores its node and anchor; it stores nothing if there is none.
+%   \begin{arguments}
+%     \item token list variable to store the node
+%     \item token list variable to store the anchor
+%     \item the point, as \meta{x}\texttt{,}\meta{y}, ended by \cs{q_stop}
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Npn \@@_find_anchor:NNw #1#2#3 , #4 \q_stop {
+  \tl_clear:N #1
+  \tl_clear:N #2
+  \seq_map_inline:Nn \g_@@_anchors_seq
+    { \@@_find_anchor_check:NNnnnnnnn #1 #2 { #3 } { #4 } ##1 }
+}
+\cs_new_protected:Nn \@@_find_anchor_check:NNnnnnnnn {
+  \bool_lazy_all:nT
+    {
+      { \str_if_eq_p:ee { #5 } { \pgfpictureid } }
+      { \dim_compare_p:n { \dim_abs:n { #8 - ( #3 ) } < 0.01pt } }
+      { \dim_compare_p:n { \dim_abs:n { #9 - ( #4 ) } < 0.01pt } }
+    }
+    {
+      \tl_set:Nn #1 { #6 }
+      \tl_set:Nn #2 { #7 }
+      \seq_map_break:
+    }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_wire_end:nNNN}
+%   Finds the node and anchor of an end of a to path, and the angle a wire leaves or enters it at.
+%   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
+%   A point is looked up among the anchors resolved in the picture.
+%   An end that is no anchor of a node, or a boundary from another picture, raises an error and leaves the angle empty.
+%   So do the ends that \cmd\wires\ refuses: a bare node, and anchors off the sides.
+%   \begin{arguments}
+%     \item end, as \TikZ\ gives it
+%     \item token list variable to store the node
+%     \item token list variable to store the anchor
+%     \item token list variable to store the angle
+%   \end{arguments}
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { end-not-anchor }
+  {
+    Wire~end~`(#1)'~is~not~an~anchor~of~a~node,~so~the~wire~is~not~drawn:~
+    wires~go~between~anchors,~as~in~(f.north)~to[wire]~(g.south).
+  }
+\msg_new:nnn { string-diagrams } { end-boundary-elsewhere }
+  {
+    Wire~end~`@.#1'~is~on~the~boundary~of~another~picture,~so~the~wire~is~not~drawn:~
+    \iow_char:N\\wires~draws~the~boundary~of~this~picture.
+  }
+\cs_new_protected:Nn \@@_wire_end:nNNN {
+  \tl_clear:N #4
+  \regex_match:nnTF { \A [^,]* pt , [^,]* pt \Z } { #1 }
+    { \@@_find_anchor:NNw #2 #3 #1 \q_stop }
+    { \@@_split_node_anchor:NNn #2 #3 { #1 } }
+  \bool_lazy_or:nnTF
+    { \tl_if_empty_p:N #2 }
+    { ! \cs_if_exist_p:c { pgf@sh@ns@ #2 } }
+    { \msg_error:nnn { string-diagrams } { end-not-anchor } { #1 } }
+    {
+      \bool_lazy_and:nnTF
+        { \str_if_eq_p:Vn #2 { @ } }
+        { ! \@@_if_boundary_in_picture_p: }
+        { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
+        {
+          \@@_anchor_to_angle:NVV #4 #2 #3
+          \@@_check_end:VVN #2 #3 #4
+        }
+    }
+}
+\cs_generate_variant:Nn \@@_wire_end:nNNN { V }
+\cs_generate_variant:Nn \@@_anchor_to_angle:Nnn { NVV }
+\cs_generate_variant:Nn \@@_check_end:nnN { VV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_start_node_tl,\l_@@_start_anchor_tl,\l_@@_end_node_tl,\l_@@_end_anchor_tl}
+%   Scratch variables for \cmd{\@@_wire:}: the two ends of a wire.
+%    \begin{macrocode}
+\tl_new:N \l_@@_start_node_tl
+\tl_new:N \l_@@_start_anchor_tl
+\tl_new:N \l_@@_end_node_tl
+\tl_new:N \l_@@_end_anchor_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_wire:}
+%   Turns a to path into a wire, for the \texttt{wire} key: it sets the angles that \TikZ's own \texttt{out} and \texttt{in} keys draw a curve with, and moves the ends on the boundary as \cmd\wires\ does.
+%   An end on the boundary becomes a point, and a start on it needs a move there, since the path is already at the anchor.
+%   The first end that has no angle stops it with an error, and the wire becomes a move to its target, so it is not drawn.
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_wire: {
+  \tl_clear:N \l_@@_iangle_tl
+  \@@_wire_end:VNNN \tikztostart
+    \l_@@_start_node_tl \l_@@_start_anchor_tl \l_@@_oangle_tl
+  \tl_if_empty:NF \l_@@_oangle_tl
+    {
+      \@@_wire_end:VNNN \tikztotarget
+        \l_@@_end_node_tl \l_@@_end_anchor_tl \l_@@_iangle_tl
+    }
+  \tl_if_empty:NTF \l_@@_iangle_tl
+    { \pgfkeysalso { to~path = { (\tikztotarget) } } }
+    {
+      \@@_anchors_to_proj:NVVVV \l_@@_source_tl
+        \l_@@_start_node_tl \l_@@_start_anchor_tl
+        \l_@@_end_node_tl \l_@@_end_anchor_tl
+      \@@_anchors_to_proj:NVVVV \l_@@_target_tl
+        \l_@@_end_node_tl \l_@@_end_anchor_tl
+        \l_@@_start_node_tl \l_@@_start_anchor_tl
+      \tl_set_eq:NN \tikztotarget \l_@@_target_tl
+      \exp_args:Ne \pgfkeysalso
+        {
+          out = \tl_use:N \l_@@_oangle_tl ,
+          in = \tl_use:N \l_@@_iangle_tl ,
+        }
+      \str_if_eq:VnT \l_@@_start_node_tl { @ }
+        {
+          \tl_set_eq:NN \tikztostart \l_@@_source_tl
+          \pgfkeysalso { to~path = { (\tikztostart) \tikz@to@curve@path } }
+        }
+    }
+}
+\cs_generate_variant:Nn \@@_anchors_to_proj:Nnnnn { NVVVV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{/tikz/wire,/tikz/every wire}
+%   Defines the key that draws a to path or an edge as a wire, and the style it applies after it, as \texttt{every edge} or \texttt{every to} would.
+%    \begin{macrocode}
+\tikzset{
+  every~wire/.style = { },
+  wire/.code = { \@@_wire: \pgfkeysalso { every~wire } },
 }
 %    \end{macrocode}
 % \end{macro}
