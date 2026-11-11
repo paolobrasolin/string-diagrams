@@ -349,9 +349,10 @@
 %<@@=stridi>
 %    \end{macrocode}
 %
-% Load the essential support (\pkg{expl3}, and \TikZ\ with the \texttt{fit} library that the boundary of \cmd\wires\ needs) \enquote{up-front}.
+% Require a \LaTeX\ with hooks that take arguments, and load the essential support (\pkg{expl3}, and \TikZ\ with the \texttt{fit} library that the boundary of \cmd\wires\ needs) \enquote{up-front}.
 %
 %    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}[2023/06/01]
 \RequirePackage{expl3}[2023/06/05]
 \RequirePackage{tikz}[2023/01/15]
 \usetikzlibrary{fit}
