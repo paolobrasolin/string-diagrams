@@ -1442,6 +1442,7 @@
 %
 % \begin{macro}{\@@_wire:,\@@_wire_ends:,\@@_wire_path:}
 %   Turn a to path into a wire, just before \TikZ\ computes its curve, after all the keys of the path, so that \texttt{wire flow} counts wherever it is set.
+%   \TikZ\ computes a curve bent by \texttt{bend left} or \texttt{bend right} apart, from angles relative to the line between its ends, so both computations are hooked: the ends are resolved alike, and a bent wire keeps its angles.
 %   \cmd{\@@_wire:} finds the ends, infers the anchors of bare ends, and sets the angles that \TikZ's own \texttt{out} and \texttt{in} draw the curve with, unless keys after \texttt{wire} have set them.
 %   An end faces inwards when its node holds the other, as \cmd{\@@_faces_inwards:} tells: then its angle turns round, and a side without a port is reached straight across, as on the boundary.
 %   An end that becomes a point, or a bare start, moves the start, which \cmd{\@@_wire_path:} does after the computation; it also turns a wire that isn't drawn into a move to its target, or into nothing if its target is on a node that doesn't exist, which \TikZ\ would report again, and drops its labels, the nodes \TikZ\ would place along it.
@@ -1526,17 +1527,22 @@
   { \bool_if:NT \l_@@_wire_bool { \@@_wire: } }
 \AddToHook { cmd/tikz@to@compute/after }
   { \bool_if:NT \l_@@_wire_bool { \@@_wire_path: } }
+\AddToHook { cmd/tikz@to@compute@relative/before }
+  { \bool_if:NT \l_@@_wire_bool { \@@_wire: } }
+\AddToHook { cmd/tikz@to@compute@relative/after }
+  { \bool_if:NT \l_@@_wire_bool { \@@_wire_path: } }
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{/tikz/wire,/tikz/every wire,/tikz/wire flow}
 %   Defines the key that draws a to path or an edge as a wire, the style it applies after it, as \texttt{every edge} or \texttt{every to} would, and the key that sets the flow of the wires.
-%   The \texttt{wire} key only marks the path as a wire, draws it as a curve, and leaves its angles to be computed, unless keys after it set them.
+%   The \texttt{wire} key only marks the path as a wire, draws it as a curve, and leaves its angles to be computed, unless keys after it set them; it undoes a \texttt{bend left} or \texttt{bend right} before it, as it overrides \texttt{out} and \texttt{in}.
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_wire_key: {
   \bool_set_true:N \l_@@_wire_bool
   \cs_set:Npn \tikz@to@out { \s_@@_auto }
   \cs_set:Npn \tikz@to@in { \s_@@_auto }
+  \tikz@to@relativefalse
   \tikz@to@switch@on
 }
 \tikzset{

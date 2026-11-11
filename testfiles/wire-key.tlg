@@ -117,7 +117,43 @@ TEST 10: keys after wire override its angles
 S 
 ============================================================
 ============================================================
-TEST 11: every wire styles the stroke of an edge, not of a to path
+TEST 11: bend left and bend right bend a wire between its ends
+============================================================
+0.0 59.77661 m 
+18.1671 106.27524 50.27515 131.96248 99.62769 139.47876 c 
+S 
+-- bare ends:
+0.0 59.77661 m 
+49.35252 67.29288 81.46057 92.98012 99.62769 139.47876 c 
+S 
+-- to the boundary, which is reached straight across:
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+-41.51967 131.69098 -41.51967 200.79945 0.0 272.71384 c 
+S 
+Q 
+-- a bend before wire is overridden, as by out and in:
+0.0 59.77661 m 
+0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
+S 
+-- a wire that isn't drawn:
+! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+0.0 0.0 m 
+99.62769 139.47876 m 
+S 
+============================================================
+============================================================
+TEST 12: every wire styles the stroke of an edge, not of a to path
 ============================================================
 0.0 59.77661 m 
 0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
@@ -133,7 +169,7 @@ Q
 Q 
 ============================================================
 ============================================================
-TEST 12: a wire leaves the anchor written, of two in the same place
+TEST 13: a wire leaves the anchor written, of two in the same place
 ============================================================
 59.77661 0.0 m 
 5.38396 0.0 59.77661 85.0861 59.77661 139.47876 c 
@@ -144,14 +180,14 @@ S
 S 
 ============================================================
 ============================================================
-TEST 13: a wire between nodes with spaces in their names
+TEST 14: a wire between nodes with spaces in their names
 ============================================================
 0.0 59.77661 m 
 0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
 S 
 ============================================================
 ============================================================
-TEST 14: a wire from a point is an error
+TEST 15: a wire from a point is an error
 ============================================================
 ! Package string-diagrams Error: Wire end `(0.0pt,0.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
 Type <return> to continue.
@@ -165,7 +201,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 15: a wire to a computed point is an error
+TEST 16: a wire to a computed point is an error
 ============================================================
 ! Package string-diagrams Error: Wire end `(0.0pt,160.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
 Type <return> to continue.
@@ -189,7 +225,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 16: a wire to a coordinate is an error
+TEST 17: a wire to a coordinate is an error
 ============================================================
 ! Package string-diagrams Error: Wire end `(1,2)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
 Type <return> to continue.
@@ -213,7 +249,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 17: a wire to a node that doesn't exist raises one error
+TEST 18: a wire to a node that doesn't exist raises one error
 ============================================================
 ! Package string-diagrams Error: Wire end `nowhere.south' is on a node that doesn't exist, so the wire is not drawn.
 Type <return> to continue.
@@ -237,7 +273,7 @@ S
 Q 
 ============================================================
 ============================================================
-TEST 18: a wire from a node that doesn't exist raises one error
+TEST 19: a wire from a node that doesn't exist raises one error
 ============================================================
 ! Package pgf Error: No shape named `nowhere' is known.
 See the pgf package documentation for explanation.
@@ -261,7 +297,7 @@ l. ...}
 S 
 ============================================================
 ============================================================
-TEST 19: a wire from an anchor that isn't on a side is an error
+TEST 20: a wire from an anchor that isn't on a side is an error
 ============================================================
 ! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
 Type <return> to continue.
@@ -275,7 +311,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 20: a wire from or to a node without anchor takes the side it faces
+TEST 21: a wire from or to a node without anchor takes the side it faces
 ============================================================
 0.0 59.77661 m 
 0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
@@ -285,7 +321,7 @@ S
 S 
 ============================================================
 ============================================================
-TEST 21: a wire with two wrong ends raises an error for each
+TEST 22: a wire with two wrong ends raises an error for each
 ============================================================
 ! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
 Type <return> to continue.
@@ -305,7 +341,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 22: a wire that isn't drawn has no labels
+TEST 23: a wire that isn't drawn has no labels
 ============================================================
 ! Package string-diagrams Error: Wire end `a.center' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.
 Type <return> to continue.
@@ -365,7 +401,7 @@ Q
 S 
 ============================================================
 ============================================================
-TEST 23: a wire to the boundary of another picture is an error
+TEST 24: a wire to the boundary of another picture is an error
 ============================================================
 ! Package string-diagrams Error: Wire end `@.north' is on the boundary of another picture, so the wire is not drawn: \wires draws the boundary of this picture.
 Type <return> to continue.
@@ -379,7 +415,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 24: anchors of earlier pictures are forgotten
+TEST 25: anchors of earlier pictures are forgotten
 ============================================================
 ! Package string-diagrams Error: Wire end `(0.0pt,60.0pt)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).
 Type <return> to continue.
@@ -393,7 +429,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 25: a picture nested between the start of a wire and its key
+TEST 26: a picture nested between the start of a wire and its key
 ============================================================
 q 
 0 G 
@@ -410,7 +446,7 @@ S
 Q 
 ============================================================
 ============================================================
-TEST 26: a wire to an anchor its node doesn't have is an error
+TEST 27: a wire to an anchor its node doesn't have is an error
 ============================================================
 ! Package string-diagrams Error: Node `b' has no anchor `northh', so the wire is not drawn.
 Type <return> to continue.
@@ -442,7 +478,7 @@ If that doesn't work, type X <return> to quit.
 S 
 ============================================================
 ============================================================
-TEST 27: a wire from an anchor its node doesn't have is an error
+TEST 28: a wire from an anchor its node doesn't have is an error
 ============================================================
 ! Package PGF Math Error: Unknown function `northh' (in 'northh').
 See the PGF Math package documentation for explanation.

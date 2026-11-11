@@ -101,6 +101,23 @@
 }
 
 % NOTE: as with every edge and every to, the stroke of a to path is set by its path, not by its keys.
+% NOTE: TikZ computes bent curves apart from others, from angles relative to the line between the ends; the wire key resolves the ends of both.
+\TEST{bend left and bend right bend a wire between its ends}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[box=0/0/1/0, square] (b) at (100pt,200pt) {};
+    \LOG{\draw (a.north.1) to[wire, bend left] (b.south.1);}
+    \TYPE{-- bare ends:}
+    \LOG{\draw (a) to[wire, bend right] (b);}
+    \TYPE{-- to the boundary, which is reached straight across:}
+    \LOG{\wires{a.north.1 = [bend left] @.north}}
+    \TYPE{-- a bend before wire is overridden, as by out and in:}
+    \LOG{\draw (a.north.1) to[bend left, wire] (b.south.1);}
+    \TYPE{-- a wire that isn't drawn:}
+    \LOG{\draw (a.center) to[wire, bend left] (b.south.1);}
+  }
+}
+
 \TEST{every wire styles the stroke of an edge, not of a to path}{
   \PICTURE[every wire/.style={line width=2pt}]{
     \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
