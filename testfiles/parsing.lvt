@@ -93,12 +93,108 @@
 }
 
 \TEST{an anchor without target is an error}{
+  \PICTURE{\node[box=1/0/0/0] (a) {};}
   \MAP{a = {north, south = b.north}}
 }
 
 \TEST{no wires}{
   \MAP{}
   \MAP{a = {}}
+}
+
+\TEST{a wire written whole}{
+  \MAP{a.north = b.south}
+  \MAP{a.north east = b.south.1}
+}
+
+\TEST{wires sharing their beginning up to the equals sign}{
+  \MAP{a.north = {b.south, c.south}}
+}
+
+\TEST{wires sharing their target node}{
+  \MAP{a.north = {b = {south.1, south.2}, c.south}}
+  \MAP{a.north = {b = south.1}}
+}
+
+\TEST{groups nest, and all groupings of the same wires agree}{
+  \MAP{a = {north = {b = {south.1, south.2}}}}
+  \MAP{a = {north = b.south.1, north = b.south.2}}
+  \MAP{a.north = {b.south.1, b.south.2}}
+  \MAP{a.north = b.south.1, a.north = b.south.2}
+}
+
+\TEST{entries at the top mix wires and groups}{
+  \MAP{a.north = b.south, c = {west = @.west}, @.east = c.east}
+}
+
+% NOTE: the wires start from a node without anchor, which \wires reports until such ends are supported.
+\TEST{an item without equals sign after a node is a target, if the node exists}{
+  \PICTURE{\node (b) {}; \node (c) {};}
+  \MAP{a = {b, c.west}}
+  \MAP{a = b}
+}
+
+% NOTE: the shape of the node the wires start from tells its anchors, as for a.north.1, a box with a port; a.30 is no named anchor.
+\TEST{an anchor without target, after a node, is an error}{
+  \MAP{a = {north.1}}
+  \MAP{a = {south west}}
+  \MAP{a = {center}}
+  \MAP{a = {30}}
+}
+
+\TEST{an item that is neither a node nor an anchor, after a node, is an error}{
+  \MAP{a = {gg}}
+  \MAP{a = {gg.south}}
+  \MAP{nowhere = {north}}
+}
+
+\TEST{an end without target at the top is an error}{
+  \MAP{a.north}
+}
+
+\TEST{a group can't begin inside an anchor}{
+  \MAP{a.north = {b.south = {1, 2}}}
+}
+
+\TEST{the anchors of a target take no value}{
+  \MAP{a.north = {b = {south = c}}}
+}
+
+\TEST{empty items and groups give no wires, silently}{
+  \MAP{,, a.north = b.south ,,}
+  \MAP{a.north = { , b.south , }}
+  \MAP{a.north = {}}
+  \MAP{a.north = { b = {} }}
+  \MAP{a = { north = {} }}
+}
+
+\TEST{extra braces around a name or a value are dropped}{
+  \MAP{{a.north} = {b.south}}
+  \MAP{a = {{north = b.south}}}
+  \MAP{a.north = {{b.south, c.south}}}
+  \MAP{a.north = { {b} = {south} }}
+}
+
+\TEST{a group in braces where a name belongs is an error}{
+  \MAP{a.north = { {b.south, c.south}, d.south }}
+  \MAP{a.north = {b.south} {c.south}}
+  \MAP{{a.north = b.south}}
+  \MAP{a = { {north, south} = b.south }}
+}
+
+% NOTE: as in TikZ, which reads (a . north) as the node `a ' and the anchor ` north'.
+\TEST{spaces around a dot belong to the node and the anchor}{
+  \MAP{a . north = b . south}
+}
+
+% NOTE: as in TikZ, which reads (x.y.north) as the node x; a dot at the end leaves an empty anchor.
+\TEST{a node name ends at the first dot}{
+  \MAP{x.y.north = b.south}
+  \MAP{a. = b.south}
+}
+
+\TEST{the boundary is a node like any other}{
+  \MAP{@ = {west = a.west}, a.east = @.east, a.north = { @ = { north } }}
 }
 
 \END

@@ -1035,62 +1035,279 @@
 % \end{macro}
 %
 % \begin{macro}[no-user-doc]{\exp_args:Nnnnoo}
-%   This helper is required by \cmd{\@@_adj_map_function:nnN}.
+%   This helper is required by \cmd{\@@_adj_wire:nNnnn}.
 %    \begin{macrocode}
 \exp_args_generate:n { nnnoo }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\l_@@_target_node_tl,\l_@@_target_anchor_tl}
-%   Scratch variables for \cmd{\@@_adj_map_wire:nNnnn}: the two parts of a target.
+% \begin{variable}{\l_@@_adj_node_tl,\l_@@_adj_anchor_tl,\l_@@_target_node_tl,\l_@@_target_anchor_tl}
+%   Scratch variables for the parser of \cmd\wires: the two parts of an end, and of a target.
 %    \begin{macrocode}
+\tl_new:N \l_@@_adj_node_tl
+\tl_new:N \l_@@_adj_anchor_tl
 \tl_new:N \l_@@_target_node_tl
 \tl_new:N \l_@@_target_anchor_tl
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_adj_map_function:nnN}
-%   Unrolls the nested dictionary of adjacencies into pairs and maps a function over them.
-%   The given list of \TikZ\ keys is passed through to the function.
-%   Entries are read one by one, in order, so a node listed twice keeps the wires of both entries, and an anchor listed twice fans out.
+% \begin{variable}{\l_@@_adj_keys_tl,\l_@@_adj_rest_tl,\l_@@_adj_list_tl}
+%   Scratch variables for the parser of \cmd\wires: the keys of a piece, the rest of the piece, and a list.
+%    \begin{macrocode}
+\tl_new:N \l_@@_adj_keys_tl
+\tl_new:N \l_@@_adj_rest_tl
+\tl_new:N \l_@@_adj_list_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_adj_piece:nn}
+%   Reads a piece of the adjacencies, such as an item or a value: the keys it inherits go in \cs{l_@@_adj_keys_tl}, and the piece goes in \cs{l_@@_adj_rest_tl}, without spaces around it, and without the braces of a group that it would be alone.
+%   \begin{arguments}
+%     \item inherited \TikZ\ keys
+%     \item piece
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_adj_piece:nn {
+  \tl_set:Nn \l_@@_adj_keys_tl { #1 }
+  \tl_set:Nn \l_@@_adj_rest_tl { #2 }
+  \tl_trim_spaces:N \l_@@_adj_rest_tl
+  \bool_lazy_and:nnT
+    { \tl_if_head_is_group_p:V \l_@@_adj_rest_tl }
+    { \int_compare_p:nNn { \tl_count:N \l_@@_adj_rest_tl } = { 1 } }
+    { \tl_set:Ne \l_@@_adj_rest_tl { \tl_head:N \l_@@_adj_rest_tl } }
+}
+\prg_generate_conditional_variant:Nnn \tl_if_head_is_group:n { V } { p }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[TF]{\@@_adj_if_name:n}
+%   Tests whether a piece of the adjacencies, once read, can be a name: a node, an anchor, or both.
+%   A piece with a comma, an equals sign or braces in it is a group in braces where a name belongs, such as \texttt{\{b.south, c.south\}} in a list of targets, which has no beginning to share: it is reported.
+%   A blank piece is not a name either, silently, like an empty item of a list.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { group-without-beginning }
+  {
+    `#1'~is~a~group~without~a~beginning,~so~it~is~ignored:~
+    a~group~follows~a~node~or~an~anchor~and~=,~as~in~b~=~\{~south.1,~south.2~\}.
+  }
+\prg_new_protected_conditional:Nnn \@@_adj_if_name:n { T, F, TF }
+  {
+    \regex_match:nnTF { [,=] | \cB. | \cE. } { #1 }
+      {
+        \msg_error:nnn { string-diagrams } { group-without-beginning } { #1 }
+        \prg_return_false:
+      }
+      { \tl_if_blank:nTF { #1 } { \prg_return_false: } { \prg_return_true: } }
+  }
+\prg_generate_conditional_variant:Nnn \@@_adj_if_name:n { V } { T, F, TF }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_adj_map_function:nnN,\@@_adj_top_alone:n}
+%   Unrolls the adjacencies given to \cmd\wires\ into wires and maps a function over them, in order.
+%   The given list of \TikZ\ keys is passed through to the function, with the two ends of each wire, each as a node and an anchor.
+%   A wire is written \meta{node}\texttt{.}\meta{anchor} \texttt{=} \meta{node}\texttt{.}\meta{anchor}, and wires that begin alike can share their beginning: it is written once, followed by \texttt{=} and a group of the rest of each wire.
+%   A beginning ends after a node name or at the \texttt{=} of the wire, never inside an anchor, so a group holds anchors after the node a wire starts from, targets after the \texttt{=} of a wire, and anchors after the node of a target.
+%   So the entries at the top are read as wires, or as groups after the node they start from; a node listed twice keeps the wires of both entries, and an anchor listed twice fans out.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
-%     \item nested dictionary of adjacencies
-%     \item function to be mapped over pairs
+%     \item adjacencies
+%     \item function to be mapped over wires
 %   \end{arguments}
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { node-without-wires }
   { Node~`#1'~has~no~wires:~list~them~as~in~#1~=~\{~north~=~b.south~\}. }
+\msg_new:nnn { string-diagrams } { end-without-target }
+  { Wire~end~`#1'~has~no~target:~give~it~one~as~in~#2~=~b.south. }
 \cs_new_protected:Nn \@@_adj_map_function:nnN {
-  \keyval_parse:nnn
-    { \msg_error:nnn { string-diagrams } { node-without-wires } }
-    { \@@_adj_map_node:nNnn { #1 } #3 }
-    { #2 }
+  \tl_set:Nn \l_@@_adj_list_tl { #2 }
+  \keyval_parse:nnV
+    { \@@_adj_top_alone:n }
+    { \@@_adj_source:nNnn { #1 } #3 }
+    \l_@@_adj_list_tl
 }
+\cs_new_protected:Nn \@@_adj_top_alone:n {
+  \@@_adj_piece:nn { } { #1 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl
+    {
+      \tl_if_in:VnTF \l_@@_adj_rest_tl { . }
+        {
+          \msg_error:nnVV { string-diagrams } { end-without-target }
+            \l_@@_adj_rest_tl \l_@@_adj_rest_tl
+        }
+        { \msg_error:nnV { string-diagrams } { node-without-wires } \l_@@_adj_rest_tl }
+    }
+}
+\cs_generate_variant:Nn \keyval_parse:nnn { nnV }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_adj_map_node:nNnn}
-%   Maps a function over the wires of one node.
+% \begin{macro}{\@@_adj_source:nNnn,\@@_adj_source_name:Nn,\@@_adj_node_list:nNnn,\@@_adj_node_item:nNnnn}
+%   Reads an entry at the top: a wire, or a group, from the beginning of the wires to the rest of each.
+%   A beginning with an anchor ends at the \texttt{=} of its wires, and one without ends after the name of their node.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
-%     \item function to be mapped over pairs
-%     \item node
-%     \item dictionary of its wires
+%     \item function to be mapped over wires
+%     \item beginning: a node, or a node and an anchor
+%     \item rest of each wire
 %   \end{arguments}
 %    \begin{macrocode}
-\msg_new:nnn { string-diagrams } { end-without-target }
-  { Wire~end~`#1.#2'~has~no~target:~give~it~one~as~in~#2~=~b.south. }
-\cs_new_protected:Nn \@@_adj_map_node:nNnn {
+\cs_new_protected:Nn \@@_adj_source:nNnn {
+  \@@_adj_piece:nn { #1 } { #3 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl { \@@_adj_source_name:Nn #2 { #4 } }
+}
+\cs_new_protected:Nn \@@_adj_source_name:Nn {
+  \tl_if_in:VnTF \l_@@_adj_rest_tl { . }
+    {
+      \@@_split_node_anchor:NNV \l_@@_adj_node_tl \l_@@_adj_anchor_tl \l_@@_adj_rest_tl
+      \@@_adj_targets:VNVVn \l_@@_adj_keys_tl #1
+        \l_@@_adj_node_tl \l_@@_adj_anchor_tl { #2 }
+    }
+    {
+      \tl_set_eq:NN \l_@@_adj_node_tl \l_@@_adj_rest_tl
+      \@@_adj_piece:Vn \l_@@_adj_keys_tl { #2 }
+      \tl_set_eq:NN \l_@@_adj_list_tl \l_@@_adj_rest_tl
+      \@@_adj_node_list:VNVV \l_@@_adj_keys_tl #1 \l_@@_adj_node_tl \l_@@_adj_list_tl
+    }
+}
+\cs_new_protected:Nn \@@_adj_node_list:nNnn {
   \keyval_parse:nnn
-    { \msg_error:nnnn { string-diagrams } { end-without-target } { #3 } }
-    { \@@_adj_map_wire:nNnnn { #1 } #2 { #3 } }
+    { \@@_adj_node_alone:nNnn { #1 } #2 { #3 } }
+    { \@@_adj_node_item:nNnnn { #1 } #2 { #3 } }
     { #4 }
 }
+\cs_new_protected:Nn \@@_adj_node_item:nNnnn {
+  \@@_adj_piece:nn { #1 } { #4 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl
+    { \@@_adj_targets:VNnVn \l_@@_adj_keys_tl #2 { #3 } \l_@@_adj_rest_tl { #5 } }
+}
+\cs_generate_variant:Nn \@@_split_node_anchor:NNn { NNV }
+\cs_generate_variant:Nn \@@_adj_piece:nn { V }
+\cs_generate_variant:Nn \@@_adj_node_list:nNnn { VNVV }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_adj_map_wire:nNnnn}
+% \begin{macro}{\@@_adj_node_alone:nNnn,\@@_adj_node_alone_name:Nn,\@@_if_anchor:nn}
+%   Reads an item without \texttt{=} in a group after the node a wire starts from.
+%   It is the target of a wire from that node without an anchor, as in \texttt{f = \{ g \}}, if it names a node that exists.
+%   Otherwise it is an error: an anchor left without a target, if it is an anchor of the node the wires start from, as the shape of that node tells, or else a node that doesn't exist; if that node doesn't exist either, the error names it, since the item can't be told apart.
+%   \begin{arguments}
+%     \item \TikZ\ keys to pass through
+%     \item function to be mapped over wires
+%     \item node the wires start from
+%     \item item
+%   \end{arguments}
+%    \begin{macrocode}
+\cs_new_protected:Nn \@@_adj_node_alone:nNnn {
+  \@@_adj_piece:nn { #1 } { #4 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl { \@@_adj_node_alone_name:Nn #2 { #3 } }
+}
+\cs_new_protected:Nn \@@_adj_node_alone_name:Nn {
+  \@@_split_node_anchor:NNV \l_@@_adj_node_tl \l_@@_adj_anchor_tl \l_@@_adj_rest_tl
+  \cs_if_exist:cTF { pgf@sh@ns@ \l_@@_adj_node_tl }
+    { \@@_adj_wire:VNnnV \l_@@_adj_keys_tl #1 { #2 } { } \l_@@_adj_rest_tl }
+    {
+      \cs_if_exist:cTF { pgf@sh@ns@ #2 }
+        {
+          \@@_if_anchor:nVTF { #2 } \l_@@_adj_rest_tl
+            {
+              \msg_error:nnee { string-diagrams } { end-without-target }
+                { \exp_not:n { #2 } . \exp_not:V \l_@@_adj_rest_tl }
+                { \exp_not:V \l_@@_adj_rest_tl }
+            }
+            { \msg_error:nnV { string-diagrams } { end-no-node } \l_@@_adj_rest_tl }
+        }
+        { \msg_error:nnn { string-diagrams } { end-no-node } { #2 } }
+    }
+}
+\prg_new_conditional:Nnn \@@_if_anchor:nn { TF }
+  {
+    \cs_if_exist:cTF { pgf@anchor@ \use:c { pgf@sh@ns@ #1 } @ #2 }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \@@_if_anchor:nn { nV } { TF }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_adj_targets:nNnnn,\@@_adj_target_list:nNnnn,\@@_adj_target_alone:nNnnn,\@@_adj_target_node:nNnnnn,\@@_adj_target_node_name:Nnnn,\@@_adj_target_anchors:nNnnnn,\@@_adj_target_anchor:nNnnnn}
+%   Reads the rest of the wires from an end: their targets, or groups after the node of a target, which hold its anchors.
+%   A group can't begin inside an anchor, as in \texttt{b.east = \{ 1, 2 \}}, and the anchors of a target take no value.
+%   \begin{arguments}
+%     \item \TikZ\ keys to pass through
+%     \item function to be mapped over wires
+%     \item node the wires start from
+%     \item anchor the wires start from
+%     \item targets
+%   \end{arguments}
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { target-group-in-anchor }
+  {
+    Wire~end~`#1'~can't~begin~a~group:~
+    targets~share~their~node,~as~in~b~=~\{~east.1,~east.2~\},~not~part~of~an~anchor.
+  }
+\msg_new:nnn { string-diagrams } { target-anchor-with-value }
+  {
+    Wire~end~`#1.#2'~has~a~value:~
+    list~the~anchors~of~`#1'~alone,~as~in~#1~=~\{~east.1,~east.2~\}.
+  }
+\cs_new_protected:Nn \@@_adj_targets:nNnnn {
+  \@@_adj_piece:nn { #1 } { #5 }
+  \tl_set_eq:NN \l_@@_adj_list_tl \l_@@_adj_rest_tl
+  \@@_adj_target_list:VNnnV \l_@@_adj_keys_tl #2 { #3 } { #4 } \l_@@_adj_list_tl
+}
+\cs_new_protected:Nn \@@_adj_target_list:nNnnn {
+  \keyval_parse:nnn
+    { \@@_adj_target_alone:nNnnn { #1 } #2 { #3 } { #4 } }
+    { \@@_adj_target_node:nNnnnn { #1 } #2 { #3 } { #4 } }
+    { #5 }
+}
+\cs_new_protected:Nn \@@_adj_target_alone:nNnnn {
+  \@@_adj_piece:nn { #1 } { #5 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl
+    { \@@_adj_wire:VNnnV \l_@@_adj_keys_tl #2 { #3 } { #4 } \l_@@_adj_rest_tl }
+}
+\cs_new_protected:Nn \@@_adj_target_node:nNnnnn {
+  \@@_adj_piece:nn { #1 } { #5 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl
+    { \@@_adj_target_node_name:Nnnn #2 { #3 } { #4 } { #6 } }
+}
+\cs_new_protected:Nn \@@_adj_target_node_name:Nnnn {
+  \tl_if_in:VnTF \l_@@_adj_rest_tl { . }
+    { \msg_error:nnV { string-diagrams } { target-group-in-anchor } \l_@@_adj_rest_tl }
+    {
+      \tl_set_eq:NN \l_@@_adj_node_tl \l_@@_adj_rest_tl
+      \@@_adj_piece:Vn \l_@@_adj_keys_tl { #4 }
+      \tl_set_eq:NN \l_@@_adj_list_tl \l_@@_adj_rest_tl
+      \@@_adj_target_anchors:VNnnVV \l_@@_adj_keys_tl #1 { #2 } { #3 }
+        \l_@@_adj_node_tl \l_@@_adj_list_tl
+    }
+}
+\cs_new_protected:Nn \@@_adj_target_anchors:nNnnnn {
+  \keyval_parse:nnn
+    { \@@_adj_target_anchor:nNnnnn { #1 } #2 { #3 } { #4 } { #5 } }
+    { \msg_error:nnnn { string-diagrams } { target-anchor-with-value } { #5 } }
+    { #6 }
+}
+\cs_new_protected:Nn \@@_adj_target_anchor:nNnnnn {
+  \@@_adj_piece:nn { #1 } { #6 }
+  \@@_adj_if_name:VT \l_@@_adj_rest_tl
+    {
+      \use:e
+        {
+          \exp_not:N #2 { \exp_not:V \l_@@_adj_keys_tl }
+            { \exp_not:n { #3 } } { \exp_not:n { #4 } }
+            { \exp_not:n { #5 } } { \exp_not:V \l_@@_adj_rest_tl }
+        }
+    }
+}
+\cs_generate_variant:Nn \@@_adj_targets:nNnnn { VNVV , VNnV }
+\cs_generate_variant:Nn \@@_adj_target_list:nNnnn { VNnnV }
+\cs_generate_variant:Nn \@@_adj_target_anchors:nNnnnn { VNnnVV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_adj_wire:nNnnn}
 %   Applies a function to one wire, splitting its target into node and anchor.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
@@ -1100,11 +1317,12 @@
 %     \item target
 %   \end{arguments}
 %    \begin{macrocode}
-\cs_new_protected:Nn \@@_adj_map_wire:nNnnn {
+\cs_new_protected:Nn \@@_adj_wire:nNnnn {
   \@@_split_node_anchor:NNn \l_@@_target_node_tl \l_@@_target_anchor_tl { #5 }
   \exp_args:Nnnnoo #2
     { #1 } { #3 } { #4 } { \l_@@_target_node_tl } { \l_@@_target_anchor_tl }
 }
+\cs_generate_variant:Nn \@@_adj_wire:nNnnn { VNnnV }
 %    \end{macrocode}
 % \end{macro}
 %

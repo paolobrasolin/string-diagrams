@@ -87,3 +87,205 @@ If that doesn't work, type X <return> to quit.
 TEST 12: no wires
 ============================================================
 ============================================================
+============================================================
+TEST 13: a wire written whole
+============================================================
+[] [a].[north] -- [b].[south]
+[] [a].[north east] -- [b].[south.1]
+============================================================
+============================================================
+TEST 14: wires sharing their beginning up to the equals sign
+============================================================
+[] [a].[north] -- [b].[south]
+[] [a].[north] -- [c].[south]
+============================================================
+============================================================
+TEST 15: wires sharing their target node
+============================================================
+[] [a].[north] -- [b].[south.1]
+[] [a].[north] -- [b].[south.2]
+[] [a].[north] -- [c].[south]
+[] [a].[north] -- [b].[south.1]
+============================================================
+============================================================
+TEST 16: groups nest, and all groupings of the same wires agree
+============================================================
+[] [a].[north] -- [b].[south.1]
+[] [a].[north] -- [b].[south.2]
+[] [a].[north] -- [b].[south.1]
+[] [a].[north] -- [b].[south.2]
+[] [a].[north] -- [b].[south.1]
+[] [a].[north] -- [b].[south.2]
+[] [a].[north] -- [b].[south.1]
+[] [a].[north] -- [b].[south.2]
+============================================================
+============================================================
+TEST 17: entries at the top mix wires and groups
+============================================================
+[] [a].[north] -- [b].[south]
+[] [c].[west] -- [@].[west]
+[] [@].[east] -- [c].[east]
+============================================================
+============================================================
+TEST 18: an item without equals sign after a node is a target, if the node exists
+============================================================
+[] [a].[] -- [b].[]
+[] [a].[] -- [c].[west]
+[] [a].[] -- [b].[]
+============================================================
+============================================================
+TEST 19: an anchor without target, after a node, is an error
+============================================================
+! Package string-diagrams Error: Wire end `a.north.1' has no target: give it one as in north.1 = b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `a.south west' has no target: give it one as in south west = b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `a.center' has no target: give it one as in center = b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `30' is on a node that doesn't exist, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 20: an item that is neither a node nor an anchor, after a node, is an error
+============================================================
+! Package string-diagrams Error: Wire end `gg' is on a node that doesn't exist, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `gg.south' is on a node that doesn't exist, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: Wire end `nowhere' is on a node that doesn't exist, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 21: an end without target at the top is an error
+============================================================
+! Package string-diagrams Error: Wire end `a.north' has no target: give it one as in a.north = b.south.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 22: a group can't begin inside an anchor
+============================================================
+! Package string-diagrams Error: Wire end `b.south' can't begin a group: targets share their node, as in b = { east.1, east.2 }, not part of an anchor.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 23: the anchors of a target take no value
+============================================================
+! Package string-diagrams Error: Wire end `b.south' has a value: list the anchors of `b' alone, as in b = { east.1, east.2 }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 24: empty items and groups give no wires, silently
+============================================================
+[] [a].[north] -- [b].[south]
+[] [a].[north] -- [b].[south]
+============================================================
+============================================================
+TEST 25: extra braces around a name or a value are dropped
+============================================================
+[] [a].[north] -- [b].[south]
+[] [a].[north] -- [b].[south]
+[] [a].[north] -- [b].[south]
+[] [a].[north] -- [c].[south]
+[] [a].[north] -- [b].[south]
+============================================================
+============================================================
+TEST 26: a group in braces where a name belongs is an error
+============================================================
+! Package string-diagrams Error: `b.south, c.south' is a group without a beginning, so it is ignored: a group follows a node or an anchor and =, as in b = { south.1, south.2 }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+[] [a].[north] -- [d].[south]
+! Package string-diagrams Error: `{b.south} {c.south}' is a group without a beginning, so it is ignored: a group follows a node or an anchor and =, as in b = { south.1, south.2 }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: `a.north = b.south' is a group without a beginning, so it is ignored: a group follows a node or an anchor and =, as in b = { south.1, south.2 }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: `north, south' is a group without a beginning, so it is ignored: a group follows a node or an anchor and =, as in b = { south.1, south.2 }.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 27: spaces around a dot belong to the node and the anchor
+============================================================
+[] [a ].[ north] -- [b ].[ south]
+============================================================
+============================================================
+TEST 28: a node name ends at the first dot
+============================================================
+[] [x].[y.north] -- [b].[south]
+[] [a].[] -- [b].[south]
+============================================================
+============================================================
+TEST 29: the boundary is a node like any other
+============================================================
+[] [@].[west] -- [a].[west]
+[] [a].[east] -- [@].[east]
+[] [a].[north] -- [@].[north]
+============================================================
