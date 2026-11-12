@@ -943,11 +943,25 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_draw_wire:nnnnn,\@@_draw_wire_edge:nnnnn,\@@_wire_coordinate:nn}
+% \begin{macro}{\@@_resolve:n}
+%   Expands to the name of a node as \TikZ\ resolves it: with the \texttt{name prefix} and \texttt{name suffix} in force, if such a node exists, else as written.
+%   \TikZ\ sets a prefix for the nodes of a \texttt{pic}, for example.
+%    \begin{macrocode}
+\cs_new:Nn \@@_resolve:n
+  {
+    \cs_if_exist:cTF { pgf@sh@ns@ \tikz@pp@name { #1 } }
+      { \tikz@pp@name { #1 } }
+      { \exp_not:n { #1 } }
+  }
+\cs_generate_variant:Nn \@@_resolve:n { V }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_draw_wire:nnnnn,\@@_draw_wire_from:nnnnn,\@@_draw_wire_edge:nnnnn,\@@_wire_coordinate:nn}
 %   Draws a wire as an edge with the \texttt{wire} key, followed by the keys of the call, so that it is drawn as on any path of \TikZ: the key sets its angles and moves its ends on the boundary, and raises an error for each end without an angle.
 %   The edge is an implementation detail, so it gets \TikZ's default \texttt{every edge}, which only draws it: the wires of \cmd\wires\ are styled by \texttt{every wire} and the keys of the call, not by the \texttt{every edge} of the picture.
 %   The coordinates are expanded first, since \TikZ\ hands the target to the key as written; an end without an anchor is a bare node.
-%   \TikZ\ resolves the start of a path while reading it, before any key, so a start on a node that doesn't exist, or at an anchor its node lacks, would get only the error of pgf, which for an anchor is about a mathematical function: the start is checked first, and such a wire is reported and not drawn.
+%   \TikZ\ resolves the start of a path while reading it, before any key, so a start on a node that doesn't exist, or at an anchor its node lacks, would get only the error of pgf, which for an anchor is about a mathematical function: the start is resolved and checked first, and such a wire is reported and not drawn.
 %   \begin{arguments}
 %     \item \TikZ\ keys
 %     \item source node
@@ -957,6 +971,14 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_wire:nnnnn {
+  \use:e
+    {
+      \exp_not:N \@@_draw_wire_from:nnnnn
+        { \exp_not:n { #1 } } { \@@_resolve:n { #2 } } { \exp_not:n { #3 } }
+        { \exp_not:n { #4 } } { \exp_not:n { #5 } }
+    }
+}
+\cs_new_protected:Nn \@@_draw_wire_from:nnnnn {
   \cs_if_exist:cTF { pgf@sh@ns@ #2 }
     {
       \tl_if_empty:nTF { #3 }
@@ -988,13 +1010,13 @@
 %
 % \begin{macro}[pTF]{\@@_if_boundary_in_picture:}
 %   Tests whether the current picture has a boundary, by the picture that pgf records for each node: node names outlive their pictures.
+%   The boundary is named \texttt{@} with the name prefix and suffix in force, as \TikZ\ names any node.
 %    \begin{macrocode}
 \prg_new_conditional:Nnn \@@_if_boundary_in_picture: { p, T, F, TF }
   {
-    % NOTE: the space keeps docstrip from turning the @@ of the name of node @ into the module prefix.
     \bool_lazy_and:nnTF
-      { \cs_if_exist_p:c { pgf@sh@pi@ @ } }
-      { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ @ } } { \pgfpictureid } }
+      { \cs_if_exist_p:c { pgf@sh@pi@ \@@_resolve:n { @ } } }
+      { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ \@@_resolve:n { @ } } } { \pgfpictureid } }
       { \prg_return_true: }
       { \prg_return_false: }
   }
@@ -1146,7 +1168,7 @@
           { \prg_return_false: }
       }
   }
-\prg_generate_conditional_variant:Nnn \@@_if_anchor:nn { nV , VV } { TF }
+\prg_generate_conditional_variant:Nnn \@@_if_anchor:nn { nV , VV , eV } { TF }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1200,7 +1222,7 @@
 %   Finds the node and anchor of an end of a to path; the anchor is empty for a bare node.
 %   An anchor must be on a side, so that the wire has an angle to leave or enter it at; otherwise the end raises an error, whatever the other end.
 %   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
-%   A point is looked up among the anchors resolved in the picture.
+%   A point is looked up among the anchors resolved in the picture, which pgf records under the full names of their nodes; a name as written is resolved as \TikZ\ resolves it, with the name prefix and suffix in force.
 %   An end that is no anchor of a node, or a boundary from another picture, raises an error.
 %   An end on a node that doesn't exist, or at an anchor its node doesn't have, raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
 %   \TikZ\ resolves the start of a to path while reading the path, and a target only if it computes it.
@@ -1239,14 +1261,17 @@
       \bool_set_true:N \l_@@_end_resolved_bool
       \@@_find_anchor:NNw #2 #3 #1 \q_stop
     }
-    { \@@_split_node_anchor:NNn #2 #3 { #1 } }
+    {
+      \@@_split_node_anchor:NNn #2 #3 { #1 }
+      \tl_set:Ne #2 { \@@_resolve:V #2 }
+    }
   \tl_if_empty:NTF #2
     { \msg_error:nnn { string-diagrams } { end-not-anchor } { #1 } }
     {
       \cs_if_exist:cTF { pgf@sh@ns@ #2 }
         {
           \bool_lazy_and:nnTF
-            { \str_if_eq_p:Vn #2 { @ } }
+            { \str_if_eq_p:ee { \exp_not:V #2 } { \@@_resolve:n { @ } } }
             { ! \@@_if_boundary_in_picture_p: }
             { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
             {
@@ -1413,7 +1438,7 @@
   \bool_set_false:N \l_@@_end_in_bool
   \str_if_eq:VVTF \l_@@_start_node_tl \l_@@_end_node_tl
     {
-      \str_if_eq:VnT \l_@@_start_node_tl { @ }
+      \str_if_eq:eeT { \exp_not:V \l_@@_start_node_tl } { \@@_resolve:n { @ } }
         {
           \bool_set_true:N \l_@@_start_in_bool
           \bool_set_true:N \l_@@_end_in_bool
@@ -2167,12 +2192,12 @@
 }
 \cs_new_protected:Nn \@@_adj_node_alone_name:Nn {
   \@@_split_node_anchor:NNV \l_@@_adj_node_tl \l_@@_adj_anchor_tl \l_@@_adj_rest_tl
-  \cs_if_exist:cTF { pgf@sh@ns@ \l_@@_adj_node_tl }
+  \cs_if_exist:cTF { pgf@sh@ns@ \@@_resolve:V \l_@@_adj_node_tl }
     { \@@_adj_wire:VNnnV \l_@@_adj_keys_tl #1 { #2 } { } \l_@@_adj_rest_tl }
     {
-      \cs_if_exist:cTF { pgf@sh@ns@ #2 }
+      \cs_if_exist:cTF { pgf@sh@ns@ \@@_resolve:n { #2 } }
         {
-          \@@_if_anchor:nVTF { #2 } \l_@@_adj_rest_tl
+          \@@_if_anchor:eVTF { \@@_resolve:n { #2 } } \l_@@_adj_rest_tl
             {
               \msg_error:nnee { string-diagrams } { end-without-target }
                 { \exp_not:n { #2 } . \exp_not:V \l_@@_adj_rest_tl }

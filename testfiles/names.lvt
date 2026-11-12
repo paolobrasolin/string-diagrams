@@ -1,0 +1,81 @@
+\input stridi-test.tex\relax
+
+\begin{document}
+
+\START
+
+% NOTE: each test logs a drawing under a name prefix or suffix, then, in some, the same drawing without, which should match it.
+% NOTE: each test has its own node names, so that no test finds the nodes of another under their plain names.
+
+\TEST{wires under a name prefix}{
+  \PICTURE[name prefix=L-]{
+    \node[box=1/0/1/0, square] (a1) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b1) at (100pt,200pt) {};
+    \LOG{\wires{a1.north.1 = b1.south.1}}
+  }
+  \TYPE{-- without:}
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a1) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b1) at (100pt,200pt) {};
+    \LOG{\wires{a1.north.1 = b1.south.1}}
+  }
+}
+
+\TEST{wires under a name suffix}{
+  \PICTURE[name suffix=-R]{
+    \node[box=1/0/1/0, square] (a2) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b2) at (100pt,200pt) {};
+    \LOG{\wires{a2.north.1 = b2.south.1}}
+  }
+}
+
+\TEST{a wire key under a name prefix}{
+  \PICTURE[name prefix=L-]{
+    \node[box=1/0/1/0, square] (a3) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b3) at (100pt,200pt) {};
+    \LOG{\draw (a3.north.1) to[wire] (b3.south.1);}
+    \TYPE{-- bare:}
+    \LOG{\draw (a3) to[wire] (b3);}
+  }
+}
+
+\TEST{wires in a pic}{
+  \tikzset{two boxes/.pic={
+    \node[box=1/0/1/0, square] (a4) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b4) at (100pt,200pt) {};
+    \LOG{\wires{a4.north.1 = b4.south.1}}
+  }}
+  \PICTURE{\pic (p) {two boxes};}
+}
+
+\TEST{a node outside the prefix}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (outer) at (100pt,200pt) {};
+    \begin{scope}[name prefix=L-]
+      \node[box=1/0/1/0, square] (a5) at (0pt,0pt) {};
+      \LOG{\wires{a5.north.1 = outer.south.1}}
+    \end{scope}
+  }
+}
+
+\TEST{a lone target under a name prefix}{
+  \PICTURE[name prefix=L-]{
+    \node[box=1/0/1/0, square] (a6) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b6) at (0pt,200pt) {};
+    \LOG{\wires{a6 = { b6 }}}
+  }
+}
+
+\TEST{the boundary under a name prefix}{
+  \PICTURE[name prefix=L-, wire flow=north]{
+    \node[box=1/0/1/0, square] (a7) at (0pt,0pt) {};
+    \LOG{\wires{a7 = { north.1 = @, south.1 = @ }, @ = @}}
+  }
+  \TYPE{-- without:}
+  \PICTURE[wire flow=north]{
+    \node[box=1/0/1/0, square] (a7) at (0pt,0pt) {};
+    \LOG{\wires{a7 = { north.1 = @, south.1 = @ }, @ = @}}
+  }
+}
+
+\END

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Draw wires inside pics, and under the `name prefix` and `name suffix` keys of TikZ, rather than reporting their nodes as missing: node names are now resolved as TikZ resolves them (#18).
+
 ## [0.4.0] - 2026-11-12
 
 Wires can now be written whole, as `a.north = b.south`, with or without anchors, and styled one by one. The new `wire` key draws them on TikZ paths, and new keys place labels at their ends.
