@@ -1,10 +1,10 @@
 # string-diagrams
 
-> string-diagrams is a LaTeX package that draws string diagrams with TikZ. It draws boxes with numbered ports, dots that split and join wires, and the wires between them, with labels. Wires can also go to the boundary of the picture. This summary is for version {{version}}.
+> string-diagrams is a LaTeX package that draws string diagrams with TikZ. It draws boxes with numbered ports, dots that split and join wires, and the wires between them, with labels. Wires can also go to a boundary around the diagram. This summary is for version {{version}}.
 
 Load the package with `\usepackage{string-diagrams}`. The package loads TikZ and the `fit` and `quotes` libraries of TikZ. It needs LaTeX 2023-06-01 or later. A diagram is a usual `tikzpicture` environment. Boxes and dots are TikZ nodes, and you can put them in any position. The `\wires` command draws the wires between them, and the `wire` key draws wires with the TikZ commands.
 
-Version 0.4.0 added wires written as one item, wires without anchors, keys in brackets, and the `wire`, `wire flow`, `beyond` and `beside` keys. Versions before 0.3.0 do not have the boundary node `@`. With an older version, some examples below fail. To update, use `tlmgr update string-diagrams`, or put {{site_url}}string-diagrams.sty in the folder of the document. Online editors such as Overleaf can have an older version than CTAN.
+Version 0.5.0 added boundaries that you can make, draw and give ports. In version 0.5.0, `@` is the boundary of a `\wires` command, and outside the command `@` is not a boundary. Version 0.4.0 added wires written as one item, wires without anchors, keys in brackets, and the `wire`, `wire flow`, `beyond` and `beside` keys. Versions before 0.3.0 do not have the boundary node `@`. With an older version, some examples below fail. To update, use `tlmgr update string-diagrams`, or put {{site_url}}string-diagrams.sty in the folder of the document. Online editors such as Overleaf can have an older version than CTAN.
 
 ## Reference
 
@@ -23,13 +23,13 @@ Version 0.4.0 added wires written as one item, wires without anchors, keys in br
 
 - `\wires[<TikZ keys>]{<wires>}` draws wires. The wires are a list. Each item is one wire, from an anchor to an anchor: `<node>.<anchor> = <node>.<anchor>`.
 - Wires start and end at sides (`north`, `east`, `south`, `west`), at corners (`north east` and the other three) and at ports (`east.1`). From a side or a port, a wire goes straight out. From a corner, it goes out diagonally. You cannot use anchors without a direction, such as `center`.
-- The boundary of the picture is a node with the name `@`. A wire to a side of `@`, such as `f.east = @.east`, is a loose end of the diagram. It goes straight out to that side, or it bends to it.
+- Each `\wires` command has a boundary around its diagram. In the command, the name of the boundary is `@`. A wire to a side of `@`, such as `f.east = @.east`, is a loose end of the diagram. It goes straight out to that side, or it bends to it.
 - Wires that start in the same way can share the start. Write the start one time, then `=` and a group in braces with the remaining part of each wire. A start stops after the name of a node, or at the `=` of a wire. Thus a group can contain the anchors of the start node, as in `f = { north.1 = g.south.1, east = h.west }`, the targets of an anchor, as in `f.north.1 = { g.south.1, h.south.1 }`, or the anchors of a target node, as in `f.north.1 = { g = { south.1, south.2 } }`. A group can contain groups. Wires cannot share their end.
 - You can write a node in more than one item, and an anchor can have more than one wire.
 - The keys of a `\wires` command apply to all its wires. Keys in brackets can also start an item, a group or a target, as in `f.north.1 = [dashed] g.south.1`. These keys apply to all the wires in it. The keys nearest to a wire apply last. The keys in brackets stop at the first `]` that is not in braces: thus put a key with brackets in braces, as in `[-{Stealth[length=6pt]}]`.
 - The keys apply after the angles that `\wires` calculates. Thus `out`, `in`, `bend left` and `bend right` change these angles. Each wire is a TikZ edge, so the keys also change its line.
 - The `every wire` style applies to all wires. The `every to` and `every edge` styles of the picture do not apply to the wires of `\wires`.
-- The boundary is around the picture as it is at the first `\wires` command, with a margin. The next `\wires` commands in the same picture use the same boundary. Thus, draw all the nodes before the wires.
+- A `\wires` command without boundary keys uses the boundary of the picture. This boundary is around the picture as it is at the first `\wires` command, with a margin. The next `\wires` commands in the same picture use the same boundary. Thus, draw all the nodes before the wires.
 - A wire that crosses the boundary goes through its middle. To put such a wire at a different position, for example as an identity next to a box, connect a coordinate to the boundary in the two directions. Put the coordinate with `\path (x,y) coordinate (i);`, because `\coordinate` does not change the size of the picture.
 - Wires get their directions from the names of the anchors, in the frame of the picture. You can shift and scale a picture, but you cannot rotate or mirror it. The package does not support rotated nodes.
 - Up to version 0.2.1, `\wires` had a third argument with the loose ends. The package does not read this argument now: write wires to `@` instead.
@@ -43,13 +43,27 @@ Version 0.4.0 added wires written as one item, wires without anchors, keys in br
 - The flow applies also when the target is behind the start: then the wire goes out in the direction of the flow, and turns back. A wire goes from its start to its target.
 - With a flow, loose ends do not need anchors: `@ = f` starts behind `f`, and `f = @` ends after `f`.
 
-### Frames
+### Boundaries
+
+- `\node[boundary] (B) {};` makes a boundary. The boundary goes around the picture as it is at that point, unless you set `fit`. You can draw it, fill it and label it with the usual TikZ keys. It must have a name.
+- The margins of a boundary are its `inner xsep` and `inner ysep`. If you do not set them, they are 2.3333em and 1.3333em. The `scale` key does not change them.
+- On a boundary, `box=<north>/<east>/<south>/<west>` gives ports. It does not draw the boundary. A loose end goes to a port of a boundary as a wire goes to a port of a box: write the port, or write no anchor if the side has one port. A side without ports takes loose ends straight.
+- `\wires[boundary={<keys>}]{<wires>}` makes a boundary for this command, around the nodes of its wires, with the keys. In the command, `@` is this boundary. To use the boundary in other commands, give it a name with `name=<name>`. Without a name, only this command uses it.
+- `\wires[use boundary=<name>]{<wires>}` uses a boundary that you made before. In the command, `@` is this boundary.
+- `\wires[boundary=none]{<wires>}` uses no boundary. Then the picture has no margins for loose ends, and a loose end is an error.
+- Outside `\wires`, `@` is not a boundary. To draw a wire to a boundary with the `wire` key, give the boundary a name, as in `\draw (f.north.1) to[wire] (B.north);`.
+- A boundary with ports is a box for the wires outside it. Thus you can put a diagram in a boundary, and connect the boundary as a box.
+- A fill of a boundary covers its nodes. Fill it on the background layer of the `backgrounds` library of TikZ.
+- Each boundary fits its nodes. To give the same height to two boundaries, set `minimum height`.
+
+### Nodes in nodes
 
 - An end faces inwards if its node contains the other node: its box contains the box of the other node. Borders that touch count as inside. The wire then goes the other way at that end, and it goes straight across to a side without ports.
-- The boundary contains the nodes of the picture, thus its loose ends face inwards. A frame that you draw around a box does the same.
+- A boundary contains the nodes of its `\wires` command, thus its loose ends face inwards. A frame that you draw around a box does the same.
 - If two nodes do not overlap, their ends face out, and the wire can turn back. If two nodes overlap and one does not contain the other, their ends also face out, but each end must have an anchor.
-- A node that you draw after the first `\wires` command can be partly outside the boundary. Then it overlaps the boundary, and its wires to `@` face out.
-- With a flow, a wire from a node to itself without anchors goes round the node: with `wire flow=east`, `f = f` is `f.east = f.west`. `@ = @` is `@.west = @.east`, across the picture. Without a flow, such a wire is an error.
+- A node that you draw after the first `\wires` command can be partly outside the boundary of the picture. Then it overlaps the boundary, and its wires to `@` face out.
+- If a `\wires` command makes or uses a boundary, and a wire connects the boundary to a node that is not in it, you get a warning.
+- With a flow, a wire from a node to itself without anchors goes round the node: with `wire flow=east`, `f = f` is `f.east = f.west`. `@ = @` is `@.west = @.east`, across the boundary. Without a flow, such a wire is an error.
 - A wire between two ends at the same height of a node, such as `f.east.1 = f.west.1`, goes straight through the node. To go round it, give angles, as in `f = [out=60, in=120, looseness=2.5] f`.
 
 ### The wire key
@@ -57,12 +71,12 @@ Version 0.4.0 added wires written as one item, wires without anchors, keys in br
 - `\draw (f.north.1) to[wire] (g.south.1);` and `\path (f) edge[wire] (g);` draw a wire with the TikZ commands, as `\wires` does. Ends without anchors are possible.
 - The `every wire` style applies after the `wire` key. On an edge it changes the line, as `every edge` does. On a `to` path it does not change the line, as `every to` does not.
 - Keys after `wire` change its angles. Keys before it do not.
-- Loose ends need the boundary, and only `\wires` draws it. Thus use `\wires` first in the picture.
+- To draw a wire to a boundary with the `wire` key, give the boundary a name. Outside `\wires`, `@` is not a boundary.
 
 ### Labels
 
 - The type of a wire goes along it. Use the quotes of TikZ: `f.north.1 = ["$A$"] g.south.1`. The label goes to the left of the wire, and `"$A$"'` puts it to the right.
-- The interface of a diagram goes at its loose ends. Use `beyond end`, or `beyond start` for a wire from the boundary: the label goes after the end of the wire, as in `f.north.1 = ["$A$" beyond end] @`.
+- The interface of a diagram goes at its loose ends. Use `beyond end`, or `beyond start` for a wire from the boundary: the label goes after the end of the wire, as in `f.north.1 = ["$A$" beyond end] @`. On a boundary with ports, you can put labels at the ports, as in `label=north.1:$A$` in the keys of the boundary.
 - The type of a port goes next to the port. Use `beside start` or `beside end` on the wire, or `beside` in the label of the box, as in `\node[box=1/0/0/0, label={[beside]north.1:$A$}] (f) {f};`. The label goes next to the port, out of the box, to the left of a wire that goes out of it. `swap` puts it to the right. A label of the box shows one time, for all the wires of the port.
 - `beyond` and `beside` only set the anchor of the label, from the direction of the wire at the label. `at end`, `at start` and `pos` set its position: `beyond end` is the same as `at end, beyond`. In the label of a node, the keys use the name of the anchor.
 - The options of a quote stop at the first `]` that is not in braces, thus `"x"[blue]` fails. Write `"x" blue`, or `"x" {pos=1, below}`. With a language of babel that makes `"` a shorthand, load the `babel` library of TikZ.
@@ -71,11 +85,10 @@ Version 0.4.0 added wires written as one item, wires without anchors, keys in br
 
 - "Box ports take four counts, for the north, east, south and west sides, as in 1/2/1/2, not `<value>'": `box ports` and `box` need exactly four counts.
 - "Box `<node>' has no port <side>.<index>, since its <side> side has <count>.": open more ports on that side, or use a smaller index.
-- "Node `<node>' has no anchor `<anchor>', so the wire is not drawn.": the node does not have this anchor. The boundary `@` has no ports.
+- "Node `<node>' has no anchor `<anchor>', so the wire is not drawn.": the node does not have this anchor. A boundary has ports only with `box`.
 - "Wire end `<node>.<anchor>' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.": use a side, a corner or a port.
 - "Wire end `(<end>)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).": a `wire` path goes from a node to a node, not to a coordinate or a calculated point.
-- "Wire end `<end>' is on a node that doesn't exist, so the wire is not drawn.": write the name of a node that exists.
-- "Wire end `@.<anchor>' is on the boundary of another picture, so the wire is not drawn: \wires draws the boundary of this picture.": use `\wires` in this picture before the wire.
+- "Wire end `<end>' is on a node that doesn't exist, so the wire is not drawn.": write the name of a node that exists. Outside `\wires`, `@` is not a node.
 - "Wire end `<node>' has no anchor, and its <side> side has <count> ports, so the wire is not drawn: name one, as in <node>.<side>.1.": write the port.
 - "Wire from `<node>' to `<node>' has no anchors, and their centers coincide, so it is not drawn: give an end an anchor, or set a wire flow.": write an anchor, or set `wire flow`.
 - "Wire from `<node>' to itself has no anchors, so it is not drawn: give an end an anchor, or set a wire flow.": write an anchor, or set `wire flow`.
@@ -88,6 +101,12 @@ Version 0.4.0 added wires written as one item, wires without anchors, keys in br
 - "Wire end `<node>.<anchor>' has a value: list the anchors of `<node>' alone, as in <node> = { east.1, east.2 }.": the anchors of a target node do not have a value.
 - "Keys in brackets after the beginning of `<item>' are ignored: keys begin an item or a value, as in a.north = [red] b.south.": put the keys at the start of the item.
 - "Keys `[<keys>]' begin no wire, so they are ignored.": put a wire after the keys.
+- "This boundary has no name, so nothing can use it: name it, as in \node[boundary] (B) {}.": give the boundary a name.
+- "A call takes boundary or use boundary, not both, so its loose ends are not drawn.": use one of the two keys.
+- "This picture has a node `<name>' already, so the loose ends of this call are not drawn: give the boundary another name, or write use boundary=<name>.": give a different name to the boundary, or use the node that has the name.
+- "This picture has no node `<name>' to use as boundary, so the loose ends of this call are not drawn.": make the boundary before the `\wires` command, or write its correct name.
+- "Wire end `<end>' is a loose end, but the call has boundary=none, so the wire is not drawn.": remove `boundary=none`, or remove the loose end.
+- The warning "Node `<node>' is not inside the boundary of this call, so its wires to @ face out.": put the node in the boundary, or make the boundary larger with `fit`.
 - "A `[' in the wires has no matching `]', so the rest of the list is ignored." and "A `]' in the wires has no matching `[', so the rest of the list is ignored.": close each bracket.
 
 ## Examples

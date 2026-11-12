@@ -69,7 +69,7 @@
     <p>The package is on CTAN and in TeX Live. Put this line in the preamble of your document. The package loads TikZ.</p>
     <pre class="code"><code>\usepackage{string-diagrams}</code></pre>
     <p>The examples need version 0.4 or later. To update an older version, use <code>tlmgr update string-diagrams</code>. You can also put <a href="string-diagrams.sty" download>string-diagrams.sty</a> in the folder of your document. The <em>Open in Overleaf</em> buttons do this.</p>
-    <p>A diagram is a usual <code>tikzpicture</code>. Boxes and dots are TikZ nodes, and you can put them in any position. The <code>\wires</code> command connects them. Each wire goes out of a side, a corner or a port in the correct direction. A wire can also go to the edge of the picture, which is the boundary node <code>@</code>. If you do not write an anchor, the wire uses the side of the node in its direction. The <code>wire</code> key also draws wires with the TikZ commands, for example <code>\draw (f) to[wire] (g);</code>.</p>
+    <p>A diagram is a usual <code>tikzpicture</code>. Boxes and dots are TikZ nodes, and you can put them in any position. The <code>\wires</code> command connects them. Each wire goes out of a side, a corner or a port in the correct direction. A wire can also go to the edge of the diagram. In the command, this edge is the boundary <code>@</code>. If you do not write an anchor, the wire uses the side of the node in its direction. The <code>wire</code> key also draws wires with the TikZ commands, for example <code>\draw (f) to[wire] (g);</code>.</p>
   </section>
 
   <section id="documentation">

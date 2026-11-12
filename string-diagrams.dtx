@@ -258,7 +258,7 @@
 % Wires leave sides and ports straight out, and corners diagonally.
 % Other anchors, such as \texttt{center}, have no direction, so wires can't start or end there.
 %
-% The boundary of the picture is a node too, called \texttt{@}.
+% Each call of \cmd\wires\ has a boundary, a node around its diagram, called \texttt{@} inside the call.
 % Wires to its sides are the loose ends of the diagram.
 % They go straight out to their side, or bend towards it.
 %
@@ -292,9 +292,10 @@
 %     \end{tikzpicture}
 % \end{tcblisting}
 %
-% The first \cmd\wires\ of a picture draws the boundary around the nodes drawn so far, with a margin.
+% The first \cmd\wires\ of a picture makes the boundary of the picture around the nodes drawn so far, with a margin, and doesn't draw it.
 % Later calls in the same picture use the same boundary.
 % So draw all nodes before the wires.
+% A call can also have a boundary of its own, which can be drawn and have ports: see the section on boundaries.
 %
 % A wire across the boundary runs through its middle.
 % To place it elsewhere, for example beside a box:
@@ -401,11 +402,80 @@
 %     \end{tikzpicture}
 % \end{tcblisting}
 %
-% \subsection{Frames}
+% \subsection{Boundaries}
+%
+% \begin{function}[added=2026-11-12]{/tikz/boundary}
+%   \begin{syntax}
+%     \cs{node}[boundary, \meta{\TikZ\ keys}] (\meta{name}) \{\};
+%   \end{syntax}
+%
+%   To make a boundary by hand, use this key on a node.
+%   The node goes around the picture so far, unless \texttt{fit} says otherwise.
+%   Its keys style it as any node: draw it, fill it, or label it.
+%   It needs a name, so that wires can reach it.
+%
+%   \begin{tcblisting}{example=boundary}
+%     \begin{tikzpicture}
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \node[boundary, draw, dashed] (B) {};
+%       \draw (f.north.1) to[wire] (B.north);
+%       \draw (f.south.1) to[wire] (B.south);
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% The margins of a boundary are its \texttt{inner xsep} and \texttt{inner ysep}: 2.3333em and 1.3333em, unless you set them.
+% They are paddings, as in \TikZ, so they don't scale with the picture.
+%
+% On a boundary, \texttt{box} gives ports, and nothing else: no stroke, padding or math.
+% Loose ends reach the ports of a boundary as wires reach the ports of a box: name the port, or leave the anchor out on a side with one port.
+% A side without ports takes loose ends straight, as the boundary of the picture does.
+%
+% \begin{function}[added=2026-11-12]{boundary,use boundary}
+%   \begin{syntax}
+%     \cs{wires}[boundary=\{\meta{\TikZ\ keys}\}]\marg{wires}
+%     \cs{wires}[use boundary=\meta{name}]\marg{wires}
+%     \cs{wires}[boundary=none]\marg{wires}
+%   \end{syntax}
+%
+%   These keys choose the boundary of a call of \cmd\wires, which is \texttt{@} inside the call:
+%   \begin{itemize}
+%     \item \texttt{boundary=\{\meta{keys}\}} makes a boundary around the nodes of the call, with these keys. Name it with \texttt{name} to reach it elsewhere. Without a name, it stays with its call.
+%     \item \texttt{use boundary=\meta{name}} uses a boundary made before, by hand or by another call.
+%     \item \texttt{boundary=none} uses no boundary: the picture gets no margins, and a loose end is an error.
+%   \end{itemize}
+%   A call without these keys uses the boundary of the picture.
+%
+%   \begin{tcblisting}{example=boundary-call}
+%     \begin{tikzpicture}
+%       \node[box=1/0/1/0] (a) at (0,0) {a};
+%       \node[box=1/0/1/0] (b) at (.3,1) {b};
+%       \wires[boundary={name=F, box=1/0/1/0,
+%                        draw, dashed}]{
+%         a = { south.1 = @, north.1 = b.south.1 },
+%         b.north.1 = @ }
+%       \node[box=1/0/0/0] (h) at (0,-1.5) {h};
+%       \node[box=0/0/1/0] (g) at (0,2.5) {g};
+%       \wires{ h.north.1 = F.south.1,
+%               F.north.1 = g.south.1 }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% A boundary with ports is a box for the wires outside it, so diagrams compose as boxes do.
+% Calls can share a named boundary: give it room for all their nodes with \texttt{fit}, and number its ports.
+% Boundaries fit their own nodes, so two of them side by side can differ in height: set a \texttt{minimum height} in their keys.
+% A \texttt{fill} in the keys of a boundary would cover its nodes, which come first: fill it behind them, with the \texttt{backgrounds} library of \TikZ.
+%
+% A node wired to the boundary of a call that doesn't hold it gets a warning: its wires to \texttt{@} face out, as the next section says.
+%
+% \subsection{Nodes inside nodes}
 %
 % An end faces inwards when its node holds the other node: its box contains the box of the other, borders that touch counting as inside.
 % Then the wire leaves or enters that end the other way, and a side without ports is reached straight across.
-% This is how loose ends work, since the boundary holds the nodes of the picture.
+% This is how loose ends work, since a boundary holds the nodes of its call.
 % A frame drawn by hand works the same way.
 %
 % \begin{tcblisting}{example=frame}
@@ -421,7 +491,7 @@
 % Nodes that overlap otherwise, or have the same box, face out too.
 % But then the package can't tell which way a bare end goes, so give both ends anchors.
 %
-% A wire from a node to itself loops round the node, and a wire from the boundary to itself crosses the picture.
+% A wire from a node to itself loops round the node, and a wire from a boundary to itself crosses it.
 % With both ends bare, such a wire needs a flow: with \texttt{wire flow=east}, \texttt{f = f} is \texttt{f.east = f.west}, and \texttt{@ = @} is \texttt{@.west = @.east}.
 %
 % \subsection{The wire key}
@@ -448,7 +518,8 @@
 % \end{function}
 %
 % Ends can be bare, as in \cmd\wires.
-% Loose ends need the boundary, which only \cmd\wires\ draws: so call \cmd\wires\ first in the picture.
+% To reach a boundary, name it, and draw to its anchors, as in \texttt{to[wire] (B.north)}.
+% Outside \cmd\wires, \texttt{@} means nothing to the package.
 % The key sets the \texttt{out} and \texttt{in} keys of \TikZ, so \TikZ\ draws the curve and places its labels.
 % Keys after \texttt{wire} override its angles, and keys before it don't.
 % A wrong end raises an error, and the wire isn't drawn.
@@ -488,6 +559,7 @@
 %     The label goes to the left of the wire, and \texttt{"\$A\$"'} puts it to the right.
 %   \item The interface of the diagram, at its loose ends.
 %     Use \texttt{beyond end}, or \texttt{beyond start} on a wire from the boundary: the label goes past the end.
+%     On a boundary with ports, you can label the ports instead, with \texttt{label} in its keys, as in \texttt{label=north.1:\$A\$}.
 %   \item The type of a port, at its box.
 %     Use \texttt{beside start} or \texttt{beside end} on the wire, or \texttt{beside} in the label of the box, as in \texttt{label=\{[beside]north.1:\$A\$\}}.
 %     The label goes beside the port, clear of the box, to the left of a wire leaving it; \texttt{swap} puts it to the right.
@@ -578,13 +650,22 @@
 %     A wire between two level ends of a node, as \texttt{f.east.1 = f.west.1}, leaves and enters straight, so \TikZ\ draws it as a line through the node.
 %     Give it angles, as in \texttt{f = [out=60, in=120, looseness=2.5] f}.
 %   \item \emph{Nodes drawn late.}
-%     A node drawn after the first \cmd\wires\ of a picture can stick out of the boundary.
+%     A node drawn after the first \cmd\wires\ of a picture can stick out of the boundary of the picture.
 %     Then it overlaps the boundary, and its wires to \texttt{@} face out.
+%   \item \emph{Scaled pictures.}
+%     The \texttt{scale} key moves nodes closer or apart, but the margins of a boundary are paddings, which don't scale: loose ends keep their length.
+%     For other margins, give the call a boundary of its own, as in \texttt{boundary=\{inner xsep=1em\}}.
 %   \item \emph{Markings.}
 %     The markings of the \texttt{decorations.markings} library fail on wires of no length, with \enquote{Dimension too large}.
 % \end{itemize}
 %
 % \subsection{Changes from earlier versions}
+%
+% Version 0.5.0 changes some behaviors of 0.4.0:
+% \begin{itemize}
+%   \item \texttt{@} is the boundary of a call, and means nothing outside \cmd\wires: to reach a boundary by hand, name it.
+%   \item The margins of the boundary no longer scale with the picture.
+% \end{itemize}
 %
 % Version 0.4.0 changes some behaviors of 0.3.0:
 % \begin{itemize}
