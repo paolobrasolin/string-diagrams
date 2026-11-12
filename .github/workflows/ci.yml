@@ -17,7 +17,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -44,7 +44,9 @@ jobs:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       - run: |
           sha256sum ctan-*/string-diagrams-ctan.zip
-          cmp ctan-ubuntu-latest/string-diagrams-ctan.zip ctan-macos-latest/string-diagrams-ctan.zip
+          for zip in ctan-*/string-diagrams-ctan.zip; do
+            cmp ctan-ubuntu-latest/string-diagrams-ctan.zip "$zip"
+          done
 
   # NOTE: the site follows the releases: it deploys when a release tag is pushed. A run by hand deploys it too, from a tag to redeploy that release, or from a branch to deploy its development version.
   site:

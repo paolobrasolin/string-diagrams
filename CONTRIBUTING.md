@@ -51,7 +51,7 @@ CI deploys the site to GitHub Pages when a release tag is pushed. To deploy it a
 
 ## Reproducibility
 
-Builds are reproducible: the version comes from `flake.nix`, and the date comes from the last commit, which also sets `SOURCE_DATE_EPOCH`. Running `nix build .#ctan --rebuild` checks this locally, and CI checks that Linux and macOS produce the same zip.
+Builds are reproducible: the version comes from `flake.nix`, and the date comes from the last commit, which also sets `SOURCE_DATE_EPOCH`. Running `nix build .#ctan --rebuild` checks this locally, and CI checks that Linux on Intel, Linux on ARM and macOS produce the same zip.
 
 ## Releasing
 
@@ -61,7 +61,7 @@ Builds are reproducible: the version comes from `flake.nix`, and the date comes 
    - move the `[Unreleased]` entries of `CHANGELOG.md` to a section for the new version, and update the links at the bottom;
    - if the release is a major upgrade worth announcing, start that section with a short summary of the improvements, before its first `###` heading (CTAN doesn't announce bug fixes or minor additions, and without a summary nothing is announced);
    - add the matching `\changes` entries to `string-diagrams.dtx`.
-3. Tag the commit with the version prefixed by `v` (e.g. `v0.3.0`) and push the tag. CI builds and checks it on Linux and macOS, checks that the tag matches `flake.nix` and that the changelog has notes for it, and validates the upload with CTAN, treating warnings as failures. Only then does it publish a GitHub release with the changelog notes and upload the zip to CTAN, using the summary, if any, as the announcement, and deploy the site. If anything fails, fix it and rerun the job; if the CTAN upload step itself failed, first check for CTAN's confirmation email, since the upload may have gone through anyway.
+3. Tag the commit with the version prefixed by `v` (e.g. `v0.3.0`) and push the tag. CI builds and checks it on Linux on Intel, Linux on ARM and macOS, checks that the tag matches `flake.nix` and that the changelog has notes for it, and validates the upload with CTAN, treating warnings as failures. Only then does it publish a GitHub release with the changelog notes and upload the zip to CTAN, using the summary, if any, as the announcement, and deploy the site. If anything fails, fix it and rerun the job; if the CTAN upload step itself failed, first check for CTAN's confirmation email, since the upload may have gone through anyway.
 4. Set `version` in `flake.nix` to the next minor version with `-dev`, such as `0.5.0-dev`. It only labels development builds, and the next release commit sets the actual version. Once you know the next release will be a major one, change it to that, such as `1.0.0-dev`.
 
 To validate an upload with CTAN from your machine, put the zip in place with `nix build .#ctan && cp result string-diagrams-ctan.zip`, run `l3build upload <version>`, and answer `n` when asked whether to submit it.
