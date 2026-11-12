@@ -1,0 +1,216 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+============================================================
+TEST 1: boundary makes the boundary of the call around its nodes, with its keys
+============================================================
+q 
+0 G 
+0 g 
+-83.02274 -73.05995 365.30086 146.11992 re 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+q 
+199.25537 59.77661 m 
+199.25537 65.0344 199.25537 68.00142 199.25537 73.2592 c 
+S 
+Q 
+F1.north east = (283.533pt, 73.53299pt)
+F1.south west = (-83.533pt, -73.53299pt)
+============================================================
+============================================================
+TEST 2: a boundary without a name stays with its call
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+-- a call without keys, with the boundary of the picture, around both:
+q 
+0 G 
+0 g 
+Q 
+q 
+199.25537 59.77661 m 
+199.25537 70.36987 199.25537 76.3478 199.25537 86.94107 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 3: a call without nodes makes its boundary around the origin
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 -13.48259 m 
+0.0 -13.48259 m 
+0.0 -2.96703 0.0 2.96703 0.0 13.48259 c 
+S 
+Q 
+F3.north east = (23.533pt, 13.53299pt)
+============================================================
+============================================================
+TEST 4: the keys of a call still reach its wires
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+q 
+[ 2.98883 2.98883 ] 0.0 d 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+Q 
+============================================================
+============================================================
+TEST 5: use boundary makes a boundary made before the boundary of the call
+============================================================
+q 
+0.0 59.77661 m 
+0.0 65.94672 8.20284 67.0891 8.20284 73.2592 c 
+S 
+Q 
+q 
+199.25537 59.77661 m 
+199.25537 65.94672 191.0525 67.0891 191.0525 73.2592 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 6: two calls share a named boundary
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.94672 8.20284 67.0891 8.20284 73.2592 c 
+S 
+Q 
+q 
+199.25537 59.77661 m 
+199.25537 65.94672 191.0525 67.0891 191.0525 73.2592 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 7: a lone @ is a target
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 8: with boundary=none a call makes no boundary, and a loose end is an error
+============================================================
+q 
+0.0 59.77661 m 
+0.0 90.85806 0.0 108.3973 0.0 139.47876 c 
+S 
+Q 
+! Package string-diagrams Error: Wire end `@' is a loose end, but the call has boundary=none, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+current bounding box.north east = (60.2pt, 260.2pt)
+============================================================
+============================================================
+TEST 9: a boundary whose name is in use is an error, and the wires between nodes are drawn
+============================================================
+! Package string-diagrams Error: This picture has a node `b9' already, so the loose ends of this call are not drawn: give the boundary another name, or write use boundary=b9.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+q 
+0.0 59.77661 m 
+0.0 90.85806 0.0 108.3973 0.0 139.47876 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 10: boundary and use boundary together are an error
+============================================================
+! Package string-diagrams Error: A call takes boundary or use boundary, not both, so its loose ends are not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 11: a boundary that isn't in the picture is an error
+============================================================
+! Package string-diagrams Error: This picture has no node `Q11' to use as boundary, so the loose ends of this call are not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 12: a node wired to a boundary that doesn't hold it gets a warning, once
+============================================================
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+q 
+Package string-diagrams Warning: Node `b12' is not inside the boundary of this call, so its wires to @ face out.
+298.88306 59.77661 m 
+298.88306 176.78775 0.0 190.27036 0.0 73.2592 c 
+S 
+Q 
+q 
+298.88306 -59.77661 m 
+298.88306 -176.78775 0.0 -190.27036 0.0 -73.2592 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 13: a boundary of a call under a name prefix
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+q 
+0.0 -59.77661 m 
+0.0 -65.0344 0.0 -68.00142 0.0 -73.2592 c 
+S 
+Q 
+============================================================

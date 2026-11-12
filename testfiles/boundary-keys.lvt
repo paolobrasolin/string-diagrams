@@ -1,0 +1,119 @@
+\input stridi-test.tex\relax
+
+\begin{document}
+
+\START
+
+% NOTE: each test has its own node names, as node names outlive their pictures.
+
+\TEST{boundary makes the boundary of the call around its nodes, with its keys}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a1) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b1) at (200pt,0pt) {};
+    \node[box, square] (c1) at (100pt,200pt) {};
+    \LOG{\wires[boundary={name=F1, draw}]{a1.north.1 = @, b1.north.1 = @}}
+    \SHOWANCHOR{F1}{north east}
+    \SHOWANCHOR{F1}{south west}
+  }
+}
+
+\TEST{a boundary without a name stays with its call}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a2) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b2) at (200pt,0pt) {};
+    \LOG{\wires[boundary]{a2.north.1 = @}}
+    \TYPE{-- a call without keys, with the boundary of the picture, around both:}
+    \LOG{\wires{b2.north.1 = @}}
+  }
+}
+
+\TEST{a call without nodes makes its boundary around the origin}{
+  \PICTURE{
+    \node[box, square] (a3) at (200pt,200pt) {};
+    \LOG{\wires[boundary={name=F3}]{@.south = @.north}}
+    \SHOWANCHOR{F3}{north east}
+  }
+}
+
+\TEST{the keys of a call still reach its wires}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a4) at (0pt,0pt) {};
+    \LOG{\wires[dashed, boundary={name=F4}, wire flow=north]{a4 = @}}
+  }
+}
+
+\TEST{use boundary makes a boundary made before the boundary of the call}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a5) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b5) at (200pt,0pt) {};
+    \node[boundary, fit=(a5)(b5), box=2/0/0/0] (B5) {};
+    \LOG{\wires[use boundary=B5]{a5.north.1 = @.north.1, b5.north.1 = @.north.2}}
+  }
+}
+
+\TEST{two calls share a named boundary}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a6) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b6) at (200pt,0pt) {};
+    \LOG{\wires[boundary={name=F6, fit=(a6)(b6), box=2/0/0/0}]{a6.north.1 = @.north.1}}
+    \LOG{\wires[use boundary=F6]{b6.north.1 = @.north.2}}
+  }
+}
+
+\TEST{a lone @ is a target}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a7) at (0pt,0pt) {};
+    \LOG{\wires[boundary={name=F7}]{a7.north.1 = { @ }}}
+  }
+}
+
+\TEST{with boundary=none a call makes no boundary, and a loose end is an error}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a8) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b8) at (0pt,200pt) {};
+    \LOG{\wires[boundary=none]{a8.north.1 = b8.south.1, b8.north.1 = @}}
+    \SHOWANCHOR{current bounding box}{north east}
+  }
+}
+
+\TEST{a boundary whose name is in use is an error, and the wires between nodes are drawn}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a9) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b9) at (0pt,200pt) {};
+    \LOG{\wires[boundary={name=b9}]{a9.north.1 = b9.south.1, b9.north.1 = @}}
+  }
+}
+
+\TEST{boundary and use boundary together are an error}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a10) at (0pt,0pt) {};
+    \node[boundary] (B10) {};
+    \LOG{\wires[boundary, use boundary=B10]{a10.north.1 = @}}
+  }
+}
+
+\TEST{a boundary that isn't in the picture is an error}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a11) at (0pt,0pt) {};
+    \LOG{\wires[use boundary=Q11]{a11.north.1 = @}}
+  }
+}
+
+\TEST{a node wired to a boundary that doesn't hold it gets a warning, once}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a12) at (0pt,0pt) {};
+    \node[boundary, fit=(a12)] (B12) {};
+    \node[box=1/0/1/0, square] (b12) at (300pt,0pt) {};
+    \LOG{\wires[use boundary=B12]{a12.north.1 = @, b12 = { north.1 = @.north, south.1 = @.south }}}
+  }
+}
+
+\TEST{a boundary of a call under a name prefix}{
+  \PICTURE[name prefix=L-]{
+    \node[box=1/0/1/0, square] (a13) at (0pt,0pt) {};
+    \LOG{\wires[boundary={name=F13}]{a13.north.1 = @}}
+    \LOG{\wires[use boundary=F13]{a13.south.1 = @}}
+  }
+}
+
+\END

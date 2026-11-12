@@ -1473,12 +1473,30 @@
 %   The end on a node that holds the other faces inwards.
 %   Otherwise both ends face out: the nodes are apart, or they overlap, or have the same box, and then a bare end is an error, since neither node is the outer one, and the wire is not drawn.
 %   A wire from a node to itself faces inwards at both ends on a boundary, which it crosses, and outwards on any other node, which it loops round.
+%   In a call that makes or uses a boundary of its own, \cs{l_@@_check_inside_bool} is true, and a node wired to the boundary of the call that it doesn't hold gets a warning, once per call, as its wires to the boundary face out.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { bare-overlap }
   {
     Wire~from~`#1'~to~`#2'~has~an~end~without~anchor,~and~the~two~nodes~overlap,~
     so~it~is~not~drawn:~give~both~ends~anchors.
   }
+\msg_new:nnn { string-diagrams } { boundary-outside }
+  { Node~`#1'~is~not~inside~the~boundary~of~this~call,~so~its~wires~to~@~face~out. }
+\bool_new:N \l_@@_check_inside_bool
+\seq_new:N \g_@@_warned_seq
+\cs_new_protected:Nn \@@_check_inside:nnN {
+  \bool_lazy_and:nnT
+    { \str_if_eq_p:Vn \l_@@_call_at_tl { #1 } }
+    { ! #3 }
+    {
+      \seq_if_in:NnF \g_@@_warned_seq { #2 }
+        {
+          \seq_gput_right:Nn \g_@@_warned_seq { #2 }
+          \msg_warning:nnn { string-diagrams } { boundary-outside } { #2 }
+        }
+    }
+}
+\cs_generate_variant:Nn \@@_check_inside:nnN { VVN }
 \cs_new_protected:Nn \@@_faces_inwards: {
   \bool_set_false:N \l_@@_start_in_bool
   \bool_set_false:N \l_@@_end_in_bool
@@ -1497,6 +1515,11 @@
         \l_@@_end_west_dim \l_@@_end_south_dim \l_@@_end_east_dim \l_@@_end_north_dim
       \bool_set:Nn \l_@@_start_holds_bool { \@@_if_box_within_p:nn { end } { start } }
       \bool_set:Nn \l_@@_end_holds_bool { \@@_if_box_within_p:nn { start } { end } }
+      \bool_if:NT \l_@@_check_inside_bool
+        {
+          \@@_check_inside:VVN \l_@@_start_node_tl \l_@@_end_node_tl \l_@@_start_holds_bool
+          \@@_check_inside:VVN \l_@@_end_node_tl \l_@@_start_node_tl \l_@@_end_holds_bool
+        }
       \bool_if:nTF { \l_@@_start_holds_bool && ! \l_@@_end_holds_bool }
         { \bool_set_true:N \l_@@_start_in_bool }
         {
@@ -2223,7 +2246,7 @@
 %
 % \begin{macro}{\@@_adj_node_alone:nNnn,\@@_adj_node_alone_name:Nn}
 %   Reads an item without \texttt{=} in a group after the node a wire starts from.
-%   It is the target of a wire from that node without an anchor, as in \texttt{f = \{ g \}}, if it names a node that exists.
+%   It is the target of a wire from that node without an anchor, as in \texttt{f = \{ g \}}, if it names a node that exists, or the boundary \texttt{@}, which the call makes after reading its wires.
 %   Otherwise it is an error: an anchor left without a target, if it is an anchor of the node the wires start from, as the shape of that node tells, or an angle, which pgf reads as a point of the border; or else a node that doesn't exist; if the node the wires start from doesn't exist either, the error names it, since the item can't be told apart.
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
@@ -2238,7 +2261,9 @@
 }
 \cs_new_protected:Nn \@@_adj_node_alone_name:Nn {
   \@@_split_node_anchor:NNV \l_@@_adj_node_tl \l_@@_adj_anchor_tl \l_@@_adj_rest_tl
-  \cs_if_exist:cTF { pgf@sh@ns@ \@@_resolve:V \l_@@_adj_node_tl }
+  \bool_lazy_or:nnTF
+    { \str_if_eq_p:Vn \l_@@_adj_node_tl { @ } }
+    { \cs_if_exist_p:c { pgf@sh@ns@ \@@_resolve:V \l_@@_adj_node_tl } }
     { \@@_adj_wire:VNnnV \l_@@_adj_keys_tl #1 { #2 } { } \l_@@_adj_rest_tl }
     {
       \cs_if_exist:cTF { pgf@sh@ns@ \@@_resolve:n { #2 } }
@@ -2381,7 +2406,209 @@
     }
   \tl_clear:N \l_@@_call_at_tl
 }
-\cs_generate_variant:Nn \@@_with_boundary:nn { e }
+\cs_generate_variant:Nn \@@_with_boundary:nn { V }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\l_@@_call_keys_tl,\l_@@_call_mode_tl,\l_@@_boundary_keys_tl,\l_@@_boundary_name_tl,\l_@@_given_new_bool,\l_@@_given_use_bool,\l_@@_wires_seq,\l_@@_call_nodes_seq,\g_@@_boundaries_int}
+%   Scratch variables for \cmd\wires: the keys of its wires, without those of its boundary; which boundary it has, \texttt{picture}, \texttt{new}, \texttt{use} or \texttt{none}, or \texttt{failed} after an error about it; the keys and the name of that boundary; whether \texttt{boundary} and \texttt{use boundary} were given; its wires, read once, each as its keys and its two ends; the nodes they join; and a count that names the boundaries made without a name.
+%    \begin{macrocode}
+\tl_new:N \l_@@_call_keys_tl
+\tl_new:N \l_@@_call_mode_tl
+\tl_new:N \l_@@_boundary_keys_tl
+\tl_new:N \l_@@_boundary_name_tl
+\bool_new:N \l_@@_given_new_bool
+\bool_new:N \l_@@_given_use_bool
+\seq_new:N \l_@@_wires_seq
+\seq_new:N \l_@@_call_nodes_seq
+\int_new:N \g_@@_boundaries_int
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_call_keys:n,\@@_call_key:n,\@@_call_key:nn}
+%   Reads the keys of a call: \texttt{boundary}, alone, with keys, or \texttt{none}, and \texttt{use boundary} choose its boundary, and the others go to its wires.
+%   Both \texttt{boundary} and \texttt{use boundary} is an error, and the call then has no boundary to draw its loose ends to.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { boundary-twice }
+  { A~call~takes~boundary~or~use~boundary,~not~both,~so~its~loose~ends~are~not~drawn. }
+\cs_new_protected:Nn \@@_call_keys:n {
+  \tl_clear:N \l_@@_call_keys_tl
+  \tl_clear:N \l_@@_boundary_keys_tl
+  \tl_clear:N \l_@@_boundary_name_tl
+  \tl_set:Nn \l_@@_call_mode_tl { picture }
+  \bool_set_false:N \l_@@_given_new_bool
+  \bool_set_false:N \l_@@_given_use_bool
+  \keyval_parse:nnn { \@@_call_key:n } { \@@_call_key:nn } { #1 }
+  \bool_lazy_and:nnT { \l_@@_given_new_bool } { \l_@@_given_use_bool }
+    {
+      \msg_error:nn { string-diagrams } { boundary-twice }
+      \tl_set:Nn \l_@@_call_mode_tl { failed }
+    }
+}
+\cs_new_protected:Nn \@@_call_key:n {
+  \str_if_eq:nnTF { #1 } { boundary }
+    {
+      \bool_set_true:N \l_@@_given_new_bool
+      \tl_set:Nn \l_@@_call_mode_tl { new }
+    }
+    {
+      \tl_if_empty:NF \l_@@_call_keys_tl { \tl_put_right:Nn \l_@@_call_keys_tl { , } }
+      \tl_put_right:Nn \l_@@_call_keys_tl { #1 }
+    }
+}
+\cs_new_protected:Nn \@@_call_key:nn {
+  \str_case:nnF { #1 }
+    {
+      { boundary }
+        {
+          \bool_set_true:N \l_@@_given_new_bool
+          \str_if_eq:nnTF { #2 } { none }
+            { \tl_set:Nn \l_@@_call_mode_tl { none } }
+            {
+              \tl_set:Nn \l_@@_call_mode_tl { new }
+              \tl_set:Nn \l_@@_boundary_keys_tl { #2 }
+            }
+        }
+      { use~boundary }
+        {
+          \bool_set_true:N \l_@@_given_use_bool
+          \tl_set:Nn \l_@@_call_mode_tl { use }
+          \tl_set:Nn \l_@@_boundary_name_tl { #2 }
+        }
+    }
+    {
+      \tl_if_empty:NF \l_@@_call_keys_tl { \tl_put_right:Nn \l_@@_call_keys_tl { , } }
+      \tl_put_right:Nn \l_@@_call_keys_tl { #1 = { #2 } }
+    }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_call_boundary:,\@@_new_boundary:,\@@_boundary_name:nn,\@@_collect_nodes:nnnnn,\@@_collect_node:n,\@@_fit_item:n,\@@_use_boundary:}
+%   Gives a call its boundary, by its resolved name.
+%   Without boundary keys, it is the boundary of the picture.
+%   With \texttt{boundary}, it is a new one, around the nodes of the call, or around the origin if there are none, with the keys given, which come last; its name is the one in its keys, else a name that nobody writes, and a name in use in the picture is an error.
+%   With \texttt{use boundary}, it is that node, and a name that isn't in the picture is an error.
+%   After such an error the call has no boundary to draw its loose ends to.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { boundary-exists }
+  {
+    This~picture~has~a~node~`#1'~already,~so~the~loose~ends~of~this~call~are~not~drawn:~
+    give~the~boundary~another~name,~or~write~use~boundary=#1.
+  }
+\msg_new:nnn { string-diagrams } { boundary-missing }
+  {
+    This~picture~has~no~node~`#1'~to~use~as~boundary,~
+    so~the~loose~ends~of~this~call~are~not~drawn.
+  }
+\cs_new_protected:Nn \@@_call_boundary: {
+  \str_case:Vn \l_@@_call_mode_tl
+    {
+      { picture }
+        {
+          \@@_draw_boundary:
+          \tl_set:Ne \l_@@_boundary_name_tl { \@@_resolve:V \c_@@_picture_boundary_tl }
+        }
+      { new } { \@@_new_boundary: }
+      { use } { \@@_use_boundary: }
+    }
+}
+\cs_new_protected:Nn \@@_new_boundary: {
+  \keyval_parse:nnV { \use_none:n } { \@@_boundary_name:nn } \l_@@_boundary_keys_tl
+  \tl_if_empty:NTF \l_@@_boundary_name_tl
+    {
+      \int_gincr:N \g_@@_boundaries_int
+      \tl_set:Ne \l_@@_boundary_name_tl
+        { \c_@@_picture_boundary_tl \c_space_tl \int_use:N \g_@@_boundaries_int }
+    }
+    {
+      \@@_if_node_in_picture:VT \l_@@_boundary_name_tl
+        {
+          \msg_error:nnV { string-diagrams } { boundary-exists } \l_@@_boundary_name_tl
+          \tl_set:Nn \l_@@_call_mode_tl { failed }
+        }
+    }
+  \str_if_eq:VnF \l_@@_call_mode_tl { failed }
+    {
+      \seq_clear:N \l_@@_call_nodes_seq
+      \seq_map_inline:Nn \l_@@_wires_seq { \@@_collect_nodes:nnnnn ##1 }
+      \use:e
+        {
+          \exp_not:N \node
+            [
+              boundary ,
+              fit =
+                {
+                  \seq_if_empty:NTF \l_@@_call_nodes_seq
+                    { (0pt,0pt) }
+                    { \seq_map_function:NN \l_@@_call_nodes_seq \@@_fit_item:n }
+                } ,
+              name = { \exp_not:V \l_@@_boundary_name_tl } ,
+              \exp_not:V \l_@@_boundary_keys_tl
+            ]
+            { } ;
+        }
+      \tl_set:Ne \l_@@_boundary_name_tl { \@@_resolve:V \l_@@_boundary_name_tl }
+    }
+}
+\cs_new_protected:Nn \@@_boundary_name:nn
+  { \str_if_eq:nnT { #1 } { name } { \tl_set:Nn \l_@@_boundary_name_tl { #2 } } }
+\cs_new_protected:Nn \@@_collect_nodes:nnnnn {
+  \@@_collect_node:n { #2 }
+  \@@_collect_node:n { #4 }
+}
+\cs_new_protected:Nn \@@_collect_node:n {
+  \bool_lazy_or:nnF
+    { \str_if_eq_p:nn { #1 } { @ } }
+    { ! \@@_if_node_in_picture_p:n { #1 } }
+    {
+      \seq_if_in:NnF \l_@@_call_nodes_seq { #1 }
+        { \seq_put_right:Nn \l_@@_call_nodes_seq { #1 } }
+    }
+}
+\cs_new:Nn \@@_fit_item:n { ( \exp_not:n { #1 } ) }
+\cs_new_protected:Nn \@@_use_boundary: {
+  \@@_if_node_in_picture:VTF \l_@@_boundary_name_tl
+    { \tl_set:Ne \l_@@_boundary_name_tl { \@@_resolve:V \l_@@_boundary_name_tl } }
+    {
+      \msg_error:nnV { string-diagrams } { boundary-missing } \l_@@_boundary_name_tl
+      \tl_set:Nn \l_@@_call_mode_tl { failed }
+    }
+}
+\cs_generate_variant:Nn \keyval_parse:nnn { nnV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_store_wire:nnnnn,\@@_draw_wires:N,\@@_draw_wire_unbounded:nnnnn,\@@_draw_wire_inner:nnnnn}
+%   \cmd{\@@_store_wire:nnnnn} keeps a wire that the parser reads, to draw it once the call has its boundary.
+%   \cmd{\@@_draw_wires:N} draws the wires of a call with a function.
+%   With \texttt{boundary=none}, \cmd{\@@_draw_wire_unbounded:nnnnn} reports each loose end, and draws the other wires; after an error about the boundary of the call, \cmd{\@@_draw_wire_inner:nnnnn} leaves the loose ends out, since that error says so already.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { boundary-none }
+  { Wire~end~`#1'~is~a~loose~end,~but~the~call~has~boundary=none,~so~the~wire~is~not~drawn. }
+\cs_new_protected:Nn \@@_store_wire:nnnnn
+  { \seq_put_right:Nn \l_@@_wires_seq { { #1 } { #2 } { #3 } { #4 } { #5 } } }
+\cs_new_protected:Nn \@@_draw_wires:N
+  { \seq_map_inline:Nn \l_@@_wires_seq { #1 ##1 } }
+\cs_new_protected:Nn \@@_draw_wire_unbounded:nnnnn {
+  \str_if_eq:nnTF { #2 } { @ }
+    {
+      \msg_error:nne { string-diagrams } { boundary-none }
+        { \@@_wire_coordinate:nn { #2 } { #3 } }
+    }
+    {
+      \str_if_eq:nnTF { #4 } { @ }
+        {
+          \msg_error:nne { string-diagrams } { boundary-none }
+            { \@@_wire_coordinate:nn { #4 } { #5 } }
+        }
+        { \@@_draw_wire:nnnnn { #1 } { #2 } { #3 } { #4 } { #5 } }
+    }
+}
+\cs_new_protected:Nn \@@_draw_wire_inner:nnnnn {
+  \bool_lazy_or:nnF { \str_if_eq_p:nn { #2 } { @ } } { \str_if_eq_p:nn { #4 } { @ } }
+    { \@@_draw_wire:nnnnn { #1 } { #2 } { #3 } { #4 } { #5 } }
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2392,14 +2619,29 @@
 %   \changes{0.3.0}{2026/11/07}{wires leave corners diagonally}
 %   \changes{0.3.0}{2026/11/07}{wire ends off the sides or without an anchor are errors}
 %   Define our superstar.
-%   Its wires get the boundary of the picture as \texttt{@}.
+%   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
 %    \begin{macrocode}
 \NewDocumentCommand{\wires}{ O{} m }
 {
-  \@@_draw_boundary:
-  \@@_with_boundary:en { \@@_resolve:V \c_@@_picture_boundary_tl }
-    { \@@_adj_map_function:nnN { #1 } { #2 } \@@_draw_wire:nnnnn }
+  \@@_call_keys:n { #1 }
+  \seq_clear:N \l_@@_wires_seq
+  \@@_adj_map_function:VnN \l_@@_call_keys_tl { #2 } \@@_store_wire:nnnnn
+  \@@_call_boundary:
+  \seq_gclear:N \g_@@_warned_seq
+  \bool_set:Nn \l_@@_check_inside_bool
+    { \str_if_eq_p:Vn \l_@@_call_mode_tl { new } || \str_if_eq_p:Vn \l_@@_call_mode_tl { use } }
+  \str_case:VnF \l_@@_call_mode_tl
+    {
+      { none } { \@@_draw_wires:N \@@_draw_wire_unbounded:nnnnn }
+      { failed } { \@@_draw_wires:N \@@_draw_wire_inner:nnnnn }
+    }
+    {
+      \@@_with_boundary:Vn \l_@@_boundary_name_tl
+        { \@@_draw_wires:N \@@_draw_wire:nnnnn }
+    }
+  \bool_set_false:N \l_@@_check_inside_bool
 }
+\cs_generate_variant:Nn \@@_adj_map_function:nnN { VnN }
 %    \end{macrocode}
 % \end{macro}
 %

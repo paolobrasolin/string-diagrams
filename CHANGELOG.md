@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add the `boundary` key, which makes a boundary by hand, as in `\node[boundary] (B) {};`: a node around the picture so far, unless `fit` says otherwise, with the margins of loose ends as its `inner xsep` and `inner ysep`. On it, `box` gives ports only, without stroke, padding or math. Wires drawn by hand reach it by its name, and a wire from it to itself crosses it. It needs a name.
+- Let a call of `\wires` choose its boundary, which is `@` inside the call: `boundary={…}` makes one around the nodes of the call, with these keys, and stays with the call unless its keys name it; `use boundary=B` uses one made before; `boundary=none` uses none, so the picture gets no margins for loose ends. Calls without these keys share the boundary of the picture, as before. An error about the boundary of a call leaves out its loose ends and draws its other wires, and a node wired to a boundary that doesn't hold it gets a warning.
 
 ### Changed
 
