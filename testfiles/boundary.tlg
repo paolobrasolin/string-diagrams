@@ -90,3 +90,38 @@ S
 Q 
 @.north east = (105.0pt, 5.0pt)
 ============================================================
+============================================================
+TEST 12: a boundary by hand surrounds the picture so far, as the boundary of the picture does
+============================================================
+hand.north east = (83.733pt, 73.73299pt)
+hand.south west = (-83.733pt, -73.73299pt)
+empty.north east = (23.533pt, 13.53299pt)
+============================================================
+============================================================
+TEST 13: the margins of a boundary are its inner xsep and inner ysep, and fit chooses what it surrounds
+============================================================
+margins.north east = (270.2pt, 65.2pt)
+margins.south west = (-70.2pt, -65.2pt)
+around a.north east = (83.533pt, 73.53299pt)
+============================================================
+============================================================
+TEST 14: on a boundary box gives ports only
+============================================================
+q 
+0 G 
+0 g 
+Q 
+ported.north.1 = (0.0pt, 73.73299pt)
+ported.south.1 = (0.0pt, -73.73299pt)
+============================================================
+============================================================
+TEST 15: a boundary without a name is an error
+============================================================
+! Package string-diagrams Error: This boundary has no name, so nothing can use it: name it, as in \node[boundary] (B) {}.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================

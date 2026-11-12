@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add the `boundary` key, which makes a boundary by hand, as in `\node[boundary] (B) {};`: a node around the picture so far, unless `fit` says otherwise, with the margins of loose ends as its `inner xsep` and `inner ysep`. On it, `box` gives ports only, without stroke, padding or math. Wires drawn by hand reach it by its name, and a wire from it to itself crosses it. It needs a name.
+
 ### Changed
 
 - **Breaking:** make `@` the boundary of the call inside `\wires`, and nothing outside it: a wire drawn by hand, as in `\draw (f.north) to[wire] (@.north);`, no longer reaches the boundary after a call, and a node of your own named `@` keeps its name outside the calls.
+- Make the margins of the boundary paddings, as on TikZ's own frame around a picture, so that they no longer scale with the picture: in a scaled picture, loose ends keep their length.
 
 ### Fixed
 

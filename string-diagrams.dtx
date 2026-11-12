@@ -1049,7 +1049,6 @@
       { \prg_return_false: }
   }
 \prg_generate_conditional_variant:Nnn \@@_if_boundary:n { V } { p, T, F, TF }
-\cs_generate_variant:Nn \prop_gput:Nnn { Nee }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1061,36 +1060,48 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_draw_boundary:,\@@_draw_boundary_around:nn}
-%   Creates the boundary of the picture around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds), and records it as a boundary.
+% \begin{macro}{/tikz/boundary,\@@_boundary_key:,\@@_boundary_made:n}
+%   Defines the style of a boundary: around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds), with the margins that give the loose ends of 0.3.0.
+%   Its keys come after these, so \texttt{fit}, \texttt{inner xsep} and \texttt{inner ysep} change them.
+%   On a boundary, \texttt{box} gives ports only: no stroke, padding or math.
+%   Once the node is made, it is recorded as a boundary of the picture, unless it has no name, since nothing could then refer to it: \TikZ\ names such a node \texttt{tikz@f@}\meta{number}.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { boundary-name }
+  {
+    This~boundary~has~no~name,~so~nothing~can~use~it:~
+    name~it,~as~in~\iow_char:N\\node[boundary]~(B)~\{\}.
+  }
+\cs_new_protected:Nn \@@_boundary_key: {
+  \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
+    { \pgfkeysalso { /tikz/fit = { (0pt,0pt) } } }
+    { \pgfkeysalso { /tikz/fit = { (current~bounding~box) } } }
+  \pgfkeysalso
+    {
+      /tikz/inner~xsep = 2.3333em ,
+      /tikz/inner~ysep = 1.3333em ,
+      /tikz/box/.style = { /tikz/shape = box , /pgf/box~ports = {##1} } ,
+      /tikz/append~after~command =
+        { \pgfextra { \@@_boundary_made:e { \tikzlastnode } } } ,
+    }
+}
+\cs_new_protected:Nn \@@_boundary_made:n {
+  \str_if_eq:eeTF { \str_range:nnn { #1 } { 1 } { 7 } } { tikz@f@ }
+    { \msg_error:nn { string-diagrams } { boundary-name } }
+    { \prop_gput:Nne \g_@@_boundaries_prop { #1 } { \pgfpictureid } }
+}
+\cs_generate_variant:Nn \@@_boundary_made:n { e }
+\cs_generate_variant:Nn \prop_gput:Nnn { Nne }
+\tikzset { boundary/.code = { \@@_boundary_key: } }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_draw_boundary:}
+%   Creates the boundary of the picture, with the \texttt{boundary} key.
 %   A picture gets a single such boundary: later calls of \cmd\wires\ in it reuse the first one.
-%   \begin{arguments}
-%     \item north east corner to surround
-%     \item south west corner to surround
-%   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_boundary: {
   \@@_if_node_in_picture:VF \c_@@_picture_boundary_tl
-    {
-      \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
-        { \@@_draw_boundary_around:nn { 0pt, 0pt } { 0pt, 0pt } }
-        {
-          \@@_draw_boundary_around:nn
-            { current~bounding~box.north~east }
-            { current~bounding~box.south~west }
-        }
-      \prop_gput:Nee \g_@@_boundaries_prop
-        { \@@_resolve:V \c_@@_picture_boundary_tl } { \pgfpictureid }
-    }
-}
-\cs_new_protected:Nn \@@_draw_boundary_around:nn {
-  \node [%draw, box=2/2/0/1, dashed, red,
-    name=\c_@@_picture_boundary_tl, node~contents={},
-    fit={
-      ([shift={(+2em,+1em)}]#1)
-      ([shift={(-2em,-1em)}]#2)
-    },
-  ];
+    { \node [ boundary , name = \c_@@_picture_boundary_tl ] { } ; }
 }
 %    \end{macrocode}
 % \end{macro}

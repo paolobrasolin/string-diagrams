@@ -41,8 +41,24 @@
 \TEST{wires to and from the boundary}{
   \PICTURE{
     \node[box=1/0/1/1, square] (a) at (0pt,0pt) {};
+    \node[boundary] (B) {};
+    \LOG{\draw (a.north.1) to[wire] (B.north);}
+    \LOG{\draw (B.west) to[wire] (a.west.1);}
+  }
+  \TYPE{-- wires:}
+  \PICTURE{
+    \node[box=1/0/1/1, square] (a) at (0pt,0pt) {};
     \wires{a = {south.1 = @.south}}
     \LOG{\wires{a = {north.1 = @.north}, @ = {west = a.west.1}}}
+  }
+}
+
+\TEST{a wire from a boundary to itself crosses it}{
+  \PICTURE[wire flow=east]{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[boundary] (C) {};
+    \LOG{\draw (C.west) to[wire] (C.east);}
+    \LOG{\draw (C) to[wire] (C);}
   }
 }
 

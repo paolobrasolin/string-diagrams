@@ -159,4 +159,46 @@
   }
 }
 
+\TEST{a boundary by hand surrounds the picture so far, as the boundary of the picture does}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[boundary] (hand) {};
+    \SHOWANCHOR{hand}{north east}
+    \SHOWANCHOR{hand}{south west}
+  }
+  \PICTURE{
+    \node[boundary] (empty) {};
+    \SHOWANCHOR{empty}{north east}
+  }
+}
+
+\TEST{the margins of a boundary are its inner xsep and inner ysep, and fit chooses what it surrounds}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[box, square] (b) at (200pt,0pt) {};
+    \node[boundary, inner xsep=10pt, inner ysep=5pt, outer sep=0pt] (margins) {};
+    \SHOWANCHOR{margins}{north east}
+    \SHOWANCHOR{margins}{south west}
+    \node[boundary, fit=(a)] (around a) {};
+    \SHOWANCHOR{around a}{north east}
+  }
+}
+
+% NOTE: so a boundary with box is not drawn unless it says so.
+\TEST{on a boundary box gives ports only}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \LOG{\node[boundary, box=1/0/1/0] (ported) {};}
+    \SHOWANCHOR{ported}{north.1}
+    \SHOWANCHOR{ported}{south.1}
+  }
+}
+
+\TEST{a boundary without a name is an error}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \node[boundary] {};
+  }
+}
+
 \END
