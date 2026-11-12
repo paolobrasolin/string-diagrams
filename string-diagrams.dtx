@@ -42,6 +42,8 @@
 \RecordChanges
 \usepackage{string-diagrams}
 \usetikzlibrary{calc}
+^^A l3doc makes " a short verbatim character, which breaks the quotes of TikZ in the examples.
+\AtBeginDocument{\DeleteShortVerb\"}
 
 \usepackage{tcolorbox}
 \tcbuselibrary{listings, skins}
@@ -53,7 +55,7 @@
   ^^A keywordstyle=\color{red},
   ^^A morekeywords={},
   texcsstyle=*\color{violet},
-  moretexcs={node,wires},
+  moretexcs={node,wires,draw,path,foreach,side,n},
   breaklines=true,
 }
 
@@ -113,21 +115,24 @@
 %   sharp corners,
 %   boxrule=1pt,
 % ]
-% Please note this is the \href{https://semver.org/#spec-item-4}{major version zero}, meant for initial development: \emph{anything MAY change at any time}.
-% The upside is that this is the best time to \href{https://github.com/paolobrasolin/string-diagrams#contributing}{contribute}!
-% Of course you can also just keep the \texttt{sty} along with your code and not care at all.
+% This is \href{https://semver.org/#spec-item-4}{major version zero}, for initial development: \emph{anything MAY change at any time}.
+% So this is the best time to \href{https://github.com/paolobrasolin/string-diagrams#contributing}{contribute}!
+% You can also keep the \texttt{sty} file with your code, and not care at all.
 % \end{tcolorbox}
 %
 %
 % \section{Documentation}
 %
-% Load the package with \cs{usepackage}\texttt{\{string-diagrams\}}: it loads \TikZ\ and its \texttt{fit} library.
+% Load the package with \cs{usepackage}\texttt{\{string-diagrams\}}.
+% It loads \TikZ, with its \texttt{fit} and \texttt{quotes} libraries.
 % The examples below need nothing else, unless they say otherwise.
+%
+% \subsection{Boxes}
 %
 % \begin{function}[added=2023-05-31,updated=2026-11-07]{/pgf/box}
 %
-%   To draw boxes, you use this style on a node.
-%   Its label is already typeset in math mode, so write it without dollars: \texttt{\{f\}}, as \texttt{\{\$f\$\}} breaks the node.
+%   To draw a box, use this style on a node.
+%   Its label is in math mode already, so write it without dollars: \texttt{\{f\}}, since \texttt{\{\$f\$\}} breaks the node.
 %
 %   \begin{tcblisting}{example=box}
 %     \begin{tikzpicture}
@@ -135,18 +140,18 @@
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
-%   You can draw multiple boxes using any of your standard \TikZ\ positioning techniques.
-%   Don't forget to label the nodes so you can easily reference them.
-%   The last box below is placed with the \texttt{calc} library of \TikZ, which you load with \cs{usetikzlibrary}\texttt{\{calc\}}.
+% \end{function}
 %
-%   \begin{tcblisting}{example=boxes}
+% Place boxes with any positioning technique of \TikZ, and name them, so that wires can refer to them.
+% The last box below is placed with the \texttt{calc} library of \TikZ: load it with \cs{usetikzlibrary}\texttt{\{calc\}}.
+%
+% \begin{tcblisting}{example=boxes}
 %     \begin{tikzpicture}
 %       \node[box] (A) at (0,0) {A};
 %       \node[box, right of=A] (B) {B};
 %       \node[box] (C) at ($(B)+(2cm,1em)$) {C};
 %     \end{tikzpicture}
-%   \end{tcblisting}
-% \end{function}
+% \end{tcblisting}
 %
 % \begin{function}[added=2023-06-12,updated=2026-11-07]{
 %   /pgf/box ports north,
@@ -161,10 +166,10 @@
 %     /pgf/box ports west=\meta{integer}
 %   \end{syntax}
 %
-%   You can open up any number of ports on any side of a box using the appropriate key; boxes have none until you do.
-%   Like other \TikZ\ keys, these can also be set on a picture or a scope, for all the boxes in it.
-%   Then, you can refer to the opened ports by their index: they are numbered from left to right on the north and south sides, and from top to bottom on the east and west sides.
-%   Asking a box for a port it doesn't have is an error.
+%   These keys open ports on the sides of a box: a box has none until you open them.
+%   As other \TikZ\ keys, you can set them on a picture or a scope, for all the boxes in it.
+%   Refer to a port by its side and number: ports are numbered from left to right on the north and south sides, and from top to bottom on the east and west sides.
+%   A port that a box doesn't have is an error.
 %
 %   \begin{tcblisting}{example=box-ports,lefthand ratio=0.8}
 %     \begin{tikzpicture}[
@@ -197,7 +202,7 @@
 %     /pgf/box ports=\meta{integer}/\meta{integer}/\meta{integer}/\meta{integer}
 %   \end{syntax}
 %
-%   The \texttt{box ports} key is a shortcut to set the number of ports on all sides at once.
+%   The \texttt{box ports} key sets the ports of all sides at once.
 %   It takes exactly four counts, for the north, east, south and west sides.
 %
 %   \begin{tcblisting}{example=box-ports-shortcut,lefthand ratio=0.8}
@@ -214,28 +219,60 @@
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
-%   The same value can also be passed to the \texttt{box} key itself; without it, \texttt{box} keeps the counts in force.
+%   You can also give the same value to the \texttt{box} key itself.
+%   Without a value, \texttt{box} keeps the counts in force.
 %
 % \end{function}
 %
-% \begin{function}[added=2023-05-31,updated=2026-11-07]{\wires}
+% \subsection{Wires}
+%
+% \begin{function}[added=2023-05-31,updated=2026-11-11]{\wires}
 %   \begin{syntax}
-%     \cs{wires}\oarg{\TikZ\ keys}\marg{connectivity}
+%     \cs{wires}\oarg{\TikZ\ keys}\marg{wires}
 %   \end{syntax}
 %
-%   To connect boxes, you can use the \cmd\wires\ macro.
-%   Its optional argument is \TikZ\ styling for the wires.
-%   Its mandatory argument lists them, grouped by the node they start from: \meta{node} \texttt{= \{} \meta{anchor} \texttt{=} \meta{node}\texttt{.}\meta{anchor}\texttt{,} \dots\ \texttt{\}}.
+%   To connect nodes, use \cmd\wires.
+%   Its optional argument holds \TikZ\ keys for all its wires.
+%   Its mandatory argument lists the wires, separated by commas.
+%   A wire goes from an anchor of a node to an anchor of a node: \meta{node}\texttt{.}\meta{anchor} \texttt{=} \meta{node}\texttt{.}\meta{anchor}.
 %
-%   Wires start and end at the sides of nodes (\texttt{north}, \texttt{east}, \texttt{south} and \texttt{west}), at their corners (\texttt{north east} and so on), and at the ports of boxes (such as \texttt{east.1}).
-%   They leave sides and ports straight out, and corners diagonally.
-%   Other anchors, such as \texttt{center}, have no direction, so wires can't start or end there.
-%   Every entry is a wire: a node can be listed twice, and an anchor can carry several wires, both going out and coming in.
+%   \begin{tcblisting}{example=wire}
+%     \begin{tikzpicture}
+%       \node[box=1/0/0/0] (f) at (0,0) {f};
+%       \node[box=0/0/1/0] (g) at (1,1.5) {g};
+%       \wires{ f.north.1 = g.south.1 }
+%     \end{tikzpicture}
+%   \end{tcblisting}
 %
-%   The boundary of the picture is a node too, called \texttt{@}: wires to its sides are the loose ends of the diagram.
-%   They go straight out to the side they are wired to, or bend towards it.
+% \end{function}
 %
-%   \begin{tcblisting}{example=wires}
+% Wires start and end at these anchors:
+% \begin{itemize}
+%   \item the sides of a node: \texttt{north}, \texttt{east}, \texttt{south} and \texttt{west};
+%   \item its corners: \texttt{north east} and so on;
+%   \item the ports of a box, such as \texttt{east.1}.
+% \end{itemize}
+% Wires leave sides and ports straight out, and corners diagonally.
+% Other anchors, such as \texttt{center}, have no direction, so wires can't start or end there.
+%
+% The boundary of the picture is a node too, called \texttt{@}.
+% Wires to its sides are the loose ends of the diagram.
+% They go straight out to their side, or bend towards it.
+%
+% Wires that begin alike can share their beginning.
+% Write it once, then \texttt{=} and a group in braces, with the rest of each wire.
+% A beginning ends after the name of a node, or at the \texttt{=} of a wire.
+% So a group can hold:
+% \begin{itemize}
+%   \item the anchors of the node the wires start from, as in \texttt{A = \{ east.1 = C.west, west = @.west \}};
+%   \item the targets of an anchor, as in \texttt{f.north.1 = \{ g.south.1, h.south.1 \}};
+%   \item the anchors of the node of a target, as in \texttt{f.north.1 = \{ g = \{ south.1, south.2 \} \}}.
+% \end{itemize}
+% Groups can nest, and every grouping of the same wires draws the same wires.
+% Only beginnings are shared: wires that end alike can't share their end.
+% A node can appear in more than one entry, and an anchor can carry several wires, in and out.
+%
+% \begin{tcblisting}{example=wires}
 %     \begin{tikzpicture}[scale=0.6]
 %       \node[box=0/2/0/1] (A) at (-2, 0) {A};
 %       \node[box=0/1/0/2] (B) at (+2, 0) {B};
@@ -245,21 +282,25 @@
 %         A = { east.1 = C.west
 %             , east.2 = D.west
 %             , west = @.west },
-%         B = { east = @.east },
-%         C = { east = B.west.1 },
-%         D = { east = B.west.2 },
+%         B.east = @.east,
+%         C.east = B.west.1,
+%         D.east = B.west.2,
 %       }
 %     \end{tikzpicture}
-%   \end{tcblisting}
+% \end{tcblisting}
 %
-% \end{function}
+% The first \cmd\wires\ of a picture draws the boundary around the nodes drawn so far, with a margin.
+% Later calls in the same picture use the same boundary.
+% So draw all nodes before the wires.
 %
-%   The boundary surrounds the picture as it is when \cmd\wires\ is first called, with a margin, and later calls in the same picture share it: so draw all nodes before the wires.
-%   A wire across the boundary runs through its middle.
-%   To place one elsewhere, as an identity beside a box, wire a coordinate to the boundary both ways.
-%   Place the coordinate with a path, as below, since \cs{coordinate} doesn't count towards the size of the picture, and the boundary might not reach it.
+% A wire across the boundary runs through its middle.
+% To place it elsewhere, for example beside a box:
+% \begin{enumerate}
+%   \item Place a coordinate there, with a path as below: \cs{coordinate} doesn't count towards the size of the picture, so the boundary might miss it.
+%   \item Wire the coordinate to both sides of the boundary.
+% \end{enumerate}
 %
-%   \begin{tcblisting}{example=identity}
+% \begin{tcblisting}{example=identity}
 %     \begin{tikzpicture}
 %       \node[box=1/0/1/0] (f) at (0,0) {f};
 %       \path (0.8,0) coordinate (i);
@@ -270,34 +311,213 @@
 %             , south = @.south },
 %       }
 %     \end{tikzpicture}
-%   \end{tcblisting}
+% \end{tcblisting}
 %
-%   The keys of a call apply to all its wires, and come after the angles that \cmd\wires\ computes, so \texttt{out} and \texttt{in} override them.
-%   To style some wires differently, call \cmd\wires\ more than once.
+% The keys of a call apply to all its wires.
+% Keys in brackets can also begin any entry, group or target, as in \texttt{f.north.1 = [dashed] g.south.1}.
+% They apply to every wire they reach, and add up from the call down to each wire, so the keys closest to a wire win.
+% As in \TikZ, keys in brackets end at the first \texttt{]} outside braces: so a key with brackets goes in braces, as in \texttt{[-\{Stealth[length=6pt]\}]}.
 %
-%   \begin{tcblisting}{example=styling}
+% \begin{tcblisting}{example=styling}
 %     \begin{tikzpicture}
 %       \node[box=1/0/1/0] (f) at (0,0) {f};
 %       \node[box=1/0/1/0] (g) at (0,1.5) {g};
-%       \wires{ f = { south.1 = @.south } }
-%       \wires[dashed]{
-%         f = { north.1 = g.south.1 } }
-%       \wires{ g = { north.1 = @.north } }
+%       \wires{
+%         f.south.1 = @.south,
+%         f.north.1 = [dashed] g.south.1,
+%         g.north.1 = @.north,
+%       }
+%     \end{tikzpicture}
+% \end{tcblisting}
+%
+% All keys come after the angles that \cmd\wires\ computes, so \texttt{out} and \texttt{in} override those angles.
+% \texttt{bend left} and \texttt{bend right} bend a wire between its ends.
+% Each wire is a \TikZ\ edge, so its keys style its stroke too.
+%
+% Wires take their directions from the names of anchors, in the frame of the picture.
+% So you can shift and scale a picture, but not rotate or mirror it.
+% Rotated nodes aren't supported either.
+%
+% \subsection{Anchors left out}
+%
+% \begin{function}[added=2026-11-11]{/tikz/wire flow}
+%   \begin{syntax}
+%     /tikz/wire flow=\meta{direction}
+%   \end{syntax}
+%
+%   Sets the direction of wires between ends without anchors: \texttt{north}, \texttt{east}, \texttt{south} or \texttt{west}.
+%   The synonyms \texttt{up}, \texttt{right}, \texttt{down} and \texttt{left} work as for the \texttt{grow} key of \TikZ.
+%   \texttt{none} removes the flow.
+%   Set it on a picture, a scope, a call, a group, a wire or a path, as any key.
+%
+%   \begin{tcblisting}{example=flow}
+%     \begin{tikzpicture}[wire flow=north]
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \node[box=1/0/1/0] (g) at (.4,1.4) {g};
+%       \wires{ @ = f, f = g, g = @ }
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
-%   Wires take their directions from the names of anchors, in the frame of the picture.
-%   So pictures can be shifted and scaled, but not rotated or mirrored, and rotated nodes aren't supported.
+% \end{function}
 %
-%   Up to version 0.2.1, \cmd\wires\ took a third argument listing the loose ends.
-%   They are now wires to the boundary, and a third argument is no longer read.
+% You can leave out the anchor of either end of a wire, or of both, as in \texttt{f = g}.
+% An end without anchor is the side that the wire crosses going straight on.
+% If that side has one port, the wire ends at the port.
+% If it has more, the package can't choose: it reports an error, so name the port.
 %
+% The direction of the wire comes from:
+% \begin{itemize}
+%   \item the anchored end, if there is one. A wire from a corner goes diagonally, so it turns to the axis of the flow, if set, or else to the axis that separates its ends more.
+%   \item the flow, if both ends are bare.
+%   \item else, the axis that separates the centers of the two nodes more.
+%     Two bare ends on nodes with the same center need a flow.
+% \end{itemize}
+%
+% \begin{tcblisting}{example=bare}
+%     \begin{tikzpicture}
+%       \node[box=2/0/0/0] (f) at (0,0) {f};
+%       \node[box=0/0/1/0] (g) at (-.5,1.5) {g};
+%       \node[dot] (d) at (.8,1.5) {};
+%       \wires{ f = { north.1 = g, north.2 = d } }
+%     \end{tikzpicture}
+% \end{tcblisting}
+%
+% The flow decides even when the target lies behind: then the wire leaves along the flow, and loops round.
+% A wire goes from its start to its target, so swap them to turn it.
+% Without a flow, the axis flips when two nodes are near a diagonal: a small move of a node can turn their wire.
+% Set a flow to keep it.
+%
+% With a flow, loose ends need no anchors either: \texttt{@ = f} leaves the boundary behind \texttt{f}, and \texttt{f = @} reaches it ahead of \texttt{f}.
+%
+% \begin{tcblisting}{example=flow-east}
+%     \begin{tikzpicture}[wire flow=east]
+%       \node[box=0/1/0/1] (a) at (0,0) {a};
+%       \node[box=0/1/0/1] (b) at (1.2,.3) {b};
+%       \node[box=0/1/0/1] (c) at (2.4,0) {c};
+%       \wires{ @ = a, a = b, b = c, c = @ }
+%     \end{tikzpicture}
+% \end{tcblisting}
+%
+% \subsection{Frames}
+%
+% An end faces inwards when its node holds the other node: its box contains the box of the other, borders that touch counting as inside.
+% Then the wire leaves or enters that end the other way, and a side without ports is reached straight across.
+% This is how loose ends work, since the boundary holds the nodes of the picture.
+% A frame drawn by hand works the same way.
+%
+% \begin{tcblisting}{example=frame}
+%     \begin{tikzpicture}
+%       \node[box=0/1/0/1] (a) at (0,.25) {a};
+%       \node[draw, dashed, minimum width=2.6cm,
+%             minimum height=1.4cm] (F) at (0,0) {};
+%       \wires{ F.west = a, a = F.east }
+%     \end{tikzpicture}
+% \end{tcblisting}
+%
+% Nodes apart both face out, and a wire between them may loop round.
+% Nodes that overlap otherwise, or have the same box, face out too.
+% But then the package can't tell which way a bare end goes, so give both ends anchors.
+%
+% A wire from a node to itself loops round the node, and a wire from the boundary to itself crosses the picture.
+% With both ends bare, such a wire needs a flow: with \texttt{wire flow=east}, \texttt{f = f} is \texttt{f.east = f.west}, and \texttt{@ = @} is \texttt{@.west = @.east}.
+%
+% \subsection{The wire key}
+%
+% \begin{function}[added=2026-11-11]{/tikz/wire,/tikz/every wire}
+%   \begin{syntax}
+%     \cs{draw} (\meta{node}.\meta{anchor}) to[wire] (\meta{node}.\meta{anchor});
+%     \cs{path} (\meta{node}.\meta{anchor}) edge[wire] (\meta{node}.\meta{anchor});
+%   \end{syntax}
+%
+%   The \texttt{wire} key draws a \texttt{to} path or an edge of \TikZ\ as a wire, as \cmd\wires\ does.
+%   The \texttt{every wire} style applies right after it.
+%
+%   \begin{tcblisting}{example=wire-key}
+%     \begin{tikzpicture}
+%       \node[box=1/0/0/0] (f) at (0,0) {f};
+%       \node[box=0/0/1/0] (g) at (1.2,1.5) {g};
+%       \node[box=1/0/0/0] (h) at (2.4,0) {h};
+%       \draw[->] (f.north.1) to[wire] (g.south.1);
+%       \path (h) edge[wire, dashed, "$A$"'] (g);
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% Ends can be bare, as in \cmd\wires.
+% Loose ends need the boundary, which only \cmd\wires\ draws: so call \cmd\wires\ first in the picture.
+% The key sets the \texttt{out} and \texttt{in} keys of \TikZ, so \TikZ\ draws the curve and places its labels.
+% Keys after \texttt{wire} override its angles, and keys before it don't.
+% A wrong end raises an error, and the wire isn't drawn.
+%
+% On an edge, \texttt{every wire} styles the stroke, as \texttt{every edge} does.
+% On a \texttt{to} path it doesn't, as \texttt{every to} doesn't: there, keys shape the curve, but only the keys of the path draw it.
+%
+% \subsection{Labels}
+%
+% \begin{function}[added=2026-11-11]{
+%   /tikz/beyond,
+%   /tikz/beside,
+%   /tikz/beyond end,
+%   /tikz/beyond start,
+%   /tikz/beside end,
+%   /tikz/beside start,
+% }
+%   These keys place a label as the \texttt{auto} key of \TikZ\ does, but past the end of a wire, or beside it and clear of the box.
+%   \texttt{beyond end} is short for \texttt{at end, beyond}, and so on.
+%
+%   \begin{tcblisting}{example=labels}
+%     \begin{tikzpicture}
+%       \node[box=2/0/1/0] (f) {f};
+%       \wires{ f = {
+%         north.1 = ["$A$" beyond end] @,
+%         north.2 = ["$B$" beyond end] @,
+%         south.1 = ["$C$" beyond end] @ } }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% Wires take three kinds of labels:
+% \begin{itemize}
+%   \item The type of a wire, along it.
+%     Use the quotes of \TikZ, as in \texttt{f.north.1 = ["\$A\$"] g.south.1}.
+%     The label goes to the left of the wire, and \texttt{"\$A\$"'} puts it to the right.
+%   \item The interface of the diagram, at its loose ends.
+%     Use \texttt{beyond end}, or \texttt{beyond start} on a wire from the boundary: the label goes past the end.
+%   \item The type of a port, at its box.
+%     Use \texttt{beside start} or \texttt{beside end} on the wire, or \texttt{beside} in the label of the box, as in \texttt{label=\{[beside]north.1:\$A\$\}}.
+%     The label goes beside the port, clear of the box, to the left of a wire leaving it; \texttt{swap} puts it to the right.
+%     In the label of the box, it belongs to the port, so it shows once, however many wires the port has.
+% \end{itemize}
+%
+% \begin{tcblisting}{example=labels-all}
+%     \begin{tikzpicture}[wire flow=north]
+%       \node[box=1/0/2/0,
+%         label={[swap, beside]south.1:$A$},
+%         label={[beside]south.2:$B$}] (f) at (0,0) {f};
+%       \node[box=1/0/2/0] (g) at (.4,1.6) {g};
+%       \wires{
+%         @ = { f.south.1, f.south.2,
+%               ["$D$" beyond start] g.south.2 },
+%         f.north.1 = ["$C$"] g.south.1,
+%         g.north.1 = ["$E$" beyond end] @,
+%       }
+%     \end{tikzpicture}
+% \end{tcblisting}
+%
+% The keys only choose the anchor of the label, from the direction of the wire there; \texttt{at end}, \texttt{at start} and \texttt{pos} still place it.
+% On a path, they act as at the end the label is nearer.
+% In the label of a node, they read the name of the anchor.
+% Where a label touches a wire, swap it.
+%
+% \subsection{Dots}
 %
 % \begin{function}[added=2023-05-31,updated=2026-11-07]{/pgf/dot}
 %
-%   To split and join wires, you can use \texttt{dot}s.
+%   To split and join wires, use dots.
 %   Wires attach to their sides and corners, and leave corners diagonally.
-%   Remember to have fun with styling wires.
+%   Style wires as you like.
 %
 %   \begin{tcblisting}{example=dots}
 %     \begin{tikzpicture}
@@ -318,7 +538,9 @@
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
-%   \begin{tcblisting}{example=bubble}
+% \end{function}
+%
+% \begin{tcblisting}{example=bubble}
 %     \begin{tikzpicture}
 %       \node[dot] (c) at (0,0) {};
 %       \node[dot] (m) at (0,1.2) {};
@@ -329,11 +551,47 @@
 %         m = { north = @.north },
 %       }
 %     \end{tikzpicture}
-%   \end{tcblisting}
+% \end{tcblisting}
 %
-% \end{function}
+% \subsection{\TikZ\ pitfalls}
 %
-% That's it. This is the package, for now.
+% Some behaviors of \TikZ\ surprise in diagrams.
+% \begin{itemize}
+%   \item \emph{Styles of the picture.}
+%     \cmd\wires\ draws its wires as edges, but with the default \texttt{every edge} of \TikZ: so only \texttt{every wire} and \texttt{every curve to} reach them, not \texttt{every to} or \texttt{every edge}.
+%     A \texttt{to[wire]} or \texttt{edge[wire]} written by hand follows \TikZ.
+%   \item \emph{Options of quotes.}
+%     The options of a path end at the first \texttt{]} outside braces, so \texttt{"x"[blue]} fails.
+%     Write \texttt{"x" blue}, or \texttt{"x" \{pos=1, below\}}.
+%   \item \emph{Quotes and \pkg{babel}.}
+%     Languages of \pkg{babel} that make \texttt{"} a shorthand break quotes: load the \texttt{babel} library of \TikZ.
+%   \item \emph{Arrow tips.}
+%     \cs{draw}\texttt{[->]} with edges adds a stray tip to the path itself: write \cs{path}\texttt{[->]} instead.
+%   \item \emph{Nodes on a path.}
+%     After a node on a path, the next \texttt{to} or edge starts at that node, not at the coordinate before it.
+%   \item \emph{Wires in a row.}
+%     In \texttt{(f.north.1) to[wire] (g.west.1) to[wire] (h.west.1)}, the second wire leaves \texttt{g.west.1} westwards, back the way the first came.
+%   \item \emph{Feedback loops.}
+%     A wire between two level ends of a node, as \texttt{f.east.1 = f.west.1}, leaves and enters straight, so \TikZ\ draws it as a line through the node.
+%     Give it angles, as in \texttt{f = [out=60, in=120, looseness=2.5] f}.
+%   \item \emph{Nodes drawn late.}
+%     A node drawn after the first \cmd\wires\ of a picture can stick out of the boundary.
+%     Then it overlaps the boundary, and its wires to \texttt{@} face out.
+%   \item \emph{Markings.}
+%     The markings of the \texttt{decorations.markings} library fail on wires of no length, with \enquote{Dimension too large}.
+% \end{itemize}
+%
+% \subsection{Changes from earlier versions}
+%
+% Version 0.4.0 changes some behaviors of 0.3.0:
+% \begin{itemize}
+%   \item \texttt{every to} no longer styles the wires of \cmd\wires: use \texttt{every wire}.
+%   \item An end without anchor is no longer an error.
+%   \item The boundary faces inwards only towards the nodes it holds, as any node does.
+% \end{itemize}
+%
+% Up to version 0.2.1, \cmd\wires\ took a third argument, listing the loose ends.
+% Loose ends are now wires to the boundary, and \cmd\wires\ ignores a third argument.
 %
 % \end{documentation}
 %
