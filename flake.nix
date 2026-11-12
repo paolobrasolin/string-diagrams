@@ -14,7 +14,7 @@
     inherit (nixpkgs) lib;
 
     # NOTE: bump this in the release commit, along with the changelog.
-    version = "0.4.0";
+    version = "0.5.0-dev";
 
     # NOTE: the commit date stamps the package and seeds SOURCE_DATE_EPOCH, so each commit always yields the same artifacts.
     date = lib.concatStringsSep "-" [
