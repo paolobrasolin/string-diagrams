@@ -1,7 +1,9 @@
 version: 2
+# NOTE: pull requests target development, where the work happens: main only moves to releases. Dependabot reads this file from main, so the target applies once main has it.
 updates:
   - package-ecosystem: github-actions
     directory: /
+    target-branch: development
     schedule:
       interval: monthly
     # NOTE: a single monthly pull request for all actions.
@@ -11,6 +13,7 @@ updates:
           - "*"
   - package-ecosystem: nix
     directory: /
+    target-branch: development
     schedule:
       interval: monthly
     # NOTE: a single monthly pull request for all flake inputs, whose CI runs the tests with the new TeX Live.
