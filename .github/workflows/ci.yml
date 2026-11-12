@@ -22,6 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      # NOTE: the Cachix step uploads what Nix builds, so CI builds each commit only once, although development, main and the release tag all run it. Pull requests from forks get no token, so they only download.
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: paolobrasolin
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - run: nix flake check --print-build-logs
       - run: |
           nix build .#ctan --print-build-logs
@@ -56,6 +61,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: paolobrasolin
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       # NOTE: the checkout already has a site directory, holding the sources, so the built site goes to _site.
       - run: |
           nix build .#site --print-build-logs
@@ -78,6 +87,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: paolobrasolin
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Check version and prepare release notes
         run: |
