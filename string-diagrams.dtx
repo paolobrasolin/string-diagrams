@@ -940,32 +940,6 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_check_end:nnN}
-%   Raises an error if a wire end has no angle to leave at, saying whether it has no anchor or an anchor off the sides.
-%   \begin{arguments}
-%     \item node
-%     \item anchor
-%     \item token list variable holding the angle
-%   \end{arguments}
-%    \begin{macrocode}
-\msg_new:nnn { string-diagrams } { end-without-anchor }
-  { Wire~end~`#1'~has~no~anchor,~so~the~wire~is~not~drawn. }
-\msg_new:nnn { string-diagrams } { end-off-sides }
-  {
-    Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~
-    wires~end~at~north,~east,~south~or~west,~or~at~ports.
-  }
-\cs_new_protected:Nn \@@_check_end:nnN {
-  \tl_if_empty:NT #3
-    {
-      \tl_if_blank:nTF { #2 }
-        { \msg_error:nnn { string-diagrams } { end-without-anchor } { #1 } }
-        { \msg_error:nnnn { string-diagrams } { end-off-sides } { #1 } { #2 } }
-    }
-}
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{macro}{\@@_draw_wire:nnnnn,\@@_draw_wire_edge:nnnnn,\@@_wire_coordinate:nn}
 %   Draws a wire as an edge with the \texttt{wire} key, followed by the keys of the call, so that it is drawn as on any path of \TikZ: the key sets its angles and moves its ends on the boundary, and raises an error for each end without an angle.
 %   The edge is an implementation detail, so it gets \TikZ's default \texttt{every edge}, which only draws it: the wires of \cmd\wires\ are styled by \texttt{every wire} and the keys of the call, not by the \texttt{every edge} of the picture.
@@ -1242,6 +1216,11 @@
   }
 \msg_new:nnn { string-diagrams } { end-no-node }
   { Wire~end~`#1'~is~on~a~node~that~doesn't~exist,~so~the~wire~is~not~drawn. }
+\msg_new:nnn { string-diagrams } { end-off-sides }
+  {
+    Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~
+    wires~end~at~north,~east,~south~or~west,~or~at~ports.
+  }
 \msg_new:nnn { string-diagrams } { end-boundary-elsewhere }
   {
     Wire~end~`@.#1'~is~on~the~boundary~of~another~picture,~so~the~wire~is~not~drawn:~
@@ -1300,12 +1279,11 @@
 \cs_new_protected:Nn \@@_wire_end_side:NNN {
   \@@_anchor_to_angle:NV \l_@@_end_angle_tl #2
   \tl_if_empty:NTF \l_@@_end_angle_tl
-    { \@@_check_end:VVN #1 #2 \l_@@_end_angle_tl }
+    { \msg_error:nnVV { string-diagrams } { end-off-sides } #1 #2 }
     { \bool_set_true:N #3 }
 }
 \cs_generate_variant:Nn \@@_wire_end:nNNNN { V }
 \cs_generate_variant:Nn \@@_anchor_to_angle:Nn { NV }
-\cs_generate_variant:Nn \@@_check_end:nnN { VV }
 %    \end{macrocode}
 % \end{macro}
 %
