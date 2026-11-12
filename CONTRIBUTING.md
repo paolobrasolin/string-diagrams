@@ -51,7 +51,7 @@ CI deploys the site to GitHub Pages when a release tag is pushed. To deploy it a
 
 ## Reproducibility
 
-Builds are reproducible: the version comes from `flake.nix`, and the date comes from the last commit, which also sets `SOURCE_DATE_EPOCH`. Running `nix build .#ctan --rebuild` checks this locally, and CI checks that Linux on Intel, Linux on ARM and macOS produce the same zip.
+Builds are reproducible: the version comes from `flake.nix`, and the date comes from the last commit, which also sets `SOURCE_DATE_EPOCH`. Running `nix build .#ctan --rebuild` checks this locally, and for release tags and pull requests CI checks that Linux on Intel, Linux on ARM and macOS produce the same zip.
 
 ## Releasing
 

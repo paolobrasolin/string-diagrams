@@ -17,7 +17,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+        # NOTE: release tags must build the same on every platform before they publish, and pull requests, mostly Dependabot's updates of TeX Live, are the likeliest to break that, so both build everywhere; ARM and macOS runners are slower or scarcer, so pushes to branches build on Intel Linux alone.
+        os: ${{ fromJSON((startsWith(github.ref, 'refs/tags/') || github.event_name == 'pull_request') && '["ubuntu-latest", "ubuntu-24.04-arm", "macos-latest"]' || '["ubuntu-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,6 +39,7 @@ jobs:
 
   # NOTE: artifacts are platform independent, so they must be bit-for-bit identical across platforms.
   reproducibility:
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     steps:
