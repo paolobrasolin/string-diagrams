@@ -93,6 +93,7 @@
 % \changes{0.4.0}{2026/11/12}{write wires whole, leave out anchors, draw wires on \TikZ\ paths with the \texttt{wire} key, and label their ends}
 % \changes{0.4.0}{2026/11/12}{load the \texttt{quotes} library of \TikZ}
 % \changes{0.4.0}{2026/11/12}{require \LaTeX\ 2023-06-01}
+% \changes{0.5.0}{2026/11/12}{\texttt{@} means nothing outside \cs{wires}, so the \texttt{wire} key reaches a boundary by its name}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -232,7 +233,7 @@
 %
 % \subsection{Wires}
 %
-% \begin{function}[added=2023-05-31,updated=2026-11-11]{\wires}
+% \begin{function}[added=2023-05-31,updated=2026-11-12]{\wires}
 %   \begin{syntax}
 %     \cs{wires}\oarg{\TikZ\ keys}\marg{wires}
 %   \end{syntax}
@@ -499,7 +500,7 @@
 %
 % \subsection{The wire key}
 %
-% \begin{function}[added=2026-11-11]{/tikz/wire,/tikz/every wire}
+% \begin{function}[added=2026-11-11,updated=2026-11-12]{/tikz/wire,/tikz/every wire}
 %   \begin{syntax}
 %     \cs{draw} (\meta{node}.\meta{anchor}) to[wire] (\meta{node}.\meta{anchor});
 %     \cs{path} (\meta{node}.\meta{anchor}) edge[wire] (\meta{node}.\meta{anchor});
@@ -878,6 +879,7 @@
 % \begin{macro}{/pgf/box}
 %   \changes{0.2.0}{2023/06/12}{acts as a shortcut for setting port counts}
 %   \changes{0.3.0}{2026/11/07}{without counts, keeps the ones in force}
+%   \changes{0.5.0}{2026/11/12}{on a boundary, gives ports only: no stroke, padding or math}
 %
 %   Define style to draw boxes.
 %    \begin{macrocode}
@@ -2709,6 +2711,9 @@
 %   \changes{0.4.0}{2026/11/12}{wire ends may leave out their anchor, loose ends included: a bare end is the side that the wire crosses, or its only port}
 %   \changes{0.4.0}{2026/11/12}{the end on a node that holds the other node faces inwards, as on \texttt{@}}
 %   \changes{0.4.0}{2026/11/12}{a wire to a missing node, or to an anchor that its node doesn't have, is one error, and the start of each wire is checked too}
+%   \changes{0.5.0}{2026/11/12}{\texttt{@} is the boundary of the call, chosen with the \texttt{boundary} and \texttt{use boundary} keys, and means nothing outside the call}
+%   \changes{0.5.0}{2026/11/12}{the margins of the boundary are paddings, which don't scale with the picture}
+%   \changes{0.5.0}{2026/11/12}{finds nodes named under \texttt{name prefix} or \texttt{name suffix}, as in a pic, and so does the \texttt{wire} key}
 %   Define our superstar.
 %   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
 %    \begin{macrocode}
