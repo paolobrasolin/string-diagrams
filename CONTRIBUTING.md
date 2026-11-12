@@ -31,6 +31,14 @@ The manual is the documentation part of `string-diagrams.dtx`, and `l3build doc`
 
 Every example in the manual has a name, as in `\begin{tcblisting}{example=box}`, and `l3build doc` fails if an example doesn't compile.
 
+Record each change in the commit that makes it, in `string-diagrams.dtx`:
+
+- a new command or key gets an `added=` date in its `function` environment;
+- a change to what a command or key does gets an `updated=` date there, and a `\changes` entry in its `macro` environment, in the implementation;
+- a change that belongs to no command or key, such as a new requirement, gets a `\changes` entry at the top of the file, which l3doc files under General.
+
+A `\changes` entry takes the version to come, as in `flake.nix` without `-dev`, and the date of the commit in UTC. In a `macro` environment with several names, l3doc files the entry under the last one: if that name is wrong for it, put the entry with another macro, or under General. The change history is sorted by makeindex, which reads `=`, `!` and `>` in an entry as commands: write the entry without them.
+
 The `added=` and `updated=` dates of l3doc can't be later than the date of the build, which `nix flake check` and CI take from the last commit, in UTC. Between your midnight and midnight in UTC, today's date can still be in the future there.
 
 ## Dependencies
@@ -60,7 +68,7 @@ Builds are reproducible: the version comes from `flake.nix`, and the date comes 
    - set `version` in `flake.nix` to the new version (e.g. `0.3.0`);
    - move the `[Unreleased]` entries of `CHANGELOG.md` to a section for the new version, and update the links at the bottom;
    - if the release is a major upgrade worth announcing, start that section with a short summary of the improvements, before its first `###` heading (CTAN doesn't announce bug fixes or minor additions, and without a summary nothing is announced);
-   - add the matching `\changes` entries to `string-diagrams.dtx`.
+   - add a `\changes` entry at the top of `string-diagrams.dtx` that sums up the release, as for the earlier ones; the entries of the changes themselves are already there, so check that they have the new version.
 3. Tag the commit with the version prefixed by `v` (e.g. `v0.3.0`) and push the tag. CI builds and checks it on Linux on Intel, Linux on ARM and macOS, checks that the tag matches `flake.nix` and that the changelog has notes for it, and validates the upload with CTAN, treating warnings as failures. Only then does it publish a GitHub release with the changelog notes and upload the zip to CTAN, using the summary, if any, as the announcement, and deploy the site. If anything fails, fix it and rerun the job; if the CTAN upload step itself failed, first check for CTAN's confirmation email, since the upload may have gone through anyway.
 4. Set `version` in `flake.nix` to the next minor version with `-dev`, such as `0.5.0-dev`. It only labels development builds, and the next release commit sets the actual version. Once you know the next release will be a major one, change it to that, such as `1.0.0-dev`.
 
