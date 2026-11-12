@@ -9,24 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add the `wire` key, which draws a `to` path or an `edge` of TikZ as a wire, as in `\draw (f.north) to[wire] (g.south);`, and the `every wire` style that it applies.
+- Add the `wire` key, which draws a `to` path or an `edge` of TikZ as a wire, as in `\draw (f.north) to[wire] (g.south);`, and the `every wire` style that it applies. Keys after it, such as `out`, `in`, `bend left` or `bend right`, override its angles.
 - Let `\wires` take wires written whole, as in `a.north = b.south`, and group them by any beginning they share: after the node they start from, as before, at the `=`, as in `a.north = { b.south, c.south }`, or after the node of their target, as in `a.north = { b = { south.1, south.2 } }`.
 - Let keys in brackets begin any entry, group, wire or target of `\wires`, as in `a.north = [dashed] b.south`: they add up from the keys of the call down to each wire, and the closest win.
-- Let wire ends leave out their anchor, as in `f = g`, `f.north.1 = g` or `\draw (f) to[wire] (g);`: a bare end is the side that the wire crosses going straight on, or the only port of that side. With one end anchored, the wire leaves or enters as that end says; with both ends bare, it follows the `wire flow`, if set, else the axis that separates the two nodes more. Loose ends need no anchors either, as in `@ = f`.
+- Let wire ends leave out their anchor, as in `f = g`, `f.north.1 = g` or `\draw (f) to[wire] (g);`: a bare end is the side that the wire crosses going straight on, or the only port of that side. With one end anchored, the wire leaves or enters as that end says; with both ends bare, it follows the `wire flow`, if set, else the axis that separates the two nodes more. Loose ends need no anchors either, as in `@ = f`. With a flow, a bare wire from a node to itself loops round it, as `f = f`, and one from the boundary to itself crosses the picture, as `@ = @`.
 - Add the `wire flow` key, which sets the direction of the wires between bare ends: `north`, `east`, `south` or `west`, or their synonyms `up`, `right`, `down` and `left`, as for the `grow` key of TikZ, or `none`.
-- Load the `quotes` library of TikZ, so wires take labels written as quotes, as in `a.north = ["$A$"] b.south`.
+- Load the `quotes` library of TikZ, so wires take labels written as quotes, as in `a.north = ["$A$"] b.south`. With a language of babel that makes `"` a shorthand, load the `babel` library of TikZ too.
 - Add the `beyond` and `beside` keys, which place labels as the `auto` key of TikZ does, and with its `swap`, but past the end of a wire, as in `"$A$" beyond end` for a loose end, or beside it and clear of the box, as in `"$A$" beside start` for a port. In the `label` of a node, they place the label of a port, as in `label={[beside]north.1:$A$}`. The keys `beyond end`, `beyond start`, `beside end` and `beside start` add the position, as `at end` and `at start` do.
+- Add the project site, https://paolobrasolin.github.io/string-diagrams/, where examples compile in the browser and open in Overleaf, with an `llms.txt` that sums up the package for AI assistants.
 
 ### Changed
 
-- Require LaTeX 2023-06-01 or later.
-- Draw the wires of `\wires` with the `wire` key, so the `every wire` style applies to them, while the `every to` and `every edge` styles of the picture don't.
+- **Breaking:** draw the wires of `\wires` with the `wire` key, so the `every wire` style applies to them, while the `every to` and `every edge` styles of the picture don't: style them with `every wire` instead of `every to`.
 - Turn an end of a wire inwards when its node holds the node of the other end, as the boundary `@` holds the picture, so a frame drawn by hand around a box is wired as the boundary is. Ends on nodes that overlap otherwise face out, and a bare end on them is an error. A node drawn after the first `\wires` of a picture that sticks out of the boundary overlaps it, so its wires to `@` now face out.
+- Rewrite the manual in plainer English, and document all of the above, with a section on the pitfalls of TikZ in diagrams.
+- Point the home page of the package on CTAN to the project site.
+- Require LaTeX 2023-06-01 or later.
 
 ### Fixed
 
 - Report a wire to a node that doesn't exist with one error, rather than three, and without drawing a stray curve to the origin.
 - Report a wire end at an anchor that its node doesn't have, such as `@.north.1` or a port beyond the count of a box, with one error of the package, rather than an error of PGF about an unknown function `north`, and without drawing a stray curve. `\wires` checks the start of each wire too, and so reports a start on a node that doesn't exist itself.
+- Leave out the labels of a wire that isn't drawn, rather than placing them at its start.
+- Say in the manual how to load the package, and that it loads TikZ and its libraries, so that its examples compile as they are (#12).
+- Fix an undefined command in the implementation notes of the manual (thanks to @quark67).
 
 ## [0.3.0] - 2026-11-07
 
