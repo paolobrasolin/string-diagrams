@@ -1,6 +1,7 @@
 \begin{tikzpicture}[
+  wire flow=east,
   every node/.append style={minimum height=2.6em},
-  label/.style={font=\small\itshape, minimum height=0pt, inner sep=2pt},
+  every edge quotes/.append style={font=\small\itshape, minimum height=0pt, inner sep=2pt},
 ]
   \node[box=0/2/0/1] (s) at (0,0.6) {\mathrm{separate}};
   \node[box=0/1/0/1] (m) at (0,-1) {\mathrm{melt}};
@@ -8,15 +9,11 @@
   \node[box=0/1/0/2] (t) at (2.8,-0.5) {\mathrm{stir}};
   \node[box=0/1/0/2] (f) at (4.9,0.45) {\mathrm{fold}};
   \wires{
-    s = { west.1 = @.west, east.1 = w.west.1, east.2 = t.west.1 },
-    m = { west.1 = @.west, east.1 = t.west.2 },
-    w = { east.1 = f.west.1 },
-    t = { east.1 = f.west.2 },
-    f = { east.1 = @.east },
+    @ = { ["egg" beyond start] s, ["chocolate" beyond start] m },
+    s = { east.1 = ["white"] w, east.2 = ["yolk"'] t.west.1 },
+    m = t.west.2,
+    w = f.west.1,
+    t = f.west.2,
+    f = ["mousse" beyond end] @,
   }
-  \node[label, left] at (@.west |- s.west.1) {egg};
-  \node[label, left] at (@.west |- m.west.1) {chocolate};
-  \node[label, right] at (@.east |- f.east.1) {mousse};
-  \node[label, above left] at ($(s.east.1)!.5!(w.west.1)$) {white};
-  \node[label, below left] at ($(s.east.2)!.5!(t.west.1)$) {yolk};
 \end{tikzpicture}

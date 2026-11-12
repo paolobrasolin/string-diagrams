@@ -1,22 +1,15 @@
 \tikzset{
   equation/.style={baseline={([yshift=-0.5ex]current bounding box.center)}},
 }
-\begin{tikzpicture}[equation]
+\begin{tikzpicture}[equation, wire flow=north]
   \node[box=1/0/1/0] (f) at (0,0) {f};
   \node[dot] (c) at (0,1) {};
-  \wires{
-    f = { south.1 = @.south, north.1 = c.south },
-    c = { north west = @.north, north east = @.north },
-  }
+  \wires{ @ = f, f = c, c = { north west = @, north east = @ } }
 \end{tikzpicture}
 $=$
-\begin{tikzpicture}[equation]
+\begin{tikzpicture}[equation, wire flow=north]
   \node[dot] (c) at (0,0) {};
   \node[box=1/0/1/0] (f) at (-0.6,1) {f};
   \node[box=1/0/1/0] (g) at (+0.6,1) {f};
-  \wires{
-    c = { south = @.south, north west = f.south.1, north east = g.south.1 },
-    f = { north.1 = @.north },
-    g = { north.1 = @.north },
-  }
+  \wires{ @ = c, c = { north west = f, north east = g }, f = @, g = @ }
 \end{tikzpicture}
