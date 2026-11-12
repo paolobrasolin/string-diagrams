@@ -1008,31 +1008,69 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}[pTF]{\@@_if_boundary_in_picture:}
-%   Tests whether the current picture has a boundary, by the picture that pgf records for each node: node names outlive their pictures.
-%   The boundary is named \texttt{@} with the name prefix and suffix in force, as \TikZ\ names any node.
+% \begin{macro}[pTF]{\@@_if_node_in_picture:n}
+%   Tests whether the current picture has a node of the given name, resolved as \TikZ\ resolves it, by the picture that pgf records for each node: node names outlive their pictures.
 %    \begin{macrocode}
-\prg_new_conditional:Nnn \@@_if_boundary_in_picture: { p, T, F, TF }
+\prg_new_conditional:Nnn \@@_if_node_in_picture:n { p, T, F, TF }
   {
     \bool_lazy_and:nnTF
-      { \cs_if_exist_p:c { pgf@sh@pi@ \@@_resolve:n { @ } } }
-      { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ \@@_resolve:n { @ } } } { \pgfpictureid } }
+      { \cs_if_exist_p:c { pgf@sh@pi@ \@@_resolve:n { #1 } } }
+      { \str_if_eq_p:ee { \use:c { pgf@sh@pi@ \@@_resolve:n { #1 } } } { \pgfpictureid } }
       { \prg_return_true: }
       { \prg_return_false: }
   }
+\prg_generate_conditional_variant:Nnn \@@_if_node_in_picture:n { V } { p, T, F, TF }
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{variable}{\g_@@_boundaries_prop,\l_@@_call_at_tl}
+%   The boundaries made in the outermost picture so far, pictures nested in it included: each name, resolved, with the picture it was made in.
+%   It is cleared when an outermost picture begins, as the record of anchors is.
+%   During a call of \cmd\wires, \cs{l_@@_call_at_tl} holds the name that \texttt{@} resolves to, which is then the boundary of the call; it is empty otherwise.
+%    \begin{macrocode}
+\prop_new:N \g_@@_boundaries_prop
+\tl_new:N \l_@@_call_at_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}[pTF]{\@@_if_boundary:n}
+%   Tests whether a node, given by its resolved name, is a boundary of the current picture: a boundary made in it, or \texttt{@} during a call.
+%    \begin{macrocode}
+\prg_new_conditional:Nnn \@@_if_boundary:n { p, T, F, TF }
+  {
+    \bool_lazy_or:nnTF
+      {
+        \bool_lazy_and_p:nn
+          { ! \tl_if_empty_p:N \l_@@_call_at_tl }
+          { \str_if_eq_p:Vn \l_@@_call_at_tl { #1 } }
+      }
+      { \str_if_eq_p:ee { \prop_item:Nn \g_@@_boundaries_prop { #1 } } { \pgfpictureid } }
+      { \prg_return_true: }
+      { \prg_return_false: }
+  }
+\prg_generate_conditional_variant:Nnn \@@_if_boundary:n { V } { p, T, F, TF }
+\cs_generate_variant:Nn \prop_gput:Nnn { Nee }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\c_@@_picture_boundary_tl}
+%   The name of the boundary that the calls of \cmd\wires\ without boundary keys share in a picture.
+%   Nobody needs to write it: inside a call, that boundary is \texttt{@}.
+%    \begin{macrocode}
+\tl_const:Nn \c_@@_picture_boundary_tl { string-diagrams~boundary }
+%    \end{macrocode}
+% \end{variable}
+%
 % \begin{macro}{\@@_draw_boundary:,\@@_draw_boundary_around:nn}
-%   Creates the boundary node around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds).
-%   A picture gets a single boundary: later calls of \cmd\wires\ in it reuse the first one.
+%   Creates the boundary of the picture around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds), and records it as a boundary.
+%   A picture gets a single such boundary: later calls of \cmd\wires\ in it reuse the first one.
 %   \begin{arguments}
 %     \item north east corner to surround
 %     \item south west corner to surround
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_boundary: {
-  \@@_if_boundary_in_picture:F
+  \@@_if_node_in_picture:VF \c_@@_picture_boundary_tl
     {
       \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
         { \@@_draw_boundary_around:nn { 0pt, 0pt } { 0pt, 0pt } }
@@ -1041,11 +1079,13 @@
             { current~bounding~box.north~east }
             { current~bounding~box.south~west }
         }
+      \prop_gput:Nee \g_@@_boundaries_prop
+        { \@@_resolve:V \c_@@_picture_boundary_tl } { \pgfpictureid }
     }
 }
 \cs_new_protected:Nn \@@_draw_boundary_around:nn {
   \node [%draw, box=2/2/0/1, dashed, red,
-    name=@, node~contents={},
+    name=\c_@@_picture_boundary_tl, node~contents={},
     fit={
       ([shift={(+2em,+1em)}]#1)
       ([shift={(-2em,-1em)}]#2)
@@ -1090,7 +1130,7 @@
 %   Records an anchor that pgf has just resolved in a picture, with the point it gave.
 %   \TikZ\ gives a to path its start as a point, not as the anchor that was written, so the \texttt{wire} key looks the point up in this record.
 %   It runs after every \cs{pgfpointanchor}; \TikZ\ passes it node names wrapped in their prefix and suffix, and anchors that may hold macros, such as the variable of a \cs{foreach}, so both are expanded.
-%   The record is cleared when an outermost picture begins: pgf defines \cs{pgfpictureid} only inside pictures, and restores it when a nested one ends.
+%   The record is cleared when an outermost picture begins, with the record of boundaries: pgf defines \cs{pgfpictureid} only inside pictures, and restores it when a nested one ends.
 %   \begin{arguments}
 %     \item node
 %     \item anchor
@@ -1109,7 +1149,13 @@
 \AddToHookWithArguments { cmd/pgfpointanchor/after }
   { \@@_record_anchor:nn {#1} {#2} }
 \AddToHook { cmd/pgfpicture/before }
-  { \cs_if_exist:NF \pgfpictureid { \seq_gclear:N \g_@@_anchors_seq } }
+  {
+    \cs_if_exist:NF \pgfpictureid
+      {
+        \seq_gclear:N \g_@@_anchors_seq
+        \prop_gclear:N \g_@@_boundaries_prop
+      }
+  }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1223,7 +1269,7 @@
 %   An anchor must be on a side, so that the wire has an angle to leave or enter it at; otherwise the end raises an error, whatever the other end.
 %   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
 %   A point is looked up among the anchors resolved in the picture, which pgf records under the full names of their nodes; a name as written is resolved as \TikZ\ resolves it, with the name prefix and suffix in force.
-%   An end that is no anchor of a node, or a boundary from another picture, raises an error.
+%   An end that is no anchor of a node raises an error.
 %   An end on a node that doesn't exist, or at an anchor its node doesn't have, raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
 %   \TikZ\ resolves the start of a to path while reading the path, and a target only if it computes it.
 %   \begin{arguments}
@@ -1246,11 +1292,6 @@
     Wire~end~`#1.#2'~is~not~on~a~side,~so~the~wire~is~not~drawn:~
     wires~end~at~north,~east,~south~or~west,~or~at~ports.
   }
-\msg_new:nnn { string-diagrams } { end-boundary-elsewhere }
-  {
-    Wire~end~`@.#1'~is~on~the~boundary~of~another~picture,~so~the~wire~is~not~drawn:~
-    \iow_char:N\\wires~draws~the~boundary~of~this~picture.
-  }
 \bool_new:N \l_@@_end_missing_bool
 \bool_new:N \l_@@_end_resolved_bool
 \cs_new_protected:Nn \@@_wire_end:nNNNN {
@@ -1270,22 +1311,16 @@
     {
       \cs_if_exist:cTF { pgf@sh@ns@ #2 }
         {
-          \bool_lazy_and:nnTF
-            { \str_if_eq_p:ee { \exp_not:V #2 } { \@@_resolve:n { @ } } }
-            { ! \@@_if_boundary_in_picture_p: }
-            { \msg_error:nnV { string-diagrams } { end-boundary-elsewhere } #3 }
+          \tl_if_empty:NTF #3
+            { \bool_set_true:N #4 }
             {
-              \tl_if_empty:NTF #3
-                { \bool_set_true:N #4 }
+              \@@_if_anchor:VVTF #2 #3
+                { \@@_wire_end_side:NNN #2 #3 #4 }
                 {
-                  \@@_if_anchor:VVTF #2 #3
-                    { \@@_wire_end_side:NNN #2 #3 #4 }
+                  \bool_if:NF \l_@@_end_resolved_bool
                     {
-                      \bool_if:NF \l_@@_end_resolved_bool
-                        {
-                          \@@_no_anchor:VV #2 #3
-                          \bool_set_true:N \l_@@_end_missing_bool
-                        }
+                      \@@_no_anchor:VV #2 #3
+                      \bool_set_true:N \l_@@_end_missing_bool
                     }
                 }
             }
@@ -1426,7 +1461,7 @@
 %   Tells which ends of a wire face inwards, from the boxes of their nodes.
 %   The end on a node that holds the other faces inwards.
 %   Otherwise both ends face out: the nodes are apart, or they overlap, or have the same box, and then a bare end is an error, since neither node is the outer one, and the wire is not drawn.
-%   A wire from a node to itself faces inwards at both ends on the boundary \texttt{@}, which it crosses, and outwards on any other node, which it loops round.
+%   A wire from a node to itself faces inwards at both ends on a boundary, which it crosses, and outwards on any other node, which it loops round.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { bare-overlap }
   {
@@ -1438,7 +1473,7 @@
   \bool_set_false:N \l_@@_end_in_bool
   \str_if_eq:VVTF \l_@@_start_node_tl \l_@@_end_node_tl
     {
-      \str_if_eq:eeT { \exp_not:V \l_@@_start_node_tl } { \@@_resolve:n { @ } }
+      \@@_if_boundary:VT \l_@@_start_node_tl
         {
           \bool_set_true:N \l_@@_start_in_bool
           \bool_set_true:N \l_@@_end_in_bool
@@ -2307,6 +2342,38 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\@@_with_boundary:nn}
+%   Runs code with \texttt{@} as the boundary of a call: the name that \texttt{@} resolves to, with the name prefix and suffix in force, becomes an alias of the boundary, as with the \texttt{alias} key of \TikZ, and the boundary of the call.
+%   A node that the user named so is saved first, and put back after; otherwise the alias is removed, so that \texttt{@} means nothing outside \cmd\wires.
+%   \begin{arguments}
+%     \item resolved name of the boundary
+%     \item code
+%   \end{arguments}
+%    \begin{macrocode}
+\clist_const:Nn \c_@@_node_records_clist { ns , np , nt , pi , ma }
+\bool_new:N \l_@@_had_at_bool
+\cs_new_protected:Nn \@@_with_boundary:nn {
+  \tl_set:Ne \l_@@_call_at_tl { \tikz@pp@name { @ } }
+  \bool_set:Nn \l_@@_had_at_bool { \cs_if_exist_p:c { pgf@sh@ns@ \l_@@_call_at_tl } }
+  \bool_if:NT \l_@@_had_at_bool
+    {
+      \clist_map_inline:Nn \c_@@_node_records_clist
+        { \cs_set_eq:cc { l_@@_saved_ ##1 _tl } { pgf@sh@ ##1 @ \l_@@_call_at_tl } }
+    }
+  \use:e { \exp_not:N \pgfnodealias { \exp_not:V \l_@@_call_at_tl } { #1 } }
+  #2
+  \clist_map_inline:Nn \c_@@_node_records_clist
+    {
+      \bool_if:NTF \l_@@_had_at_bool
+        { \cs_gset_eq:cc { pgf@sh@ ##1 @ \l_@@_call_at_tl } { l_@@_saved_ ##1 _tl } }
+        { \cs_undefine:c { pgf@sh@ ##1 @ \l_@@_call_at_tl } }
+    }
+  \tl_clear:N \l_@@_call_at_tl
+}
+\cs_generate_variant:Nn \@@_with_boundary:nn { e }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{macro}{\wires}
 %   \changes{0.2.1}{2023/06/13}{now correctly handles optional style parameter}
 %   \changes{0.3.0}{2026/11/07}{loose ends are wires to the boundary node \texttt{@}, replacing the third argument}
@@ -2314,12 +2381,13 @@
 %   \changes{0.3.0}{2026/11/07}{wires leave corners diagonally}
 %   \changes{0.3.0}{2026/11/07}{wire ends off the sides or without an anchor are errors}
 %   Define our superstar.
+%   Its wires get the boundary of the picture as \texttt{@}.
 %    \begin{macrocode}
 \NewDocumentCommand{\wires}{ O{} m }
 {
   \@@_draw_boundary:
-  \@@_adj_map_function:nnN
-    { #1 } { #2 } \@@_draw_wire:nnnnn
+  \@@_with_boundary:en { \@@_resolve:V \c_@@_picture_boundary_tl }
+    { \@@_adj_map_function:nnN { #1 } { #2 } \@@_draw_wire:nnnnn }
 }
 %    \end{macrocode}
 % \end{macro}

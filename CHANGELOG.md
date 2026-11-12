@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** make `@` the boundary of the call inside `\wires`, and nothing outside it: a wire drawn by hand, as in `\draw (f.north) to[wire] (@.north);`, no longer reaches the boundary after a call, and a node of your own named `@` keeps its name outside the calls.
+
 ### Fixed
 
 - Draw wires inside pics, and under the `name prefix` and `name suffix` keys of TikZ, rather than reporting their nodes as missing: node names are now resolved as TikZ resolves them (#18).

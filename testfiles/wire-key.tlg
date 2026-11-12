@@ -43,14 +43,6 @@ S
 ============================================================
 TEST 5: wires to and from the boundary
 ============================================================
-0.0 59.77661 m 
-0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
-S 
--83.42125 0.0 m 
--83.42125 0.0 m 
--74.20053 0.0 -68.99731 0.0 -59.77661 0.0 c 
-S 
--- wires:
 q 
 0.0 59.77661 m 
 0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
@@ -401,9 +393,9 @@ Q
 S 
 ============================================================
 ============================================================
-TEST 24: a wire to the boundary of another picture is an error
+TEST 24: outside wires @ is no node
 ============================================================
-! Package string-diagrams Error: Wire end `@.north' is on the boundary of another picture, so the wire is not drawn: \wires draws the boundary of this picture.
+! Package string-diagrams Error: Wire end `@.north' is on a node that doesn't exist, so the wire is not drawn.
 Type <return> to continue.
  ...                                              
 l. ...}
@@ -411,7 +403,15 @@ LaTeX does not know anything more about this error, sorry.
 Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
 0.0 59.77661 m 
-0.0 73.45847 m 
+S 
+! Package pgf Error: No shape named `@' is known.
+See the pgf package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+l. ...}
+(That was another \errmessage.)
+0.0 0.0 m 
+-59.77661 0.0 m 
 S 
 ============================================================
 ============================================================

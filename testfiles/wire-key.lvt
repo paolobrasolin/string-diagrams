@@ -42,9 +42,6 @@
   \PICTURE{
     \node[box=1/0/1/1, square] (a) at (0pt,0pt) {};
     \wires{a = {south.1 = @.south}}
-    \LOG{\draw (a.north.1) to[wire] (@.north);}
-    \LOG{\draw (@.west) to[wire] (a.west.1);}
-    \TYPE{-- wires:}
     \LOG{\wires{a = {north.1 = @.north}, @ = {west = a.west.1}}}
   }
 }
@@ -229,15 +226,13 @@
   }
 }
 
-% NOTE: node names outlive their pictures, so the boundary of the first picture is still there in the second.
-\TEST{a wire to the boundary of another picture is an error}{
+% NOTE: a wire to @ is a wire to a node that doesn't exist; from @, pgf reports it itself, while reading the path.
+\TEST{outside wires @ is no node}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \wires{a = {north = @.north}}
-  }
-  \PICTURE{
-    \node[box, square] (a) at (0pt,0pt) {};
     \LOG{\draw (a.north) to[wire] (@.north);}
+    \LOG{\draw (@.west) to[wire] (a.west);}
   }
 }
 

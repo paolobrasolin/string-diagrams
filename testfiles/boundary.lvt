@@ -26,6 +26,9 @@
 
 \ExplSyntaxOff
 
+% \BOUNDARY{<anchor>}: log an anchor of the boundary that the calls of \wires share in a picture, which has no name outside them.
+\newcommand\BOUNDARY[1]{\SHOWPOINT{@.#1}{\pgfpointanchor{string-diagrams boundary}{#1}}}
+
 % A boundary with sides at 200pt from the origin, and a box beside its center.
 \newcommand\SETUP{
   \node[minimum size=400pt, inner sep=0pt, outer sep=0pt] (@) at (0pt,0pt) {};
@@ -114,8 +117,8 @@
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \wires{}
-    \SHOWANCHOR{@}{north east}
-    \SHOWANCHOR{@}{south west}
+    \BOUNDARY{north east}
+    \BOUNDARY{south west}
   }
 }
 
@@ -123,14 +126,14 @@
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \wires{}
-    \SHOWANCHOR{@}{north east}
+    \BOUNDARY{north east}
     \wires{}
-    \SHOWANCHOR{@}{north east}
+    \BOUNDARY{north east}
   }
   \PICTURE{
     \node[box, minimum size=40pt, inner sep=0pt, outer sep=0pt] (a) at (0pt,0pt) {};
     \wires{}
-    \SHOWANCHOR{@}{north east}
+    \BOUNDARY{north east}
   }
 }
 
@@ -141,8 +144,18 @@
     \wires{}
     \node[box, square] (b) at (200pt,0pt) {};
     \wires{}
-    \SHOWANCHOR{@}{north east}
+    \BOUNDARY{north east}
     \SHOWANCHOR{b}{north east}
+  }
+}
+
+% NOTE: the node named @ by \SETUP still exists here, as node names outlive their pictures; this one replaces it.
+\TEST{inside a call @ is its boundary, and a node of one's own named @ is put back after}{
+  \PICTURE{
+    \node[box=1/0/0/0, square] (a) at (0pt,0pt) {};
+    \node[minimum size=10pt, inner sep=0pt, outer sep=0pt] (@) at (100pt,0pt) {};
+    \LOG{\wires{a.north.1 = @}}
+    \SHOWANCHOR{@}{north east}
   }
 }
 

@@ -76,3 +76,17 @@ TEST 10: nodes drawn after the first call of wires are outside the boundary
 @.north east = (83.733pt, 73.73299pt)
 b.north east = (260.0pt, 60.0pt)
 ============================================================
+============================================================
+TEST 11: inside a call @ is its boundary, and a node of one's own named @ is put back after
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+S 
+Q 
+@.north east = (105.0pt, 5.0pt)
+============================================================
