@@ -89,7 +89,10 @@
 % \changes{0.1.0}{2023/05/31}{initial version}
 % \changes{0.2.0}{2023/06/12}{make box ports configurable}
 % \changes{0.3.0}{2026/11/07}{replace loose ends with wires to the boundary node \texttt{@}}
+% \changes{0.3.0}{2026/11/07}{require expl3 2023-06-05}
 % \changes{0.4.0}{2026/11/12}{write wires whole, leave out anchors, draw wires on \TikZ\ paths with the \texttt{wire} key, and label their ends}
+% \changes{0.4.0}{2026/11/12}{load the \texttt{quotes} library of \TikZ}
+% \changes{0.4.0}{2026/11/12}{require \LaTeX\ 2023-06-01}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -826,6 +829,7 @@
 % \begin{macro}[no-user-doc]{box}
 %   \changes{0.2.0}{2023/06/12}{make ports configurable through \TikZ\ keys}
 %   \changes{0.3.0}{2026/11/07}{ports a box doesn't have are an error}
+%   \changes{0.3.0}{2026/11/07}{starts with no ports, rather than one per side}
 %
 %   Define a rectangular shape with configurable ports.
 %    \begin{macrocode}
@@ -2699,6 +2703,12 @@
 %   \changes{0.3.0}{2026/11/07}{every listed wire is drawn, so nodes can be listed twice and anchors can fan out}
 %   \changes{0.3.0}{2026/11/07}{wires leave corners diagonally}
 %   \changes{0.3.0}{2026/11/07}{wire ends off the sides or without an anchor are errors}
+%   \changes{0.4.0}{2026/11/12}{wires are written whole, from one end to the other, and grouped by any beginning they share}
+%   \changes{0.4.0}{2026/11/12}{keys in brackets style any entry, group, wire or target, and add up down to each wire}
+%   \changes{0.4.0}{2026/11/12}{draws its wires with the \texttt{wire} key, so \texttt{every wire} applies to them, and \texttt{every to} and \texttt{every edge} don't}
+%   \changes{0.4.0}{2026/11/12}{wire ends may leave out their anchor, loose ends included: a bare end is the side that the wire crosses, or its only port}
+%   \changes{0.4.0}{2026/11/12}{the end on a node that holds the other node faces inwards, as on \texttt{@}}
+%   \changes{0.4.0}{2026/11/12}{a wire to a missing node, or to an anchor that its node doesn't have, is one error, and the start of each wire is checked too}
 %   Define our superstar.
 %   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
 %    \begin{macrocode}
