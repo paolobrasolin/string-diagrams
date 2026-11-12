@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-12
+
+Wires can now be written whole, as `a.north = b.south`, with or without anchors, and styled one by one. The new `wire` key draws them on TikZ paths, and new keys place labels at their ends.
+
 ### Added
 
 - Add the `wire` key, which draws a `to` path or an `edge` of TikZ as a wire, as in `\draw (f.north) to[wire] (g.south);`, and the `every wire` style that it applies. Keys after it, such as `out`, `in`, `bend left` or `bend right`, override its angles.
@@ -78,7 +82,8 @@ Loose ends are now ordinary wires to the boundary of the picture, a node called 
 
 - Initial version.
 
-[unreleased]: https://github.com/paolobrasolin/string-diagrams/compare/v0.3.0...HEAD
+[unreleased]: https://github.com/paolobrasolin/string-diagrams/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/paolobrasolin/string-diagrams/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/paolobrasolin/string-diagrams/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/paolobrasolin/string-diagrams/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/paolobrasolin/string-diagrams/compare/v0.1.0...v0.2.0
