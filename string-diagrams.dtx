@@ -2745,13 +2745,14 @@
 %
 % \begin{macro}{\@@_with_boundary:nn}
 %   Runs code with \texttt{@} as the boundary of a call: the name that \texttt{@} resolves to, with the name prefix and suffix in force, becomes an alias of the boundary, as with the \texttt{alias} key of \TikZ, and the boundary of the call.
-%   A node that the user named so is saved first, and put back after; otherwise the alias is removed, so that \texttt{@} means nothing outside \cmd\wires.
+%   A node that the user named so is saved first, in the variables \cs{l_@@_saved_ns_tl} and the like, one for each record that pgf keeps of a node, and put back after; otherwise the alias is removed, so that \texttt{@} means nothing outside \cmd\wires.
 %   \begin{arguments}
 %     \item resolved name of the boundary
 %     \item code
 %   \end{arguments}
 %    \begin{macrocode}
 \clist_const:Nn \c_@@_node_records_clist { ns , np , nt , pi , ma }
+\clist_map_inline:Nn \c_@@_node_records_clist { \tl_new:c { l_@@_saved_ #1 _tl } }
 \bool_new:N \l_@@_had_at_bool
 \cs_new_protected:Nn \@@_with_boundary:nn {
   \tl_set:Ne \l_@@_call_at_tl { \tikz@pp@name { @ } }
