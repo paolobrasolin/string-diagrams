@@ -83,7 +83,7 @@
   }
 }
 
-% NOTE: wires to a side named in the corner end offset along its diagonal; wires to other sides end like wires from the side named first.
+% NOTE: wires from a corner end offset to the side that the corner points to, whichever side of the boundary they reach.
 \TEST{wires from corners end offset along their diagonal}{
   \PICTURE{
     \SETUP
@@ -91,6 +91,9 @@
     \TARGET{a}{north east}{east}
     \TARGET{a}{south west}{west}
     \TARGET{a}{north east}{west}
+    \TARGET{a}{south west}{north}
+    \TARGET{a}{south east}{north}
+    \TARGET{a}{north west}{south}
   }
 }
 

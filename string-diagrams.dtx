@@ -1138,7 +1138,8 @@
 %   The point is on the line of the side, across from the source.
 %   A wire that leaves its source along the side, or diagonally, drifts along the side as it goes: by \cs{c_@@_drift_tl} of the distance to the side, the golden ratio less one, towards the direction it leaves in.
 %   The direction comes from the angle of the source anchor, as its two signs, which \cmd{\@@_angle_x:n} and \cmd{\@@_angle_y:n} expand to.
-%   A wire that leaves a corner away from the north or the south side reaches that side straight; one that leaves a corner away from the east or the west side drifts all the same, as the corners are named after north and south.
+%   A wire that leaves a corner away from the side drifts as one that leaves it towards the side.
+%   \changes{0.5.0}{2026/11/13}{a wire from a corner that points away from the north or the south side drifts along it, as for the east and the west sides}
 %   A source anchor without an angle leaves the point at the anchor of the side.
 %   A point past a corner of the node is moved to that corner.
 %   \changes{0.5.0}{2026/11/13}{computes the point from the direction of the source, in place of a table of pairs of anchors}
@@ -1170,16 +1171,12 @@
         {
           { north }
             {
-              \int_compare:nNnTF { \@@_angle_y:V \l_@@_drift_angle_tl } = { -1 }
-                { \@@_set_drift:n { 0 } }
-                { \@@_set_drift:n { \@@_angle_x:V \l_@@_drift_angle_tl } }
+              \@@_set_drift:n { \@@_angle_x:V \l_@@_drift_angle_tl }
               \@@_point_across_along_x:
             }
           { south }
             {
-              \int_compare:nNnTF { \@@_angle_y:V \l_@@_drift_angle_tl } = { 1 }
-                { \@@_set_drift:n { 0 } }
-                { \@@_set_drift:n { - \@@_angle_x:V \l_@@_drift_angle_tl } }
+              \@@_set_drift:n { - \@@_angle_x:V \l_@@_drift_angle_tl }
               \@@_point_across_along_x:
             }
           { east }

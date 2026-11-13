@@ -42,6 +42,9 @@ a.north east -> @.north = (160.33951pt, 200.0pt)
 a.north east -> @.east = (200.0pt, 144.15955pt)
 a.south west -> @.west = (-200.0pt, -148.8794pt)
 a.north east -> @.west = (-200.0pt, 200.0pt)
+a.south west -> @.north = (-194.49905pt, 200.0pt)
+a.south east -> @.north = (200.0pt, 200.0pt)
+a.north west -> @.south = (-200.0pt, -200.0pt)
 ============================================================
 ============================================================
 TEST 6: wires involving other anchors end at the anchor of the boundary
