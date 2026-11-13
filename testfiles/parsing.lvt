@@ -253,4 +253,22 @@
   \MAP{@ = {west = a.west}, a.east = @.east, a.north = { @ = { north } }}
 }
 
+\TEST{blank lines among the wires are ignored, in groups too}{
+  \PICTURE{
+    \node[box=2/0/1/0] (a) at (0pt,0pt) {};
+    \node[box=1/0/1/0] (b) at (0pt,50pt) {};
+    \LOG{\wires[boundary=none]{
+
+      a = {
+
+        north.1 = b.south.1,
+
+        north.2 = b.south.1
+
+      },
+
+    }}
+  }
+}
+
 \END

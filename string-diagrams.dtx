@@ -2921,14 +2921,21 @@
 %   \changes{0.5.0}{2026/11/12}{\texttt{@} is the boundary of the call, chosen with the \texttt{boundary} and \texttt{use boundary} keys, and means nothing outside the call}
 %   \changes{0.5.0}{2026/11/12}{the margins of the boundary are paddings, which don't scale with the picture}
 %   \changes{0.5.0}{2026/11/12}{finds nodes named under \texttt{name prefix} or \texttt{name suffix}, as in a pic, and so does the \texttt{wire} key}
+%   \changes{0.5.0}{2026/11/13}{blank lines among the wires are ignored}
 %   Define our superstar.
 %   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
+%   Its wires can hold blank lines: the \cs{par} tokens they make are removed, at any depth, and the regular expression that does it runs only when the wires hold one.
 %    \begin{macrocode}
-\NewDocumentCommand{\wires}{ O{} m }
+\regex_const:Nn \c_@@_par_regex { \c{par} }
+\tl_new:N \l_@@_call_wires_tl
+\NewDocumentCommand{\wires}{ O{} +m }
 {
   \@@_call_keys:n { #1 }
   \seq_clear:N \l_@@_wires_seq
-  \@@_adj_map_function:VnN \l_@@_call_keys_tl { #2 } \@@_store_wire:nnnnn
+  \tl_set:Nn \l_@@_call_wires_tl { #2 }
+  \exp_args:Nee \tl_if_in:nnT { \tl_to_str:n { #2 } } { \tl_to_str:n { \par } }
+    { \regex_replace_all:NnN \c_@@_par_regex { } \l_@@_call_wires_tl }
+  \@@_adj_map_function:VVN \l_@@_call_keys_tl \l_@@_call_wires_tl \@@_store_wire:nnnnn
   \@@_call_boundary:
   \seq_gclear:N \g_@@_warned_seq
   \bool_set:Nn \l_@@_check_inside_bool
@@ -2944,7 +2951,7 @@
     }
   \bool_set_false:N \l_@@_check_inside_bool
 }
-\cs_generate_variant:Nn \@@_adj_map_function:nnN { VnN }
+\cs_generate_variant:Nn \@@_adj_map_function:nnN { VVN }
 %    \end{macrocode}
 % \end{macro}
 %
