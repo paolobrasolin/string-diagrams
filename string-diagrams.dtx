@@ -40,7 +40,6 @@
 
 \EnableCrossrefs
 \CodelineIndex
-\RecordChanges
 \usepackage{string-diagrams}
 \usetikzlibrary{calc}
 ^^A l3doc makes " a short verbatim character, which breaks the quotes of TikZ in the examples.
@@ -76,7 +75,6 @@
 
 \begin{document}
   \DocInput{\jobname.dtx}
-  \PrintChanges
   ^^A The index starts on a new page: multicol can't start it at the bottom of one.
   \clearpage
   \PrintIndex
@@ -84,20 +82,6 @@
 %</driver>
 %
 % \fi
-%
-% \changes{0.1.0}{2023/05/31}{initial version}
-% \changes{0.2.0}{2023/06/12}{make box ports configurable}
-% \changes{0.3.0}{2026/11/07}{replace loose ends with wires to the boundary node \texttt{@}}
-% \changes{0.3.0}{2026/11/07}{require expl3 2023-06-05}
-% \changes{0.4.0}{2026/11/12}{write wires whole, leave out anchors, draw wires on \TikZ\ paths with the \texttt{wire} key, and label their ends}
-% \changes{0.4.0}{2026/11/12}{load the \texttt{quotes} library of \TikZ}
-% \changes{0.4.0}{2026/11/12}{require \LaTeX\ 2023-06-01}
-% \changes{0.5.0}{2026/11/12}{\texttt{@} means nothing outside \cs{wires}, so the \texttt{wire} key reaches a boundary by its name}
-% \changes{0.5.0}{2026/11/13}{record the anchors that pgf resolves in constant time each, so that pictures with many anchors compile as fast as without the package}
-% \changes{0.5.0}{2026/11/13}{draw wires about four times faster, by matching regular expressions once for each anchor name}
-% \changes{0.5.0}{2026/11/13}{require the \LaTeX\ and \pkg{expl3} of \TeX\ Live 2023, which the tests now run on}
-% \changes{0.5.0}{2026/11/13}{define the keys with short names under \texttt{string diagrams/}, and use those names only, so that redefining a short name doesn't break the package}
-% \changes{0.5.0}{2026/11/13}{name the shape of a box \texttt{string diagrams box}, and put the \texttt{box ports} keys under \texttt{/tikz/}}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -851,7 +835,6 @@
 %    /tikz/box ports west,
 %    /tikz/box ports,
 %  }
-%   \changes{0.3.0}{2026/11/07}{counts start at zero, and the shortcut checks that it gets four}
 %
 %    Define high level keys to configure the number of ports on each side.
 %    Boxes start with no ports.
@@ -913,7 +896,6 @@
 %   Defines the port anchors of a side of a box: equally spaced points on a segment.
 %   Anchors are defined globally, by the first box with enough ports on that side, so each one checks the port count of the box it is asked of.
 %   Each box defines the anchors of its ports that no box has defined yet.
-%   \changes{0.5.0}{2026/11/13}{defines the missing anchors without breaking out of the loop}
 %   The box is named in the error when an anchor of a named node is asked for, but not while placing a node by one of its own anchors.
 %   \begin{arguments}
 %     \item Side of the box
@@ -964,10 +946,6 @@
 % \end{macro}
 %
 % \begin{macro}[no-user-doc]{box}
-%   \changes{0.2.0}{2023/06/12}{make ports configurable through \TikZ\ keys}
-%   \changes{0.3.0}{2026/11/07}{ports a box doesn't have are an error}
-%   \changes{0.3.0}{2026/11/07}{starts with no ports, rather than one per side}
-%
 %   Define a rectangular shape with configurable ports.
 %    \begin{macrocode}
 \pgfdeclareshape{string~diagrams~box}{
@@ -1013,12 +991,6 @@
 % \end{macro}
 %
 % \begin{macro}{/tikz/box,/tikz/every box}
-%   \changes{0.5.0}{2026/11/13}{new style \texttt{every box}, applied by \texttt{box} after its own keys}
-%   \changes{0.2.0}{2023/06/12}{acts as a shortcut for setting port counts}
-%   \changes{0.3.0}{2026/11/07}{without counts, keeps the ones in force}
-%   \changes{0.5.0}{2026/11/12}{on a boundary, gives ports only: no stroke, padding or math}
-%   \changes{0.5.0}{2026/11/13}{filed under \texttt{/tikz/} in the manual, where it is defined}
-%
 %   Define style to draw boxes.
 %   The style is defined under \texttt{string diagrams/}, and the short name calls it, as for the other keys with short names: the package uses the long names only, so that it works when a short name is redefined.
 %   The \texttt{every box} style applies after the keys of the box and before its port counts, so it can change the first and not the second; on a boundary, where \texttt{box} gives ports only, it doesn't apply.
@@ -1045,16 +1017,11 @@
 % \end{macro}
 %
 % \begin{macro}{/tikz/box math,\@@_box_math_begin:,\@@_box_math_end:}
-%   \changes{0.5.0}{2026/11/13}{new key: sets whether the labels of boxes are in math mode}
-%
 %   Sets whether the labels of boxes are in math mode.
 %   The key sets a switch, which a box reads when its label starts and ends: so the key works on a picture, a scope or the box itself, before or after \texttt{box}.
 %   In a tagged PDF, \LaTeX\ collects each formula from its opening delimiter to its closing one, and fails on a formula opened here and closed elsewhere: so the opening turns the collecting off with \cs{MathCollectFalse}, where \LaTeX\ defines it.
-%   \changes{0.5.0}{2026/11/13}{works with the tagging of \LaTeX\ on: the math of a box label is not collected}
 %   A label that is in math mode already, as in a \texttt{matrix of math nodes}, stays in it: the box opens math only outside it, and closes only the math that it opened.
-%   \changes{0.5.0}{2026/11/13}{a label in math mode already stays in it, as in a \texttt{matrix of math nodes}}
 %   A node can get the \texttt{box} style twice, as from a style of the user and from its own keys, and then the opening and the closing run twice: the second opening finds math mode and leaves the switch alone, and the first closing clears it, so the second closes nothing.
-%   \changes{0.5.0}{2026/11/13}{a node with the \texttt{box} style twice no longer fails}
 %    \begin{macrocode}
 \bool_new:N \l_@@_box_math_bool
 \bool_set_true:N \l_@@_box_math_bool
@@ -1097,8 +1064,6 @@
 % \end{macro}
 %
 % \begin{macro}{/tikz/dot}
-%   \changes{0.5.0}{2026/11/13}{filed under \texttt{/tikz/} in the manual, where it is defined}
-%
 %   Define style to draw dots.
 %    \begin{macrocode}
 \tikzset{
@@ -1139,10 +1104,8 @@
 %   A wire that leaves its source along the side, or diagonally, drifts along the side as it goes: by \cs{c_@@_drift_tl} of the distance to the side, the golden ratio less one, towards the direction it leaves in.
 %   The direction comes from the angle of the source anchor, as its two signs, which \cmd{\@@_angle_x:n} and \cmd{\@@_angle_y:n} expand to.
 %   A wire that leaves a corner away from the side drifts as one that leaves it towards the side.
-%   \changes{0.5.0}{2026/11/13}{a wire from a corner that points away from the north or the south side drifts along it, as for the east and the west sides}
 %   A source anchor without an angle leaves the point at the anchor of the side.
 %   A point past a corner of the node is moved to that corner.
-%   \changes{0.5.0}{2026/11/13}{computes the point from the direction of the source, in place of a table of pairs of anchors}
 %   \begin{arguments}
 %     \item source node
 %     \item source anchor
@@ -3001,23 +2964,6 @@
 % \end{macro}
 %
 % \begin{macro}{\wires,\@@_wires:nn}
-%   \changes{0.2.1}{2023/06/13}{now correctly handles optional style parameter}
-%   \changes{0.3.0}{2026/11/07}{loose ends are wires to the boundary node \texttt{@}, replacing the third argument}
-%   \changes{0.3.0}{2026/11/07}{every listed wire is drawn, so nodes can be listed twice and anchors can fan out}
-%   \changes{0.3.0}{2026/11/07}{wires leave corners diagonally}
-%   \changes{0.3.0}{2026/11/07}{wire ends off the sides or without an anchor are errors}
-%   \changes{0.4.0}{2026/11/12}{wires are written whole, from one end to the other, and grouped by any beginning they share}
-%   \changes{0.4.0}{2026/11/12}{keys in brackets style any entry, group, wire or target, and add up down to each wire}
-%   \changes{0.4.0}{2026/11/12}{draws its wires with the \texttt{wire} key, so \texttt{every wire} applies to them, and \texttt{every to} and \texttt{every edge} don't}
-%   \changes{0.4.0}{2026/11/12}{wire ends may leave out their anchor, loose ends included: a bare end is the side that the wire crosses, or its only port}
-%   \changes{0.4.0}{2026/11/12}{the end on a node that holds the other node faces inwards, as on \texttt{@}}
-%   \changes{0.4.0}{2026/11/12}{a wire to a missing node, or to an anchor that its node doesn't have, is one error, and the start of each wire is checked too}
-%   \changes{0.5.0}{2026/11/12}{\texttt{@} is the boundary of the call, chosen with the \texttt{boundary} and \texttt{use boundary} keys, and means nothing outside the call}
-%   \changes{0.5.0}{2026/11/12}{the margins of the boundary are paddings, which don't scale with the picture}
-%   \changes{0.5.0}{2026/11/12}{finds nodes named under \texttt{name prefix} or \texttt{name suffix}, as in a pic, and so does the \texttt{wire} key}
-%   \changes{0.5.0}{2026/11/13}{blank lines among the wires are ignored}
-%   \changes{0.5.0}{2026/11/13}{a coordinate as a wire end gets an error that says what to write}
-%   \changes{0.5.0}{2026/11/13}{a call outside a picture is one error}
 %   Define our superstar.
 %   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
 %   Outside a picture it only reports an error.
