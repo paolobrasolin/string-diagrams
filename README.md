@@ -21,7 +21,7 @@ Try it on the [project site](https://paolobrasolin.github.io/string-diagrams/): 
 
 ### Prerequisites
 
-The only thing you need is an up-to-date LaTeX distribution including TikZ.
+The only thing you need is a LaTeX distribution including TikZ, from TeX Live 2023 or later.
 
 ### Installation
 

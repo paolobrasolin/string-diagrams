@@ -2,7 +2,7 @@
 
 > string-diagrams is a LaTeX package that draws string diagrams with TikZ. It draws boxes with numbered ports, dots that split and join wires, and the wires between them, with labels. Wires can also go to a boundary around the diagram. This summary is for version {{version}}.
 
-Load the package with `\usepackage{string-diagrams}`. The package loads TikZ and the `fit` and `quotes` libraries of TikZ. It needs LaTeX 2023-06-01 or later. A diagram is a usual `tikzpicture` environment. Boxes and dots are TikZ nodes, and you can put them in any position. The `\wires` command draws the wires between them, and the `wire` key draws wires with the TikZ commands.
+Load the package with `\usepackage{string-diagrams}`. The package loads TikZ and the `fit` and `quotes` libraries of TikZ. It needs LaTeX 2023-11-01 or later, as in TeX Live 2023. A diagram is a usual `tikzpicture` environment. Boxes and dots are TikZ nodes, and you can put them in any position. The `\wires` command draws the wires between them, and the `wire` key draws wires with the TikZ commands.
 
 Version 0.5.0 added boundaries that you can make, draw and give ports. In version 0.5.0, `@` is the boundary of a `\wires` command, and outside the command `@` is not a boundary. Version 0.4.0 added wires written as one item, wires without anchors, keys in brackets, and the `wire`, `wire flow`, `beyond` and `beside` keys. Versions before 0.3.0 do not have the boundary node `@`. With an older version, some examples below fail. To update, use `tlmgr update string-diagrams`, or put {{site_url}}string-diagrams.sty in the folder of the document. Online editors such as Overleaf can have an older version than CTAN.
 

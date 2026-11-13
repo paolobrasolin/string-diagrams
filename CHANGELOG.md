@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Breaking:** make `@` the boundary of the call inside `\wires`, and nothing outside it: a wire drawn by hand, as in `\draw (f.north) to[wire] (@.north);`, no longer reaches the boundary after a call, and a node of your own named `@` keeps its name outside the calls.
+- Require LaTeX 2023-11-01 and expl3 2024-02-20 or later, the versions of TeX Live 2023, in place of LaTeX 2023-06-01 and expl3 2023-06-05: the tests now run on the final TeX Live of 2023, 2024 and 2025, and the older versions were never tested.
 - Keep the port counts of boxes in the long names of the `box ports` keys: `\pgfkeysvalueof{/pgf/box ports north}` no longer gives a count, and `\pgfkeysvalueof{/tikz/string diagrams/box ports north}` does. Setting the keys works as before.
 - Make the margins of the boundary paddings, as on TikZ's own frame around a picture, so that they no longer scale with the picture: in a scaled picture, loose ends keep their length.
 
