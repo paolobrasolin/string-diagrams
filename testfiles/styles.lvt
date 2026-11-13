@@ -59,6 +59,13 @@
   }
 }
 
+\TEST{a box label in math mode already stays in it}{
+  \PICTURE{
+    \node[execute at begin node=$, execute at end node=$, box] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \node[box] (b) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+  }
+}
+
 \TEST{box math takes true or false only}{
   \PICTURE{
     \node[box, box math=maybe] (a) at (0pt,0pt) {};

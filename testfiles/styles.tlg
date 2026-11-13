@@ -73,7 +73,13 @@ text
 a.north east = (10.20001pt, 10.20001pt)
 ============================================================
 ============================================================
-TEST 8: box math takes true or false only
+TEST 8: a box label in math mode already stays in it
+============================================================
+math
+math
+============================================================
+============================================================
+TEST 9: box math takes true or false only
 ============================================================
 ! Package string-diagrams Error: box math is true or false, not `maybe', so it is left as it was.
 Type <return> to continue.
@@ -84,7 +90,7 @@ Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
 ============================================================
 ============================================================
-TEST 9: a dot is filled
+TEST 10: a dot is filled
 ============================================================
 q 
 0 G 
@@ -100,13 +106,13 @@ f
 Q 
 ============================================================
 ============================================================
-TEST 10: a dot is .4em wide
+TEST 11: a dot is .4em wide
 ============================================================
 a.north = (0.0pt, 2.19997pt)
 a.east = (2.19997pt, 0.0pt)
 ============================================================
 ============================================================
-TEST 11: the long names draw the same box and dot as the short ones
+TEST 12: the long names draw the same box and dot as the short ones
 ============================================================
 q 
 0 G 
@@ -148,7 +154,7 @@ f
 Q 
 ============================================================
 ============================================================
-TEST 12: the long names draw the same wire and boundary as the short ones
+TEST 13: the long names draw the same wire and boundary as the short ones
 ============================================================
 0.0 10.16203 m 
 0.0 18.74551 9.96277 21.10555 9.96277 29.68903 c 
@@ -160,7 +166,7 @@ B.north east = (43.73302pt, 63.733pt)
 C.north east = (67.06602pt, 77.066pt)
 ============================================================
 ============================================================
-TEST 13: redefining the short names doesn't change what the package draws
+TEST 14: redefining the short names doesn't change what the package draws
 ============================================================
 q 
 0 G 
@@ -222,7 +228,7 @@ Q
 string-diagrams boundary.north east = (35.53297pt, 55.53296pt)
 ============================================================
 ============================================================
-TEST 14: the other keys work by their long names
+TEST 15: the other keys work by their long names
 ============================================================
 text
 math
@@ -237,7 +243,7 @@ S
 Q 
 ============================================================
 ============================================================
-TEST 15: box ports work by their long names, which hold the counts
+TEST 16: box ports work by their long names, which hold the counts
 ============================================================
 a.north.5 = (8.15988pt, 10.20001pt)
 a.west.4 = (-10.20001pt, -7.65001pt)
@@ -245,7 +251,7 @@ a.west.4 = (-10.20001pt, -7.65001pt)
 b.north.2 = (5.1pt, 10.20001pt)
 ============================================================
 ============================================================
-TEST 16: every wire reaches wires, and so does its long name
+TEST 17: every wire reaches wires, and so does its long name
 ============================================================
 q 
 q 

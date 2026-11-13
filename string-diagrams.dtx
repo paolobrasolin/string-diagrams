@@ -996,12 +996,26 @@
 %   The key sets a switch, which a box reads when its label starts and ends: so the key works on a picture, a scope or the box itself, before or after \texttt{box}.
 %   In a tagged PDF, \LaTeX\ collects each formula from its opening delimiter to its closing one, and fails on a formula opened here and closed elsewhere: so the opening turns the collecting off with \cs{MathCollectFalse}, where \LaTeX\ defines it.
 %   \changes{0.5.0}{2026/11/13}{works with the tagging of \LaTeX\ on: the math of a box label is not collected}
+%   A label that is in math mode already, as in a \texttt{matrix of math nodes}, stays in it: the box opens math only outside it, and closes only the math that it opened.
+%   \changes{0.5.0}{2026/11/13}{a label in math mode already stays in it, as in a \texttt{matrix of math nodes}}
 %    \begin{macrocode}
 \bool_new:N \l_@@_box_math_bool
 \bool_set_true:N \l_@@_box_math_bool
-\cs_new:Nn \@@_box_math_begin:
-  { \bool_if:NT \l_@@_box_math_bool { \cs_if_exist_use:N \MathCollectFalse $ } }
-\cs_new:Nn \@@_box_math_end: { \bool_if:NT \l_@@_box_math_bool { $ } }
+\bool_new:N \l_@@_box_math_open_bool
+\cs_new_protected:Nn \@@_box_math_begin: {
+  \bool_set_false:N \l_@@_box_math_open_bool
+  \bool_if:NT \l_@@_box_math_bool
+    {
+      \mode_if_math:F
+        {
+          \bool_set_true:N \l_@@_box_math_open_bool
+          \cs_if_exist_use:N \MathCollectFalse
+          $
+        }
+    }
+}
+\cs_new_protected:Nn \@@_box_math_end:
+  { \bool_if:NT \l_@@_box_math_open_bool { $ } }
 \msg_new:nnn { string-diagrams } { box-math }
   { box~math~is~true~or~false,~not~`#1',~so~it~is~left~as~it~was. }
 \tikzset{
