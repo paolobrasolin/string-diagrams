@@ -74,6 +74,15 @@
   \end{tikzpicture}
 }
 
+\TEST{every box styles boxes, after the keys of box, and not boundaries}{
+  \begin{tikzpicture}[every box/.style={box math=false, minimum width=40pt}]
+    \node[box] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \SHOWANCHOR{a}{east}
+    \node[boundary, box=1/0/1/0, fit={(0pt,0pt)}, inner sep=0pt] (B) {};
+    \SHOWANCHOR{B}{east}
+  \end{tikzpicture}
+}
+
 \TEST{box math takes true or false only}{
   \PICTURE{
     \node[box, box math=maybe] (a) at (0pt,0pt) {};

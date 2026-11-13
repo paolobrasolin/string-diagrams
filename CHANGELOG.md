@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add the `box math` key, which sets whether the labels of boxes are in math mode: `box math=false`, on a box, a scope or a picture, gives labels in text, as in `\node[box, box math=false] {whisk};`. Labels are in math mode unless you set it, as before.
 
+- Add the `every box` style, which `box` applies after its own keys: set it to style all the boxes of a picture, a scope or the document, as in `every box/.style={rounded corners, box math=false}`. It doesn't apply to a boundary.
+
 - Add long names for the keys: each one is also under `string diagrams/`, as in `string diagrams/box`, `string diagrams/dot` and `string diagrams/box ports north`. The short names are now styles that call them, and the package itself uses the long names only: if a package or a style of yours takes `dot`, say, `\wires` still works, and `string diagrams/dot` still gives the dot of this package.
 
 ### Changed

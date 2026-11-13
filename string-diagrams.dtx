@@ -173,6 +173,22 @@
 %
 % \end{function}
 %
+% \begin{function}[added=2026-11-13]{/tikz/every box}
+%
+%   The \texttt{box} key applies this style after its own keys.
+%   It is empty at first: set it to style all the boxes of a picture, a scope or the document.
+%   It doesn't apply to a boundary.
+%
+%   \begin{tcblisting}{example=every-box}
+%     \begin{tikzpicture}[every box/.style={
+%         rounded corners, box math=false}]
+%       \node[box] (A) at (0,0) {whisk};
+%       \node[box] (B) at (2,0) {fold};
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
 % Place boxes with any positioning technique of \TikZ, and name them, so that wires can refer to them.
 % The last box below is placed with the \texttt{calc} library of \TikZ: load it with \cs{usetikzlibrary}\texttt{\{calc\}}.
 %
@@ -688,6 +704,7 @@
 %   /tikz/string diagrams/wire,
 %   /tikz/string diagrams/wire flow,
 %   /tikz/string diagrams/every wire,
+%   /tikz/string diagrams/every box,
 %   /tikz/string diagrams/boundary,
 %   /tikz/string diagrams/beyond,
 %   /tikz/string diagrams/beyond end,
@@ -700,7 +717,7 @@
 %   The keys of this package have short names, such as \texttt{box}, \texttt{dot} and \texttt{wire}, which another package or your own styles can take.
 %   Each one is a style that only calls the key of the same name under \texttt{string diagrams/}, and the package itself uses the long names only.
 %   So if you redefine \texttt{dot}, say, \cmd\wires\ still works, and \texttt{string diagrams/dot} still gives the dot of this package.
-%   The style \texttt{every wire} goes the other way: the package applies \texttt{string diagrams/every wire}, which calls \texttt{every wire} unless you redefine it.
+%   The styles \texttt{every wire} and \texttt{every box} go the other way: the package applies \texttt{string diagrams/every wire} and \texttt{string diagrams/every box}, which call the short names unless you redefine them.
 %   The long names of the \texttt{box ports} keys hold the port counts.
 %   The shape of a box has a long name only, \texttt{string diagrams box}.
 %
@@ -983,7 +1000,8 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{/tikz/box}
+% \begin{macro}{/tikz/box,/tikz/every box}
+%   \changes{0.5.0}{2026/11/13}{new style \texttt{every box}, applied by \texttt{box} after its own keys}
 %   \changes{0.2.0}{2023/06/12}{acts as a shortcut for setting port counts}
 %   \changes{0.3.0}{2026/11/07}{without counts, keeps the ones in force}
 %   \changes{0.5.0}{2026/11/12}{on a boundary, gives ports only: no stroke, padding or math}
@@ -991,6 +1009,7 @@
 %
 %   Define style to draw boxes.
 %   The style is defined under \texttt{string diagrams/}, and the short name calls it, as for the other keys with short names: the package uses the long names only, so that it works when a short name is redefined.
+%   The \texttt{every box} style applies after the keys of the box and before its port counts, so it can change the first and not the second; on a boundary, where \texttt{box} gives ports only, it doesn't apply.
 %    \begin{macrocode}
 \tikzset{
   box/.default = {},
@@ -1004,8 +1023,11 @@
     minimum~height = 2em,
     execute~at~begin~node = \@@_box_math_begin:,
     execute~at~end~node = \@@_box_math_end:,
+    /tikz/string~diagrams/every~box,
     /tikz/string~diagrams/box~ports = #1,
   },
+  every~box/.style = { },
+  string~diagrams/every~box/.style = { /tikz/every~box },
 }
 %    \end{macrocode}
 % \end{macro}
