@@ -779,6 +779,8 @@
 % \begin{macro}{\@@_subdivide_segment:nNNNNN}
 %   Defines the port anchors of a side of a box: equally spaced points on a segment.
 %   Anchors are defined globally, by the first box with enough ports on that side, so each one checks the port count of the box it is asked of.
+%   Each box defines the anchors of its ports that no box has defined yet.
+%   \changes{0.5.0}{2026/11/13}{defines the missing anchors without breaking out of the loop}
 %   The box is named in the error when an anchor of a named node is asked for, but not while placing a node by one of its own anchors.
 %   \begin{arguments}
 %     \item Side of the box
@@ -792,36 +794,35 @@
 \msg_new:nnn { string-diagrams } { missing-port }
   { #1~has~no~port~#2.#3,~since~its~#2~side~has~#4. }
 \cs_new_protected:Nn \@@_subdivide_segment:nNNNNN {
-  \int_step_inline:nnnn { #2 } { -1 } { 1 } {
-    \cs_if_exist:cTF
-      { pgf@anchor@box@#1.##1 }
-      { \prg_break: }
-      { \prg_do_nothing: }
-    \cs_new_nopar:cpn
-      { pgf@anchor@box@#1.##1 }
+  \int_step_inline:nn { #2 } {
+    \cs_if_exist:cF { pgf@anchor@box@#1.##1 }
       {
-        \int_compare:nNnTF { ##1 } > { #2 }
+        \cs_new_nopar:cpn
+          { pgf@anchor@box@#1.##1 }
           {
-            \msg_error:nneeee { string-diagrams } { missing-port }
+            \int_compare:nNnTF { ##1 } > { #2 }
               {
-                \cs_if_exist:NTF \pgfreferencednodename
-                  { Box~`\pgfreferencednodename' }
-                  { This~box }
+                \msg_error:nneeee { string-diagrams } { missing-port }
+                  {
+                    \cs_if_exist:NTF \pgfreferencednodename
+                      { Box~`\pgfreferencednodename' }
+                      { This~box }
+                  }
+                  { #1 } { ##1 } { #2 }
+                \pgfpointlineattime
+                  { 0.5 }
+                  { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
+                  { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
               }
-              { #1 } { ##1 } { #2 }
-            \pgfpointlineattime
-              { 0.5 }
-              { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
-              { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
-          }
-          {
-            \pgfmathdivide
-              { 2 * ##1 - 1 }
-              { 2 * #2 }
-            \pgfpointlineattime
-              { \pgfmathresult }
-              { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
-              { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
+              {
+                \pgfmathdivide
+                  { 2 * ##1 - 1 }
+                  { 2 * #2 }
+                \pgfpointlineattime
+                  { \pgfmathresult }
+                  { \@@_intersect_hv_lines_through:NN { #3 } { #4 } }
+                  { \@@_intersect_hv_lines_through:NN { #5 } { #6 } }
+              }
           }
       }
   }
