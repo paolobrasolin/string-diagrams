@@ -133,6 +133,28 @@
 %
 % \section{Documentation}
 %
+% A string diagram is a picture of boxes joined by wires, as used for the maps of a monoidal category, for circuits and for processes.
+% This package draws string diagrams with \TikZ.
+% You place the boxes as nodes, open ports on their sides, and list the wires between them.
+% The package finds the direction of each wire from the sides of its ends, and draws the loose ends of the diagram to a boundary around it.
+% In plain \TikZ\ you give each wire its two angles, and each loose end its coordinates.
+%
+% \begin{tcblisting}{example=intro}
+%     \begin{tikzpicture}[wire flow=north]
+%       \node[box=2/0/1/0] (f) at (0,0) {f};
+%       \node[box=1/0/1/0] (g) at (-.6,1.5) {g};
+%       \node[box=1/0/1/0] (h) at (.6,1.5) {h};
+%       \wires{
+%         @ = f,
+%         f = { north.1 = g, north.2 = h },
+%         g = @,
+%         h = @,
+%       }
+%     \end{tikzpicture}
+% \end{tcblisting}
+%
+% The sections below explain each part: boxes and their ports, wires and how to write them, ends without anchors, boundaries, the \texttt{wire} key, labels and dots.
+%
 % Load the package with \cs{usepackage}\texttt{\{string-diagrams\}}.
 % It loads \TikZ, with its \texttt{fit} and \texttt{quotes} libraries.
 % The examples below need nothing else, unless they say otherwise.
