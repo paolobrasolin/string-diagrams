@@ -95,6 +95,7 @@
 % \changes{0.4.0}{2026/11/12}{require \LaTeX\ 2023-06-01}
 % \changes{0.5.0}{2026/11/12}{\texttt{@} means nothing outside \cs{wires}, so the \texttt{wire} key reaches a boundary by its name}
 % \changes{0.5.0}{2026/11/13}{record the anchors that pgf resolves in constant time each, so that pictures with many anchors compile as fast as without the package}
+% \changes{0.5.0}{2026/11/13}{draw wires about four times faster, by matching regular expressions once for each anchor name}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -938,9 +939,10 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_calctarget:nnnn}
+% \begin{macro}{\@@_calctarget:nnnn,\@@_calctarget_formula:n}
 %   Performs the core calculation for \cmd{\@@_end_coordinate:NnnnnN}.
 %   The result is stored in the internal \texttt{pgf} variables.
+%   The formula of the point depends only on the two anchors, and regular expressions are slow to match, so \cmd{\@@_calctarget_formula:n} finds it once for each pair of anchors, and keeps it in a constant.
 %   A wire from a corner to a side named in it, such as south west to south or west, ends offset along its diagonal.
 %   A bend that would end past a corner of the boundary ends at that corner.
 %   \begin{arguments}
@@ -950,37 +952,46 @@
 %     \item target anchor
 %   \end{arguments}
 %    \begin{macrocode}
+\tl_new:N \l_@@_point_tl
 \cs_new_protected:Nn \@@_calctarget:nnnn {
   \pgfpointanchor{#1}{#2} \pgf@xa=\pgf@x \pgf@ya=\pgf@y
   \pgfpointanchor{#3}{#4} \pgf@xb=\pgf@x \pgf@yb=\pgf@y
-  \regex_match_case:nn
-  {
-    { \A north ; north \  west \b } { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
-    { \A north ; north \  east \b } { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
-    { \A south ; south \  west \b } { \pgfpoint { \pgf@xa-.618*(\pgf@ya-\pgf@yb) } { \pgf@yb } }
-    { \A south ; south \  east \b } { \pgfpoint { \pgf@xa+.618*(\pgf@ya-\pgf@yb) } { \pgf@yb } }
-    { \A east  ; north \  east \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } }
-    { \A east  ; south \  east \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } }
-    { \A west  ; north \  west \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xa-\pgf@xb) } }
-    { \A west  ; south \  west \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xa-\pgf@xb) } }
-    { \A north ; north \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
-    { \A north ; south \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
-    { \A south ; north \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
-    { \A south ; south \b } { \pgfpoint { \pgf@xa } { \pgf@yb } }
-    { \A north ; east  \b } { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
-    { \A south ; east  \b } { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
-    { \A north ; west  \b } { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
-    { \A south ; west  \b } { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } }
-    { \A east  ; east  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
-    { \A east  ; west  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
-    { \A west  ; east  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
-    { \A west  ; west  \b } { \pgfpoint { \pgf@xb } { \pgf@ya } }
-    { \A east  ; north \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } }
-    { \A west  ; north \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } }
-    { \A east  ; south \b } { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } }
-    { \A west  ; south \b } { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } }
-  } { #4 ; #2 }
+  \tl_if_exist:cF { c_@@_point_ \tl_to_str:n { #4 ; #2 } _tl }
+    { \@@_calctarget_formula:n { #4 ; #2 } }
+  \tl_use:c { c_@@_point_ \tl_to_str:n { #4 ; #2 } _tl }
   \@@_clamp_to_node:n { #3 }
+}
+\cs_new_protected:Nn \@@_calctarget_formula:n {
+  \tl_clear:N \l_@@_point_tl
+  \regex_match_case:nn
+    {
+      { \A north ; north \  west \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } } }
+      { \A north ; north \  east \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } } }
+      { \A south ; south \  west \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa-.618*(\pgf@ya-\pgf@yb) } { \pgf@yb } } }
+      { \A south ; south \  east \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa+.618*(\pgf@ya-\pgf@yb) } { \pgf@yb } } }
+      { \A east  ; north \  east \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } } }
+      { \A east  ; south \  east \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } } }
+      { \A west  ; north \  west \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xa-\pgf@xb) } } }
+      { \A west  ; south \  west \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xa-\pgf@xb) } } }
+      { \A north ; north \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa } { \pgf@yb } } }
+      { \A north ; south \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa } { \pgf@yb } } }
+      { \A south ; north \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa } { \pgf@yb } } }
+      { \A south ; south \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa } { \pgf@yb } } }
+      { \A north ; east  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } } }
+      { \A south ; east  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } } }
+      { \A north ; west  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa-.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } } }
+      { \A south ; west  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xa+.618*(\pgf@yb-\pgf@ya) } { \pgf@yb } } }
+      { \A east  ; east  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya } } }
+      { \A east  ; west  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya } } }
+      { \A west  ; east  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya } } }
+      { \A west  ; west  \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya } } }
+      { \A east  ; north \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } } }
+      { \A west  ; north \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } } }
+      { \A east  ; south \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya-.618*(\pgf@xb-\pgf@xa) } } }
+      { \A west  ; south \b } { \tl_set:Nn \l_@@_point_tl { \pgfpoint { \pgf@xb } { \pgf@ya+.618*(\pgf@xb-\pgf@xa) } } }
+    }
+    { #1 }
+  \tl_const:cV { c_@@_point_ \tl_to_str:n { #1 } _tl } \l_@@_point_tl
 }
 %    \end{macrocode}
 % \end{macro}
@@ -992,16 +1003,22 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{\@@_anchor_to_angle:Nn}
+% \begin{macro}{\@@_anchor_to_angle:Nn,\@@_anchor_angle:n}
 %   Calculates the angle at which a wire leaves an anchor outwards, from its name.
 %   Wires leave sides and their ports straight out, and corners diagonally; other anchors have no angle, and leave the variable empty.
 %   An end that faces inwards turns this angle round (see \cmd{\@@_wire:}).
+%   The angle depends only on the name, and regular expressions are slow to match, so \cmd{\@@_anchor_angle:n} finds it once for each name, and keeps it in a constant.
 %   \begin{arguments}
 %     \item token list variable
 %     \item anchor
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_anchor_to_angle:Nn {
+  \tl_if_exist:cF { c_@@_angle_ \tl_to_str:n { #2 } _tl }
+    { \@@_anchor_angle:n { #2 } }
+  \tl_set_eq:Nc #1 { c_@@_angle_ \tl_to_str:n { #2 } _tl }
+}
+\cs_new_protected:Nn \@@_anchor_angle:n {
   \regex_match_case:nnTF
     {
       { \A north \  east \b } { \int_set:Nn \l_@@_angle_int {   45 } }
@@ -1013,9 +1030,9 @@
       { \A south \b } { \int_set:Nn \l_@@_angle_int { -90 } }
       { \A west  \b } { \int_set:Nn \l_@@_angle_int { 180 } }
     }
-    { #2 }
-    { \tl_set:Nf #1 { \int_use:N \l_@@_angle_int } }
-    { \tl_clear:N #1 }
+    { #1 }
+    { \tl_const:ce { c_@@_angle_ \tl_to_str:n { #1 } _tl } { \int_use:N \l_@@_angle_int } }
+    { \tl_const:cn { c_@@_angle_ \tl_to_str:n { #1 } _tl } { } }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1194,15 +1211,9 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\l_@@_split_seq}
-%   Scratch variable for \cmd{\@@_split_node_anchor:NNn}.
-%    \begin{macrocode}
-\seq_new:N \l_@@_split_seq
-%    \end{macrocode}
-% \end{variable}
-%
-% \begin{macro}{\@@_split_node_anchor:NNn}
-%   Parses a token list into a node/anchor pair.
+% \begin{macro}{\@@_split_node_anchor:NNn,\@@_split_at_dot:NNw}
+%   Parses a token list into a node/anchor pair: the node ends at the first dot, and the anchor is the rest.
+%   The node is read after a quark, so that a node in braces keeps them.
 %   \begin{arguments}
 %     \item token list variable to store node
 %     \item token list variable to store anchor
@@ -1210,10 +1221,16 @@
 %   \end{arguments}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_split_node_anchor:NNn {
-  \regex_extract_once:nnN { ([^\.]*) \.? (.*) } { #3 } \l_@@_split_seq
-  \seq_pop:NN \l_@@_split_seq #1  % discard match
-  \seq_pop:NN \l_@@_split_seq #1  % keep 1st matching group (node)
-  \seq_pop:NN \l_@@_split_seq #2  % keep 2nd matching group (anchor)
+  \tl_if_in:nnTF { #3 } { . }
+    { \@@_split_at_dot:NNw #1 #2 \q_mark #3 \q_stop }
+    {
+      \tl_set:Nn #1 { #3 }
+      \tl_clear:N #2
+    }
+}
+\cs_new_protected:Npn \@@_split_at_dot:NNw #1#2#3 . #4 \q_stop {
+  \tl_set:No #1 { \use_none:n #3 }
+  \tl_set:Nn #2 { #4 }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1303,6 +1320,7 @@
 %   Tests whether a node has an anchor: a name its shape defines, or an angle, which pgf reads as a point of the border.
 %   The ports of boxes are defined for all boxes at once, by the first box with enough ports on a side, so a port of a box is checked against the count of that box.
 %    \begin{macrocode}
+\regex_const:Nn \c_@@_angle_regex { \A [+\-]? [0-9.]+ \Z }
 \prg_new_protected_conditional:Nnn \@@_if_anchor:nn { TF }
   {
     \@@_port_of_box:nn { #1 } { #2 }
@@ -1311,7 +1329,7 @@
         \cs_if_exist:cTF { pgf@anchor@ \use:c { pgf@sh@ns@ #1 } @ #2 }
           { \prg_return_true: }
           {
-            \regex_match:nnTF { \A [+\-]? [0-9.]+ \Z } { #2 }
+            \regex_match:NnTF \c_@@_angle_regex { #2 }
               { \prg_return_true: }
               { \prg_return_false: }
           }
@@ -1330,7 +1348,7 @@
 %
 % \begin{macro}{\@@_side_ports:nnN,\@@_port_of_box:nn,\@@_no_anchor:nn}
 %   \cmd{\@@_side_ports:nnN} counts the ports of a side of a node, none unless it is a box, from the counts saved in the node.
-%   \cmd{\@@_port_of_box:nn} splits the anchor of a box into side and number, in \cs{l_@@_port_seq}, if it is a port, and leaves the sequence empty otherwise.
+%   \cmd{\@@_port_of_box:nn} splits the anchor of a box into side and number, in \cs{l_@@_port_seq}, if it is a port, and leaves the sequence empty otherwise; it matches each anchor name once, and keeps the result, since regular expressions are slow to match.
 %   \cmd{\@@_no_anchor:nn} reports an anchor that a node doesn't have, as a missing port for a box asked for a port beyond its count, and pgf would otherwise fail to read it, with an error about a mathematical function.
 %    \begin{macrocode}
 \int_new:N \l_@@_ports_int
@@ -1349,12 +1367,18 @@
 \msg_new:nnn { string-diagrams } { no-anchor }
   { Node~`#1'~has~no~anchor~`#2',~so~the~wire~is~not~drawn. }
 \seq_new:N \l_@@_port_seq
+\regex_const:Nn \c_@@_port_regex { \A (north|east|south|west) \. ([0-9]+) \Z }
 \cs_new_protected:Nn \@@_port_of_box:nn {
   \seq_clear:N \l_@@_port_seq
   \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { box }
     {
-      \regex_extract_once:nnN { \A (north|east|south|west) \. ([0-9]+) \Z }
-        { #2 } \l_@@_port_seq
+      \seq_if_exist:cF { g_@@_port_ \tl_to_str:n { #2 } _seq }
+        {
+          \regex_extract_once:NnN \c_@@_port_regex { #2 } \l_@@_port_seq
+          \seq_new:c { g_@@_port_ \tl_to_str:n { #2 } _seq }
+          \seq_gset_eq:cN { g_@@_port_ \tl_to_str:n { #2 } _seq } \l_@@_port_seq
+        }
+      \seq_set_eq:Nc \l_@@_port_seq { g_@@_port_ \tl_to_str:n { #2 } _seq }
     }
 }
 \cs_new_protected:Nn \@@_no_anchor:nn {
@@ -1371,6 +1395,30 @@
 \cs_generate_variant:Nn \@@_side_ports:nnN { ne }
 \cs_generate_variant:Nn \msg_error:nnnnnn { nnneeV }
 \cs_generate_variant:Nn \@@_no_anchor:nn { VV }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}[TF]{\@@_if_point:n}
+%   Tests whether an end of a to path, as \TikZ\ gives it, is a point, such as \texttt{0.0pt,10.2pt}, and not a name: two parts around a single comma, each ending in \texttt{pt}.
+%   The end is read as a string, and split at its commas by \cs{@@_if_point:w}.
+%    \begin{macrocode}
+\prg_new_protected_conditional:Nnn \@@_if_point:n { TF }
+  {
+    \exp_last_unbraced:Ne \@@_if_point:w { \tl_to_str:n { #1 } }
+      , \q_mark , \q_stop
+  }
+\cs_new_protected:Npn \@@_if_point:w #1 , #2 , #3 \q_stop
+  {
+    \tl_if_eq:nnTF { #3 } { \q_mark , }
+      {
+        \bool_lazy_and:nnTF
+          { \str_if_eq_p:ee { \str_range:nnn { #1 } { -2 } { -1 } } { pt } }
+          { \str_if_eq_p:ee { \str_range:nnn { #2 } { -2 } { -1 } } { pt } }
+          { \prg_return_true: }
+          { \prg_return_false: }
+      }
+      { \prg_return_false: }
+  }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1404,10 +1452,11 @@
   }
 \bool_new:N \l_@@_end_missing_bool
 \bool_new:N \l_@@_end_resolved_bool
+\regex_const:Nn \c_@@_coordinate_regex { [,:] }
 \cs_new_protected:Nn \@@_wire_end:nNNNN {
   \bool_set_false:N #4
   \bool_set_eq:NN \l_@@_end_resolved_bool #5
-  \regex_match:nnTF { \A [^,]* pt , [^,]* pt \Z } { #1 }
+  \@@_if_point:nTF { #1 }
     {
       \bool_set_true:N \l_@@_end_resolved_bool
       \@@_find_anchor:NNw #2 #3 #1 \q_stop
@@ -1438,7 +1487,7 @@
         {
           \bool_if:NF \l_@@_end_resolved_bool
             {
-              \regex_match:nnTF { [,:] } { #1 }
+              \regex_match:NnTF \c_@@_coordinate_regex { #1 }
                 { \msg_error:nnn { string-diagrams } { end-not-anchor } { #1 } }
                 {
                   \msg_error:nnn { string-diagrams } { end-no-node } { #1 }
@@ -2245,9 +2294,10 @@
     `#1'~is~a~group~without~a~beginning,~so~it~is~ignored:~
     a~group~follows~a~node~or~an~anchor~and~=,~as~in~b~=~\{~south.1,~south.2~\}.
   }
+\regex_const:Nn \c_@@_group_regex { [,=] | \cB. | \cE. }
 \prg_new_protected_conditional:Nnn \@@_adj_if_name:n { T, F, TF }
   {
-    \regex_match:nnTF { [,=] | \cB. | \cE. } { #1 }
+    \regex_match:NnTF \c_@@_group_regex { #1 }
       {
         \msg_error:nnn { string-diagrams } { group-without-beginning } { #1 }
         \prg_return_false:
