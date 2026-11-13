@@ -257,6 +257,31 @@
           texlive-2024 = texliveCheck "2024" nixpkgs-texlive-2024;
           texlive-2025 = texliveCheck "2025" nixpkgs-texlive-2025;
 
+          # NOTE: with tagging on, LaTeX collects each formula whole, which a box label opened and closed in two places would break.
+          tagging =
+            pkgs.runCommand "string-diagrams-tagging" {
+              nativeBuildInputs = [
+                (pkgs.texliveBasic.withPackages (ps: [string-diagrams ps.latex-lab ps.tagpdf ps.pdfmanagement-testphase ps.lm]))
+                pkgs.writableTmpDirAsHomeHook
+              ];
+            } ''
+              cat > test.tex <<'EOF'
+              \DocumentMetadata{tagging=on, lang=en}
+              \documentclass{article}
+              \usepackage{lmodern}
+              \usepackage{string-diagrams}
+              \begin{document}
+              \begin{tikzpicture}[alt={f, then g, as a string diagram}]
+                \node[box=1/0/1/0] (f) at (0,0) {f};
+                \node[box=1/0/1/0, box math=false] (g) at (.6,1.4) {$g$};
+                \wires{ @ = f.south.1, f.north.1 = ["$A$"] g.south.1, g.north.1 = @ }
+              \end{tikzpicture}
+              \end{document}
+              EOF
+              pdflatex -interaction=nonstopmode -halt-on-error test.tex
+              mkdir $out
+            '';
+
           # NOTE: CTAN maintainers prefer a flat upload (no TDS zip) for simple packages.
           ctan-is-flat = pkgs.runCommand "string-diagrams-ctan-is-flat" {nativeBuildInputs = [pkgs.unzip];} ''
             unzip -Z1 ${ctan} | tee entries

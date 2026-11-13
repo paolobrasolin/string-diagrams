@@ -655,6 +655,23 @@
 %     \end{tikzpicture}
 % \end{tcblisting}
 %
+% \subsection{Tagged PDF}
+%
+% A tagged PDF holds the structure of its document, for screen readers and for standards such as PDF/UA.
+% \LaTeX\ makes one when the document starts with \cs{DocumentMetadata}\texttt{\{tagging=on\}}, before \cs{documentclass}.
+% The package works in such documents, tested with \LaTeX\ 2025-11-01.
+%
+% With tagging on, \LaTeX\ collects each formula whole, to tag it.
+% A box opens the math of its label where the label starts, and closes it where the label ends, so \LaTeX\ can't collect it.
+% The package tells \LaTeX\ to leave that formula alone: the label looks the same, and has no tags of its own.
+% A formula that you write, as in a label with \texttt{box math=false} or on a wire, is collected as any other.
+%
+% \LaTeX\ marks a picture as decoration unless you describe it.
+% To describe a diagram for readers who can't see it, use the \texttt{alt} key that \LaTeX\ adds to \TikZ\ in such documents:
+% \begin{verbatim}
+% \begin{tikzpicture}[alt={f, then g, as a string diagram}]
+% \end{verbatim}
+%
 % \subsection{Long names of the keys}
 %
 % \begin{function}[added=2026-11-13]{
@@ -964,23 +981,27 @@
     inner~sep = .5em,
     minimum~width = 2em,
     minimum~height = 2em,
-    execute~at~begin~node = \@@_box_math_shift:,
-    execute~at~end~node = \@@_box_math_shift:,
+    execute~at~begin~node = \@@_box_math_begin:,
+    execute~at~end~node = \@@_box_math_end:,
     /tikz/string~diagrams/box~ports = #1,
   },
 }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{/tikz/box math,\@@_box_math_shift:}
+% \begin{macro}{/tikz/box math,\@@_box_math_begin:,\@@_box_math_end:}
 %   \changes{0.5.0}{2026/11/13}{new key: sets whether the labels of boxes are in math mode}
 %
 %   Sets whether the labels of boxes are in math mode.
 %   The key sets a switch, which a box reads when its label starts and ends: so the key works on a picture, a scope or the box itself, before or after \texttt{box}.
+%   In a tagged PDF, \LaTeX\ collects each formula from its opening delimiter to its closing one, and fails on a formula opened here and closed elsewhere: so the opening turns the collecting off with \cs{MathCollectFalse}, where \LaTeX\ defines it.
+%   \changes{0.5.0}{2026/11/13}{works with the tagging of \LaTeX\ on: the math of a box label is not collected}
 %    \begin{macrocode}
 \bool_new:N \l_@@_box_math_bool
 \bool_set_true:N \l_@@_box_math_bool
-\cs_new:Nn \@@_box_math_shift: { \bool_if:NT \l_@@_box_math_bool { $ } }
+\cs_new:Nn \@@_box_math_begin:
+  { \bool_if:NT \l_@@_box_math_bool { \cs_if_exist_use:N \MathCollectFalse $ } }
+\cs_new:Nn \@@_box_math_end: { \bool_if:NT \l_@@_box_math_bool { $ } }
 \msg_new:nnn { string-diagrams } { box-math }
   { box~math~is~true~or~false,~not~`#1',~so~it~is~left~as~it~was. }
 \tikzset{
