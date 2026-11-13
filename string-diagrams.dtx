@@ -94,6 +94,7 @@
 % \changes{0.4.0}{2026/11/12}{load the \texttt{quotes} library of \TikZ}
 % \changes{0.4.0}{2026/11/12}{require \LaTeX\ 2023-06-01}
 % \changes{0.5.0}{2026/11/12}{\texttt{@} means nothing outside \cs{wires}, so the \texttt{wire} key reaches a boundary by its name}
+% \changes{0.5.0}{2026/11/13}{record the anchors that pgf resolves in constant time each, so that pictures with many anchors compile as fast as without the package}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -1217,10 +1218,12 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\g_@@_anchors_seq}
-%   The anchors resolved in the outermost picture so far, pictures nested in it included, newest first: each as the picture it was resolved in, its node, its anchor and the two coordinates of its point.
+% \begin{variable}{\g_@@_anchors_int}
+%   The count of the anchors resolved in the outermost picture so far, pictures nested in it included.
+%   Each one is recorded in a macro of its own, \cs{@@_anchor_}\meta{number}\texttt{:}, as the picture it was resolved in, its node, its anchor and the two coordinates of its point.
+%   So recording an anchor takes the same time however many are recorded already: a single list would be copied for each one, and \TikZ\ resolves anchors by the thousands in large pictures, also in those without wires.
 %    \begin{macrocode}
-\seq_new:N \g_@@_anchors_seq
+\int_new:N \g_@@_anchors_int
 %    \end{macrocode}
 % \end{variable}
 %
@@ -1228,7 +1231,8 @@
 %   Records an anchor that pgf has just resolved in a picture, with the point it gave.
 %   \TikZ\ gives a to path its start as a point, not as the anchor that was written, so the \texttt{wire} key looks the point up in this record.
 %   It runs after every \cs{pgfpointanchor}; \TikZ\ passes it node names wrapped in their prefix and suffix, and anchors that may hold macros, such as the variable of a \cs{foreach}, so both are expanded.
-%   The record is cleared when an outermost picture begins, with the record of boundaries: pgf defines \cs{pgfpictureid} only inside pictures, and restores it when a nested one ends.
+%   The record starts again when an outermost picture begins, as the record of boundaries does: pgf defines \cs{pgfpictureid} only inside pictures, and restores it when a nested one ends.
+%   The macros of the earlier picture stay, out of reach, until new anchors replace them.
 %   \begin{arguments}
 %     \item node
 %     \item anchor
@@ -1237,7 +1241,8 @@
 \cs_new_protected:Nn \@@_record_anchor:nn {
   \cs_if_exist:NT \pgfpictureid
     {
-      \seq_gput_left:Ne \g_@@_anchors_seq
+      \int_gincr:N \g_@@_anchors_int
+      \cs_gset:cpe { @@_anchor_ \int_use:N \g_@@_anchors_int : }
         {
           { \pgfpictureid } { #1 } { #2 }
           { \dim_use:N \pgf@x } { \dim_use:N \pgf@y }
@@ -1250,38 +1255,45 @@
   {
     \cs_if_exist:NF \pgfpictureid
       {
-        \seq_gclear:N \g_@@_anchors_seq
+        \int_gzero:N \g_@@_anchors_int
         \prop_gclear:N \g_@@_boundaries_prop
       }
   }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\@@_find_anchor:NNw,\@@_find_anchor_check:NNnnnnnnn}
+% \begin{macro}{\@@_find_anchor:NNw,\@@_find_anchor_check:nnnnnNNnn}
 %   Finds the newest anchor recorded at a point in the current picture, within 0.01pt, and stores its node and anchor; it stores nothing if there is none.
+%   It goes through the record from the newest anchor back, and stops at the first one that fits: for the start of a to path, that is the anchor \TikZ\ has just resolved, or one near it.
 %   \begin{arguments}
 %     \item token list variable to store the node
 %     \item token list variable to store the anchor
 %     \item the point, as \meta{x}\texttt{,}\meta{y}, ended by \cs{q_stop}
 %   \end{arguments}
 %    \begin{macrocode}
+\int_new:N \l_@@_anchor_int
 \cs_new_protected:Npn \@@_find_anchor:NNw #1#2#3 , #4 \q_stop {
   \tl_clear:N #1
   \tl_clear:N #2
-  \seq_map_inline:Nn \g_@@_anchors_seq
-    { \@@_find_anchor_check:NNnnnnnnn #1 #2 { #3 } { #4 } ##1 }
+  \int_set_eq:NN \l_@@_anchor_int \g_@@_anchors_int
+  \int_while_do:nNnn { \l_@@_anchor_int } > { 0 }
+    {
+      \exp_last_unbraced:Nv \@@_find_anchor_check:nnnnnNNnn
+        { @@_anchor_ \int_use:N \l_@@_anchor_int : } #1 #2 { #3 } { #4 }
+      \int_decr:N \l_@@_anchor_int
+    }
 }
-\cs_new_protected:Nn \@@_find_anchor_check:NNnnnnnnn {
+\cs_new_protected:Nn \@@_find_anchor_check:nnnnnNNnn {
   \bool_lazy_all:nT
     {
-      { \str_if_eq_p:ee { #5 } { \pgfpictureid } }
-      { \dim_compare_p:n { \dim_abs:n { #8 - ( #3 ) } < 0.01pt } }
-      { \dim_compare_p:n { \dim_abs:n { #9 - ( #4 ) } < 0.01pt } }
+      { \str_if_eq_p:ee { #1 } { \pgfpictureid } }
+      { \dim_compare_p:n { \dim_abs:n { #4 - ( #8 ) } < 0.01pt } }
+      { \dim_compare_p:n { \dim_abs:n { #5 - ( #9 ) } < 0.01pt } }
     }
     {
-      \tl_set:Nn #1 { #6 }
-      \tl_set:Nn #2 { #7 }
-      \seq_map_break:
+      \tl_set:Nn #6 { #2 }
+      \tl_set:Nn #7 { #3 }
+      \int_zero:N \l_@@_anchor_int
     }
 }
 %    \end{macrocode}
