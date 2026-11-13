@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make the margins of the boundary paddings, as on TikZ's own frame around a picture, so that they no longer scale with the picture: in a scaled picture, loose ends keep their length.
 - **Breaking:** put the `box ports` keys under `/tikz/`, as all the other keys, in place of `/pgf/`: in the keys of a picture or a node they work as before, but `\pgfset{box ports=…}` and the full path `/pgf/box ports` no longer find them.
 - **Breaking:** name the shape of a box `string diagrams box`, in place of `box`, so that it can't collide with a shape of another package: the `box` key works as before, and `shape=box` no longer gives a box. The macros that a box saves its port counts in have internal names too, in place of `\portsnorth` and the like.
+- Open the manual with what the package does and a first diagram, before the keys of boxes.
+- List what the package doesn't handle in a section of the manual of its own, "Known limitations", apart from the pitfalls of TikZ: rotated and mirrored pictures, wire ends that are shifted or computed, nodes that aren't rectangles around other nodes, wires in a row, feedback loops, nodes drawn late and scaled pictures.
+- Shorten the section of the manual on tagged PDF.
+- Remove the change history from the manual: this file is the only one.
 
 ### Fixed
 
