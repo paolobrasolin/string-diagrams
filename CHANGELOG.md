@@ -14,9 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add the `box math` key, which sets whether the labels of boxes are in math mode: `box math=false`, on a box, a scope or a picture, gives labels in text, as in `\node[box, box math=false] {whisk};`. Labels are in math mode unless you set it, as before.
 
+- Add long names for the keys: each one is also under `string diagrams/`, as in `string diagrams/box`, `string diagrams/dot` and `string diagrams/box ports north`. The short names are now styles that call them, and the package itself uses the long names only: if a package or a style of yours takes `dot`, say, `\wires` still works, and `string diagrams/dot` still gives the dot of this package.
+
 ### Changed
 
 - **Breaking:** make `@` the boundary of the call inside `\wires`, and nothing outside it: a wire drawn by hand, as in `\draw (f.north) to[wire] (@.north);`, no longer reaches the boundary after a call, and a node of your own named `@` keeps its name outside the calls.
+- Keep the port counts of boxes in the long names of the `box ports` keys: `\pgfkeysvalueof{/pgf/box ports north}` no longer gives a count, and `\pgfkeysvalueof{/tikz/string diagrams/box ports north}` does. Setting the keys works as before.
 - Make the margins of the boundary paddings, as on TikZ's own frame around a picture, so that they no longer scale with the picture: in a scaled picture, loose ends keep their length.
 
 ### Fixed

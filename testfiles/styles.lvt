@@ -79,4 +79,79 @@
   }
 }
 
+\TEST{the long names draw the same box and dot as the short ones}{
+  \PICTURE{
+    \LOG{\node[box=1/0/1/0] (a) at (0pt,0pt) {};}
+    \LOG{\node[string diagrams/box=1/0/1/0] (b) at (0pt,0pt) {};}
+    \SHOWANCHOR{a}{north.1}
+    \SHOWANCHOR{b}{north.1}
+    \LOG{\node[dot] (c) at (0pt,0pt) {};}
+    \LOG{\node[string diagrams/dot] (d) at (0pt,0pt) {};}
+  }
+}
+
+\TEST{the long names draw the same wire and boundary as the short ones}{
+  \PICTURE{
+    \node[box=1/0/1/0] (a) at (0pt,0pt) {};
+    \node[box=1/0/1/0] (b) at (10pt,40pt) {};
+    \LOG{\draw (a.north.1) to[wire] (b.south.1);}
+    \LOG{\draw (a.north.1) to[string diagrams/wire] (b.south.1);}
+    \node[boundary] (B) {};
+    \node[string diagrams/boundary] (C) {};
+    \SHOWANCHOR{B}{north east}
+    \SHOWANCHOR{C}{north east}
+  }
+}
+
+% NOTE: the two pictures must log the same operators: the package doesn't use the short names itself.
+\TEST{redefining the short names doesn't change what the package draws}{
+  \PICTURE{
+    \node[string diagrams/box=1/0/1/0] (a) at (0pt,0pt) {};
+    \node[string diagrams/dot] (b) at (10pt,40pt) {};
+    \LOG{\wires{@.south = a.south.1, a.north.1 = ["" beyond end] b, b = ["" beside start] @.north}}
+    \SHOWANCHOR{string-diagrams boundary}{north east}
+  }
+  \PICTURE[
+    box/.style={dashed}, dot/.style={dashed}, wire/.style={dashed}, boundary/.style={draw, dashed},
+    beyond/.style={dashed}, beside/.style={dashed}, beyond end/.style={dashed}, beside start/.style={dashed},
+    box math/.style={dashed}, wire flow/.style={dashed},
+  ]{
+    \node[string diagrams/box=1/0/1/0] (a) at (0pt,0pt) {};
+    \node[string diagrams/dot] (b) at (10pt,40pt) {};
+    \LOG{\wires{@.south = a.south.1, a.north.1 = ["" string diagrams/beyond end] b, b = ["" string diagrams/beside start] @.north}}
+    \SHOWANCHOR{string-diagrams boundary}{north east}
+  }
+}
+
+\TEST{the other keys work by their long names}{
+  \PICTURE[string diagrams/box math=false, string diagrams/wire flow=east]{
+    \node[box=0/1/0/1] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \node[box=0/1/0/1, string diagrams/box math] (b) at (40pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \LOG{\wires{a = b}}
+  }
+}
+
+\TEST{box ports work by their long names, which hold the counts}{
+  \PICTURE[box ports/.style={dashed}, box ports north/.style={dashed}]{
+    \node[box, string diagrams/box ports=1/2/3/4, string diagrams/box ports north=5] (a) at (0pt,0pt) {};
+    \SHOWANCHOR{a}{north.5}
+    \SHOWANCHOR{a}{west.4}
+    \node[box=2/0/0/0] (b) at (0pt,0pt) {\TYPE{\pgfkeysvalueof{/tikz/string diagrams/box ports north}}};
+    \SHOWANCHOR{b}{north.2}
+  }
+}
+
+\TEST{every wire reaches wires, and so does its long name}{
+  \PICTURE[every wire/.style={dashed}]{
+    \node[box=1/0/1/0] (a) at (0pt,0pt) {};
+    \node[box=1/0/1/0] (b) at (0pt,40pt) {};
+    \LOG{\wires[boundary=none]{a = b}}
+  }
+  \PICTURE[string diagrams/every wire/.style={dashed}]{
+    \node[box=1/0/1/0] (a) at (0pt,0pt) {};
+    \node[box=1/0/1/0] (b) at (0pt,40pt) {};
+    \LOG{\wires[boundary=none]{a = b}}
+  }
+}
+
 \END

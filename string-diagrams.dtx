@@ -97,6 +97,7 @@
 % \changes{0.5.0}{2026/11/12}{\texttt{@} means nothing outside \cs{wires}, so the \texttt{wire} key reaches a boundary by its name}
 % \changes{0.5.0}{2026/11/13}{record the anchors that pgf resolves in constant time each, so that pictures with many anchors compile as fast as without the package}
 % \changes{0.5.0}{2026/11/13}{draw wires about four times faster, by matching regular expressions once for each anchor name}
+% \changes{0.5.0}{2026/11/13}{define the keys with short names under \texttt{string diagrams/}, and use those names only, so that redefining a short name doesn't break the package}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -653,6 +654,46 @@
 %     \end{tikzpicture}
 % \end{tcblisting}
 %
+% \subsection{Long names of the keys}
+%
+% \begin{function}[added=2026-11-13]{
+%   /tikz/string diagrams/box,
+%   /tikz/string diagrams/box math,
+%   /tikz/string diagrams/box ports,
+%   /tikz/string diagrams/box ports north,
+%   /tikz/string diagrams/box ports east,
+%   /tikz/string diagrams/box ports south,
+%   /tikz/string diagrams/box ports west,
+%   /tikz/string diagrams/dot,
+%   /tikz/string diagrams/wire,
+%   /tikz/string diagrams/wire flow,
+%   /tikz/string diagrams/every wire,
+%   /tikz/string diagrams/boundary,
+%   /tikz/string diagrams/beyond,
+%   /tikz/string diagrams/beyond end,
+%   /tikz/string diagrams/beyond start,
+%   /tikz/string diagrams/beside,
+%   /tikz/string diagrams/beside end,
+%   /tikz/string diagrams/beside start,
+% }
+%
+%   The keys of this package have short names, such as \texttt{box}, \texttt{dot} and \texttt{wire}, which another package or your own styles can take.
+%   Each one is a style that only calls the key of the same name under \texttt{string diagrams/}, and the package itself uses the long names only.
+%   So if you redefine \texttt{dot}, say, \cmd\wires\ still works, and \texttt{string diagrams/dot} still gives the dot of this package.
+%   The style \texttt{every wire} goes the other way: the package applies \texttt{string diagrams/every wire}, which calls \texttt{every wire} unless you redefine it.
+%   The \texttt{box ports} keys are under \texttt{/pgf/}, but their long names are under \texttt{/tikz/} as all the others, and hold the port counts.
+%
+%   \begin{tcblisting}{example=long-names}
+%     \begin{tikzpicture}[dot/.style={circle, draw, red}]
+%       \node[string diagrams/box=1/0/0/0] (f) at (0,0) {f};
+%       \node[string diagrams/dot] (d) at (0,1) {};
+%       \node[dot] (e) at (1,1) {};
+%       \wires{ f = d }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
 % \subsection{\TikZ\ pitfalls}
 %
 % Some behaviors of \TikZ\ surprise in diagrams.
@@ -755,11 +796,16 @@
   }
 \seq_new:N \l_@@_port_counts_seq
 \pgfkeys{
-  /pgf/box~ports~north/.initial=0,
-  /pgf/box~ports~east/.initial=0,
-  /pgf/box~ports~south/.initial=0,
-  /pgf/box~ports~west/.initial=0,
-  /pgf/box~ports/.code={
+  /tikz/string~diagrams/box~ports~north/.initial=0,
+  /tikz/string~diagrams/box~ports~east/.initial=0,
+  /tikz/string~diagrams/box~ports~south/.initial=0,
+  /tikz/string~diagrams/box~ports~west/.initial=0,
+  /pgf/box~ports~north/.style = { /tikz/string~diagrams/box~ports~north = {#1} },
+  /pgf/box~ports~east/.style = { /tikz/string~diagrams/box~ports~east = {#1} },
+  /pgf/box~ports~south/.style = { /tikz/string~diagrams/box~ports~south = {#1} },
+  /pgf/box~ports~west/.style = { /tikz/string~diagrams/box~ports~west = {#1} },
+  /pgf/box~ports/.style = { /tikz/string~diagrams/box~ports = {#1} },
+  /tikz/string~diagrams/box~ports/.code={
     \tl_if_blank:nF { #1 }
       {
         \seq_set_split:Nnn \l_@@_port_counts_seq { / } { #1 }
@@ -767,10 +813,10 @@
           {
             \exp_args:Ne \pgfkeysalso
               {
-                /pgf/box~ports~north = \seq_item:Nn \l_@@_port_counts_seq { 1 } ,
-                /pgf/box~ports~east  = \seq_item:Nn \l_@@_port_counts_seq { 2 } ,
-                /pgf/box~ports~south = \seq_item:Nn \l_@@_port_counts_seq { 3 } ,
-                /pgf/box~ports~west  = \seq_item:Nn \l_@@_port_counts_seq { 4 } ,
+                /tikz/string~diagrams/box~ports~north = \seq_item:Nn \l_@@_port_counts_seq { 1 } ,
+                /tikz/string~diagrams/box~ports~east  = \seq_item:Nn \l_@@_port_counts_seq { 2 } ,
+                /tikz/string~diagrams/box~ports~south = \seq_item:Nn \l_@@_port_counts_seq { 3 } ,
+                /tikz/string~diagrams/box~ports~west  = \seq_item:Nn \l_@@_port_counts_seq { 4 } ,
               }
           }
           { \msg_error:nnn { string-diagrams } { port-counts } { #1 } }
@@ -874,13 +920,13 @@
 
   % Dump port counts into saved macros
   \savedmacro\portsnorth
-    {\pgfmathtruncatemacro\portsnorth{\pgfkeysvalueof{/pgf/box~ports~north}}}
+    {\pgfmathtruncatemacro\portsnorth{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~north}}}
   \savedmacro\portseast
-    {\pgfmathtruncatemacro\portseast{\pgfkeysvalueof{/pgf/box~ports~east}}}
+    {\pgfmathtruncatemacro\portseast{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~east}}}
   \savedmacro\portssouth
-    {\pgfmathtruncatemacro\portssouth{\pgfkeysvalueof{/pgf/box~ports~south}}}
+    {\pgfmathtruncatemacro\portssouth{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~south}}}
   \savedmacro\portswest
-    {\pgfmathtruncatemacro\portswest{\pgfkeysvalueof{/pgf/box~ports~west}}}
+    {\pgfmathtruncatemacro\portswest{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~west}}}
 
   % Add ports definitions to shape definition
   \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@box\endcsname{
@@ -905,10 +951,13 @@
 %   \changes{0.5.0}{2026/11/13}{filed under \texttt{/tikz/} in the manual, where it is defined}
 %
 %   Define style to draw boxes.
+%   The style is defined under \texttt{string diagrams/}, and the short name calls it, as for the other keys with short names: the package uses the long names only, so that it works when a short name is redefined.
 %    \begin{macrocode}
 \tikzset{
   box/.default = {},
-  box/.style~args = {#1}{
+  box/.style = { /tikz/string~diagrams/box = {#1} },
+  string~diagrams/box/.default = {},
+  string~diagrams/box/.style~args = {#1}{
     shape = box,
     draw,
     inner~sep = .5em,
@@ -916,7 +965,7 @@
     minimum~height = 2em,
     execute~at~begin~node = \@@_box_math_shift:,
     execute~at~end~node = \@@_box_math_shift:,
-    /pgf/box~ports = #1,
+    /tikz/string~diagrams/box~ports = #1,
   },
 }
 %    \end{macrocode}
@@ -935,7 +984,9 @@
   { box~math~is~true~or~false,~not~`#1',~so~it~is~left~as~it~was. }
 \tikzset{
   box~math/.default = true,
-  box~math/.code = {
+  box~math/.style = { /tikz/string~diagrams/box~math = {#1} },
+  string~diagrams/box~math/.default = true,
+  string~diagrams/box~math/.code = {
     \str_case:nnF { #1 }
       {
         { true } { \bool_set_true:N \l_@@_box_math_bool }
@@ -952,16 +1003,15 @@
 %
 %   Define style to draw dots.
 %    \begin{macrocode}
-\ExplSyntaxOff
 \tikzset{
-  dot/.style={
-    shape=circle,
+  dot/.style = { /tikz/string~diagrams/dot },
+  string~diagrams/dot/.style = {
+    shape = circle,
     fill,
-    inner sep=0,
-    minimum width=0.4em,
+    inner~sep = 0,
+    minimum~width = 0.4em,
   },
 }
-\ExplSyntaxOn
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1149,7 +1199,7 @@
     {
       \exp_not:N \path [ every~edge/.style = { draw } ]
         ( \@@_wire_coordinate:nn { #2 } { #3 } )
-        edge [ wire, \exp_not:n { #1 } ]
+        edge [ /tikz/string~diagrams/wire, \exp_not:n { #1 } ]
         ( \@@_wire_coordinate:nn { #4 } { #5 } ) ;
     }
 }
@@ -1229,7 +1279,7 @@
     {
       /tikz/inner~xsep = 2.3333em ,
       /tikz/inner~ysep = 1.3333em ,
-      /tikz/box/.style = { /tikz/shape = box , /pgf/box~ports = {##1} } ,
+      /tikz/string~diagrams/box/.style = { /tikz/shape = box , /tikz/string~diagrams/box~ports = {##1} } ,
       /tikz/append~after~command =
         { \pgfextra { \@@_boundary_made:e { \tikzlastnode } } } ,
     }
@@ -1241,7 +1291,10 @@
 }
 \cs_generate_variant:Nn \@@_boundary_made:n { e }
 \cs_generate_variant:Nn \prop_gput:Nnn { Nne }
-\tikzset { boundary/.code = { \@@_boundary_key: } }
+\tikzset {
+  boundary/.style = { /tikz/string~diagrams/boundary },
+  string~diagrams/boundary/.code = { \@@_boundary_key: },
+}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1251,7 +1304,7 @@
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_draw_boundary: {
   \@@_if_node_in_picture:VF \c_@@_picture_boundary_tl
-    { \node [ boundary , name = \c_@@_picture_boundary_tl ] { } ; }
+    { \node [ /tikz/string~diagrams/boundary , name = \c_@@_picture_boundary_tl ] { } ; }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2074,8 +2127,12 @@
 }
 \tikzset{
   every~wire/.style = { },
-  wire/.code = { \@@_wire_key: \pgfkeysalso { every~wire } },
-  wire~flow/.code = { \@@_set_flow:n { #1 } },
+  string~diagrams/every~wire/.style = { /tikz/every~wire },
+  wire/.style = { /tikz/string~diagrams/wire },
+  string~diagrams/wire/.code =
+    { \@@_wire_key: \pgfkeysalso { /tikz/string~diagrams/every~wire } },
+  wire~flow/.style = { /tikz/string~diagrams/wire~flow = {#1} },
+  string~diagrams/wire~flow/.code = { \@@_set_flow:n { #1 } },
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2163,12 +2220,18 @@
 %   The others add the position, as \texttt{at end} and \texttt{at start}.
 %    \begin{macrocode}
 \tikzset{
-  beyond/.code = { \@@_label_key:nnnnnn { 0 } { 0 } { 180 } { 180 } { 180 } { 180 } },
-  beside/.code = { \@@_label_key:nnnnnn { -135 } { 135 } { -45 } { 45 } { -135 } { 135 } },
-  beyond~end/.style = { at~end, beyond },
-  beyond~start/.style = { at~start, beyond },
-  beside~end/.style = { at~end, beside },
-  beside~start/.style = { at~start, beside },
+  beyond/.style = { /tikz/string~diagrams/beyond },
+  beside/.style = { /tikz/string~diagrams/beside },
+  string~diagrams/beyond/.code = { \@@_label_key:nnnnnn { 0 } { 0 } { 180 } { 180 } { 180 } { 180 } },
+  string~diagrams/beside/.code = { \@@_label_key:nnnnnn { -135 } { 135 } { -45 } { 45 } { -135 } { 135 } },
+  beyond~end/.style = { /tikz/string~diagrams/beyond~end },
+  beyond~start/.style = { /tikz/string~diagrams/beyond~start },
+  beside~end/.style = { /tikz/string~diagrams/beside~end },
+  beside~start/.style = { /tikz/string~diagrams/beside~start },
+  string~diagrams/beyond~end/.style = { at~end, /tikz/string~diagrams/beyond },
+  string~diagrams/beyond~start/.style = { at~start, /tikz/string~diagrams/beyond },
+  string~diagrams/beside~end/.style = { at~end, /tikz/string~diagrams/beside },
+  string~diagrams/beside~start/.style = { at~start, /tikz/string~diagrams/beside },
 }
 %    \end{macrocode}
 % \end{macro}
@@ -2730,7 +2793,7 @@
         {
           \exp_not:N \node
             [
-              boundary ,
+              /tikz/string~diagrams/boundary ,
               fit =
                 {
                   \seq_if_empty:NTF \l_@@_call_nodes_seq
