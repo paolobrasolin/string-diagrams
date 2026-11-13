@@ -23,6 +23,8 @@ Run `l3build` commands inside the development shell.
 
 The regression tests in `testfiles/` record what the package does: `l3build check` runs them with pdfTeX, XeTeX and LuaTeX, and compares their logs with the `.tlg` files. They all start from `testfiles/support/stridi-test.tex`, which sets them up and provides helpers to log points, anchors and drawings.
 
+`nix flake check` also runs them on the final TeX Live of 2023, 2024 and 2025, against the same `.tlg` files: each comes from a nixpkgs input of the flake, pinned by commit to the first day that nixpkgs had it with all its builds in the binary cache. The oldest one gives the versions that the package asks for. The `nixpkgs` input follows `nixos-unstable`, so it brings each new TeX Live by itself: when it does, pin the year it leaves behind in the same way.
+
 A test whose title starts with `BUG:` records behavior known to be wrong, and a comment above it says what should happen instead. `TBC:` marks behavior that is yet to be confirmed as intended, with the open question in a comment. The fix or decision drops the prefix and updates the `.tlg` files.
 
 ## Documentation

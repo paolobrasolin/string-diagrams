@@ -16,9 +16,60 @@
         "type": "github"
       }
     },
+    "nixpkgs-texlive-2023": {
+      "locked": {
+        "lastModified": 1711065146,
+        "narHash": "sha256-O9UwPyQt/QozmQihe0Ki+fge9whuAY5ITqgzCb4Yxoo=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e52b38ae97ac6683b81bed7fc07f5d896186e4b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "e52b38ae97ac6683b81bed7fc07f5d896186e4b3",
+        "type": "github"
+      }
+    },
+    "nixpkgs-texlive-2024": {
+      "locked": {
+        "lastModified": 1742797881,
+        "narHash": "sha256-78gebBv+9qRv454L35BbpT9gDOVyWkte5XXcmKHFrfc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "43d524e00e8299f0d0003cf956151bfc5b66b9ee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "43d524e00e8299f0d0003cf956151bfc5b66b9ee",
+        "type": "github"
+      }
+    },
+    "nixpkgs-texlive-2025": {
+      "locked": {
+        "lastModified": 1776902174,
+        "narHash": "sha256-4xsk+ITLI0aQDrMej7MR9p9+trf5XgX9GPxBdcWknto=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9114a731a9c6b2b3bdf6865b7f6134bccc58afaf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9114a731a9c6b2b3bdf6865b7f6134bccc58afaf",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "nixpkgs-texlive-2023": "nixpkgs-texlive-2023",
+        "nixpkgs-texlive-2024": "nixpkgs-texlive-2024",
+        "nixpkgs-texlive-2025": "nixpkgs-texlive-2025",
         "systems": "systems"
       }
     },

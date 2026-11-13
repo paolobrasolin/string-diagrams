@@ -3,12 +3,19 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # NOTE: the final release of each TeX Live we support, from the first day that nixpkgs had it with all its builds in the binary cache; pinned by commit, so that they never move. The oldest (LaTeX 2023-11-01, expl3 2024-02-20, pgf 3.1.10) is what the package asks for.
+    nixpkgs-texlive-2023.url = "github:NixOS/nixpkgs/e52b38ae97ac6683b81bed7fc07f5d896186e4b3";
+    nixpkgs-texlive-2024.url = "github:NixOS/nixpkgs/43d524e00e8299f0d0003cf956151bfc5b66b9ee";
+    nixpkgs-texlive-2025.url = "github:NixOS/nixpkgs/9114a731a9c6b2b3bdf6865b7f6134bccc58afaf";
     systems.url = "github:nix-systems/default";
   };
 
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-texlive-2023,
+    nixpkgs-texlive-2024,
+    nixpkgs-texlive-2025,
     systems,
   }: let
     inherit (nixpkgs) lib;
@@ -38,6 +45,30 @@
     perSystem = lib.genAttrs (import systems) (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
+        # NOTE: the tests on a TeX Live of the past, against the same .tlg files.
+        texliveCheck = year: nixpkgsOfYear: let
+          pkgsOfYear = nixpkgsOfYear.legacyPackages.${system};
+          texliveOfYear = pkgsOfYear.texlive.combine {inherit (pkgsOfYear.texlive) scheme-small pgf l3build;};
+        in
+          pkgs.runCommand "string-diagrams-texlive-${year}" {
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                ./build.lua
+                ./string-diagrams.dtx
+                ./string-diagrams.ins
+                ./testfiles
+              ];
+            };
+            nativeBuildInputs = [texliveOfYear pkgs.writableTmpDirAsHomeHook];
+            # NOTE: l3build resets TEXMFCNF, which breaks the formats of these old nixpkgs (nixpkgs#352194).
+            TEXMF = "${texliveOfYear}/";
+          } ''
+            cp -r $src/. .
+            chmod -R u+w .
+            l3build check
+            mkdir $out
+          '';
       in rec {
         texlive = pkgs.texliveInfraOnly.withPackages (
           ps: map (name: ps.${name}) (runtimeTLPackages ++ buildTLPackages ++ devTLPackages)
@@ -221,6 +252,10 @@
               grep -F "Package: string-diagrams ${lib.replaceStrings ["-"] ["/"] date} v${version}" test.log
               mkdir $out
             '';
+
+          texlive-2023 = texliveCheck "2023" nixpkgs-texlive-2023;
+          texlive-2024 = texliveCheck "2024" nixpkgs-texlive-2024;
+          texlive-2025 = texliveCheck "2025" nixpkgs-texlive-2025;
 
           # NOTE: CTAN maintainers prefer a flat upload (no TDS zip) for simple packages.
           ctan-is-flat = pkgs.runCommand "string-diagrams-ctan-is-flat" {nativeBuildInputs = [pkgs.unzip];} ''

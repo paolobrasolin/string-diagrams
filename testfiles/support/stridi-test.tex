@@ -7,6 +7,8 @@
 \RequirePackage[enable-debug]{expl3}
 \ExplSyntaxOn
 \debug_on:n { check-declarations , check-expressions , deprecation }
+% Don't wrap messages: older releases of expl3 wrap them at another width, which would change the logs.
+\int_set:Nn \l_iow_line_count_int { 9999 }
 \ExplSyntaxOff
 \RequirePackage{string-diagrams}
 
