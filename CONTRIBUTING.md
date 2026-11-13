@@ -29,7 +29,7 @@ A test whose title starts with `BUG:` records behavior known to be wrong, and a 
 
 ## Documentation
 
-The manual is the documentation part of `string-diagrams.dtx`, and `l3build doc` builds it. Write it in plain English: short sentences of one idea each, the active voice, the imperative for instructions, the same word for the same thing, and lists or numbered steps where they help. Keep the vocabulary of TikZ.
+The manual is the documentation part of `string-diagrams.dtx`, and `l3build doc` builds it. Write it with the writing rules of [ASD-STE100](https://www.asd-ste100.org/) (Simplified Technical English), without its dictionary: short sentences of one idea each, the active voice, the imperative for instructions, the same word for the same thing, and lists or numbered steps where they help. Keep the vocabulary of TikZ.
 
 Every example in the manual has a name, as in `\begin{tcblisting}{example=box}`, and `l3build doc` fails if an example doesn't compile.
 
@@ -52,7 +52,7 @@ The `runtime` and `build` lists are generated: after changing what the package o
 
 The project site, https://paolobrasolin.github.io/string-diagrams/, lives in `site/`. `index.html` and `llms.txt` are templates, `showcase/` holds the examples of the live demo, and `generate.lua` builds the site from a doc build. The page lists the showcase in a comment, one example per line, with its tab label, caption and alt text. `llms.txt` also gets the examples of the manual, in their order: each one is named in the manual, as in `\begin{tcblisting}{example=box}`.
 
-The page and `llms.txt` are written by hand, apart from the examples, so when the package changes what users write or see, update them too: `llms.txt` describes every key and command and quotes every error message of the package, and the page says which version its examples need. Their text follows [ASD-STE100](https://www.asd-ste100.org/) (Simplified Technical English). To check the site, serve it with `nix run .#serve-site` and try the live demo.
+The page and `llms.txt` are written by hand, apart from the examples, so when the package changes what users write or see, update them too: `llms.txt` describes every key and command and quotes every error message of the package, and the page says which version its examples need. Their text follows ASD-STE100 in full, with its dictionary. To check the site, serve it with `nix run .#serve-site` and try the live demo.
 
 `nix flake check` builds the site, and fails if a showcase example doesn't compile, if the page and `site/showcase` don't list the same examples, or if the package gains an `\endinput`, which the live demo can't handle: the demo pastes the package into the preamble of TikZJax, which runs TeX in the browser.
 
