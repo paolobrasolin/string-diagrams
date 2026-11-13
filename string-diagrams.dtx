@@ -695,17 +695,9 @@
 %
 % \subsection{Tagged PDF}
 %
-% A tagged PDF holds the structure of its document, for screen readers and for standards such as PDF/UA.
-% \LaTeX\ makes one when the document starts with \cs{DocumentMetadata}\texttt{\{tagging=on\}}, before \cs{documentclass}.
-% The package works in such documents, tested with \LaTeX\ 2025-11-01.
-%
-% With tagging on, \LaTeX\ collects each formula whole, to tag it.
-% A box opens the math of its label where the label starts, and closes it where the label ends, so \LaTeX\ can't collect it.
-% The package tells \LaTeX\ to leave that formula alone: the label looks the same, and has no tags of its own.
-% A formula that you write, as in a label with \texttt{box math=false} or on a wire, is collected as any other.
-%
-% \LaTeX\ marks a picture as decoration unless you describe it.
-% To describe a diagram for readers who can't see it, use the \texttt{alt} key that \LaTeX\ adds to \TikZ\ in such documents:
+% The package works in documents with the tagging of \LaTeX\ on, as with \cs{DocumentMetadata}\texttt{\{tagging=on\}}: it is tested with \LaTeX\ 2025-11-01.
+% The math that a box puts its label in has no tags of its own.
+% \LaTeX\ marks a picture as decoration unless you describe it, with the \texttt{alt} key that it adds to \TikZ\ in such documents:
 % \begin{verbatim}
 % \begin{tikzpicture}[alt={f, then g, as a string diagram}]
 % \end{verbatim}
