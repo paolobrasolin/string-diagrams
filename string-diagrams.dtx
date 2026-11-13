@@ -290,9 +290,9 @@
 % Wires to its sides are the loose ends of the diagram.
 % They go straight out to their side, or bend towards it.
 %
-% Wires that begin alike can share their beginning.
-% Write it once, then \texttt{=} and a group in braces, with the rest of each wire.
-% A beginning ends after the name of a node, or at the \texttt{=} of a wire.
+% Wires that start with the same text can share that text.
+% Write the shared text once, then \texttt{=}, then a group in braces that holds the rest of each wire.
+% The shared text is the name of a node, or a full wire end with the \texttt{=} after it.
 % So a group can hold:
 % \begin{itemize}
 %   \item the anchors of the node the wires start from, as in \texttt{A = \{ east.1 = C.west, west = @.west \}};
@@ -300,7 +300,9 @@
 %   \item the anchors of the node of a target, as in \texttt{f.north.1 = \{ g = \{ south.1, south.2 \} \}}.
 % \end{itemize}
 % Groups can nest, and every grouping of the same wires draws the same wires.
-% Only beginnings are shared: wires that end alike can't share their end.
+% Only the start of the text can be shared: wires with the same target can't share the target.
+% In a group after the node that the wires start from, an item without \texttt{=} is a target, as in \texttt{f = \{ g, h.south \}}.
+% So a name there is always a node: if a node is called \texttt{north}, \texttt{f = \{ north \}} is a wire to that node.
 % A node can appear in more than one entry, and an anchor can carry several wires, in and out.
 %
 % \begin{tcblisting}{example=wires}
@@ -366,10 +368,6 @@
 % \texttt{bend left} and \texttt{bend right} bend a wire between its ends.
 % Each wire is a \TikZ\ edge, so its keys style its stroke too.
 %
-% Wires take their directions from the names of anchors, in the frame of the picture.
-% So you can shift and scale a picture, but not rotate or mirror it.
-% Rotated nodes aren't supported either.
-%
 % \subsection{Anchors left out}
 %
 % \begin{function}[added=2026-11-11]{/tikz/wire flow}
@@ -415,9 +413,9 @@
 % \end{tcblisting}
 %
 % The flow decides even when the target lies behind: then the wire leaves along the flow, and loops round.
-% A wire goes from its start to its target, so swap them to turn it.
-% Without a flow, the axis flips when two nodes are near a diagonal: a small move of a node can turn their wire.
-% Set a flow to keep it.
+% A wire goes from its first end to its second: to turn the wire round, write its ends in the other order.
+% Without a flow, the axis changes when two nodes are near a diagonal: a small move of a node can change the sides that their wire uses.
+% To keep the sides the same, set a flow.
 %
 % With a flow, loose ends need no anchors either: \texttt{@ = f} leaves the boundary behind \texttt{f}, and \texttt{f = @} reaches it ahead of \texttt{f}.
 %
@@ -457,6 +455,7 @@
 % They are paddings, as in \TikZ, so they don't scale with the picture.
 %
 % On a boundary, \texttt{box} gives ports, and nothing else: no stroke, padding or math.
+% Write \texttt{box} after \texttt{boundary}: before it, \texttt{box} is the full style, and the boundary is drawn as a box.
 % Loose ends reach the ports of a boundary as wires reach the ports of a box: name the port, or leave the anchor out on a side with one port.
 % A side without ports takes loose ends straight, as the boundary of the picture does.
 %
@@ -505,6 +504,8 @@
 % Then the wire leaves or enters that end the other way, and a side without ports is reached straight across.
 % This is how loose ends work, since a boundary holds the nodes of its call.
 % A frame drawn by hand works the same way.
+% The box of a node is the rectangle between its \texttt{south west} and \texttt{north east} anchors.
+% On a circle, these anchors are on the circle, so the rectangle is smaller than the node: use a rectangular node to hold other nodes.
 %
 % \begin{tcblisting}{example=frame}
 %     \begin{tikzpicture}
@@ -612,7 +613,7 @@
 % The keys only choose the anchor of the label, from the direction of the wire there; \texttt{at end}, \texttt{at start} and \texttt{pos} still place it.
 % On a path, they act as at the end the label is nearer.
 % In the label of a node, they read the name of the anchor.
-% Where a label touches a wire, swap it.
+% If a label touches a wire, put the label on the other side with \texttt{swap}.
 %
 % \subsection{Dots}
 %
@@ -730,6 +731,24 @@
 %     \cs{draw}\texttt{[->]} with edges adds a stray tip to the path itself: write \cs{path}\texttt{[->]} instead.
 %   \item \emph{Nodes on a path.}
 %     After a node on a path, the next \texttt{to} or edge starts at that node, not at the coordinate before it.
+%   \item \emph{Markings.}
+%     The markings of the \texttt{decorations.markings} library fail on wires of no length, with \enquote{Dimension too large}.
+% \end{itemize}
+%
+% \subsection{Known limitations}
+%
+% The package doesn't handle these cases well.
+% \begin{itemize}
+%   \item \emph{Rotated and mirrored pictures.}
+%     Wires take their directions from the names of anchors, in the frame of the picture.
+%     So you can shift and scale a picture, but not rotate or mirror it.
+%     Rotated nodes aren't supported either.
+%   \item \emph{Shifted ends.}
+%     An end of a \texttt{to[wire]} or an \texttt{edge[wire]} is an anchor of a node, or a node.
+%     An end that is shifted or computed, as \texttt{([yshift=1pt]f.north.1)}, is a point: the key reports it, and doesn't draw the wire.
+%     Place a coordinate there, and wire the coordinate.
+%   \item \emph{Nodes that aren't rectangles.}
+%     A node holds another by the rectangle between its \texttt{south west} and \texttt{north east} anchors, which is smaller than a circle: see the section on nodes inside nodes.
 %   \item \emph{Wires in a row.}
 %     In \texttt{(f.north.1) to[wire] (g.west.1) to[wire] (h.west.1)}, the second wire leaves \texttt{g.west.1} westwards, back the way the first came.
 %   \item \emph{Feedback loops.}
@@ -741,8 +760,6 @@
 %   \item \emph{Scaled pictures.}
 %     The \texttt{scale} key moves nodes closer or apart, but the margins of a boundary are paddings, which don't scale: loose ends keep their length.
 %     For other margins, give the call a boundary of its own, as in \texttt{boundary=\{inner xsep=1em\}}.
-%   \item \emph{Markings.}
-%     The markings of the \texttt{decorations.markings} library fail on wires of no length, with \enquote{Dimension too large}.
 % \end{itemize}
 %
 % \subsection{Changes from earlier versions}
@@ -1703,7 +1720,9 @@
 % \end{variable}
 %
 % \begin{macro}{\@@_node_box:nNNNN}
-%   Stores the bounding box of a node, from its south west and north east anchors, which lie on the outer edge of its stroke, since \TikZ's default \texttt{outer sep} is half the line width.
+%   Stores the box of a node: the rectangle between its south west and north east anchors.
+%   On a rectangular node it is the bounding box, since these anchors lie on the outer edge of the stroke: \TikZ's default \texttt{outer sep} is half the line width.
+%   On a circle the anchors are on the circle, so the box is smaller than the node.
 %   \begin{arguments}
 %     \item node
 %     \item dimension variable to store the west border
