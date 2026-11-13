@@ -54,7 +54,7 @@ This project is licensed under the LPPL-1.3c License.
 
 ## Acknowledgements
 
-Special gratitude goes to the [Laboratory for Compositional Systems and Methods](https://compose.ioc.ee/) of [Tallin University of Technology](https://taltech.ee/). My stay with them in May 2023 set the stage for the birth and primary development of this work, fueled by their warm hospitality and vibrant scholarly atmosphere.
+Special gratitude goes to the [Laboratory for Compositional Systems and Methods](https://compose.ioc.ee/) of [Tallinn University of Technology](https://taltech.ee/). My stay with them in May 2023 set the stage for the birth and primary development of this work, fueled by their warm hospitality and vibrant scholarly atmosphere.
 
 This work is built upon the collaborative efforts of two exceptional contributors:
 
