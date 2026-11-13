@@ -88,6 +88,7 @@ Version 0.5.0 added boundaries that you can make, draw and give ports. In versio
 
 - "Box ports take four counts, for the north, east, south and west sides, as in 1/2/1/2, not `<value>'": `box ports` and `box` need exactly four counts.
 - "Box `<node>' has no port <side>.<index>, since its <side> side has <count>.": open more ports on that side, or use a smaller index.
+- "box math is true or false, not `<value>', so it is left as it was.": write `box math=true` or `box math=false`. `box math` without a value is `box math=true`.
 - "Node `<node>' has no anchor `<anchor>', so the wire is not drawn.": the node does not have this anchor. A boundary has ports only with `box`.
 - "Wire end `<node>.<anchor>' is not on a side, so the wire is not drawn: wires end at north, east, south or west, or at ports.": use a side, a corner or a port.
 - "Wire end `(<end>)' is not an anchor of a node, so the wire is not drawn: wires go between anchors, as in (f.north) to[wire] (g.south).": a `wire` path goes from a node to a node, not to a coordinate or a calculated point.
@@ -99,6 +100,7 @@ Version 0.5.0 added boundaries that you can make, draw and give ports. In versio
 - "Wire flow `<value>' is not a direction: use north, east, south, west, up, right, down, left or none.": use one of these values.
 - "Node `<node>' has no wires: list them as in <node> = { north = b.south }.": after a node and `=`, write a group of wires in braces.
 - "Wire end `<node>.<anchor>' has no target: give it one as in <anchor> = b.south.": each wire needs two ends.
+- "`<end>' has a parenthesis, so it is ignored: wires go between nodes, not coordinates such as (1,2). Name the place, as in \path (1,2) coordinate (c); and wire c.": a wire end in `\wires` is a node, not a coordinate. Put a coordinate with a name at that position, and write the name.
 - "`<group>' is a group without a beginning, so it is ignored: a group follows a node or an anchor and =, as in b = { south.1, south.2 }.": write the shared start before the group.
 - "Wire end `<end>' can't begin a group: targets share their node, as in b = { east.1, east.2 }, not part of an anchor.": a group cannot start in an anchor.
 - "Wire end `<node>.<anchor>' has a value: list the anchors of `<node>' alone, as in <node> = { east.1, east.2 }.": the anchors of a target node do not have a value.
@@ -111,6 +113,7 @@ Version 0.5.0 added boundaries that you can make, draw and give ports. In versio
 - "Wire end `<end>' is a loose end, but the call has boundary=none, so the wire is not drawn.": remove `boundary=none`, or remove the loose end.
 - The warning "Node `<node>' is not inside the boundary of this call, so its wires to @ face out.": put the node in the boundary, or make the boundary larger with `fit`.
 - "A `[' in the wires has no matching `]', so the rest of the list is ignored." and "A `]' in the wires has no matching `[', so the rest of the list is ignored.": close each bracket.
+- "\wires draws in a picture of TikZ only, so it does nothing here: use it in a tikzpicture.": put the `\wires` command in a `tikzpicture` environment.
 
 ## Examples
 
