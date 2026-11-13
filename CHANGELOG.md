@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Draw wires inside pics, and under the `name prefix` and `name suffix` keys of TikZ, rather than reporting their nodes as missing: node names are now resolved as TikZ resolves them (#18).
+- File the `box` and `dot` styles under `/tikz/` in the manual, where they are defined, rather than under `/pgf/`.
 - Stop slowing down the TikZ pictures of a document that loads the package, with or without wires in them: recording an anchor that TikZ resolves now takes the same time however many are recorded already. A picture that refers to 12,800 anchors took 57 s, and now takes 2.8 s, against 2.4 s without the package (#21).
 - Draw wires about four times faster: the regular expressions that read anchor names are now matched once for each name, or replaced by string comparisons (#22).
 

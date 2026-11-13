@@ -137,7 +137,7 @@
 %
 % \subsection{Boxes}
 %
-% \begin{function}[added=2023-05-31,updated=2026-11-07]{/pgf/box}
+% \begin{function}[added=2023-05-31,updated=2026-11-07]{/tikz/box}
 %
 %   To draw a box, use this style on a node.
 %   Its label is in math mode already, so write it without dollars: \texttt{\{f\}}, since \texttt{\{\$f\$\}} breaks the node.
@@ -593,7 +593,7 @@
 %
 % \subsection{Dots}
 %
-% \begin{function}[added=2023-05-31,updated=2026-11-07]{/pgf/dot}
+% \begin{function}[added=2023-05-31,updated=2026-11-07]{/tikz/dot}
 %
 %   To split and join wires, use dots.
 %   Wires attach to their sides and corners, and leave corners diagonally.
@@ -878,10 +878,11 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{/pgf/box}
+% \begin{macro}{/tikz/box}
 %   \changes{0.2.0}{2023/06/12}{acts as a shortcut for setting port counts}
 %   \changes{0.3.0}{2026/11/07}{without counts, keeps the ones in force}
 %   \changes{0.5.0}{2026/11/12}{on a boundary, gives ports only: no stroke, padding or math}
+%   \changes{0.5.0}{2026/11/13}{filed under \texttt{/tikz/} in the manual, where it is defined}
 %
 %   Define style to draw boxes.
 %    \begin{macrocode}
@@ -903,7 +904,8 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{/pgf/dot}
+% \begin{macro}{/tikz/dot}
+%   \changes{0.5.0}{2026/11/13}{filed under \texttt{/tikz/} in the manual, where it is defined}
 %
 %   Define style to draw dots.
 %    \begin{macrocode}
