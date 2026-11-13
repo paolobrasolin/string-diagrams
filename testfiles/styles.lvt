@@ -66,6 +66,14 @@
   }
 }
 
+\TEST{a node with the box style twice keeps its label in math mode, once}{
+  \begin{tikzpicture}[every node/.style={box}]
+    \node[box=1/0/1/0] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \node[box, box] (b) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \node[box, box, box math=false] (c) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+  \end{tikzpicture}
+}
+
 \TEST{box math takes true or false only}{
   \PICTURE{
     \node[box, box math=maybe] (a) at (0pt,0pt) {};

@@ -1019,15 +1019,17 @@
 %   \changes{0.5.0}{2026/11/13}{works with the tagging of \LaTeX\ on: the math of a box label is not collected}
 %   A label that is in math mode already, as in a \texttt{matrix of math nodes}, stays in it: the box opens math only outside it, and closes only the math that it opened.
 %   \changes{0.5.0}{2026/11/13}{a label in math mode already stays in it, as in a \texttt{matrix of math nodes}}
+%   A node can get the \texttt{box} style twice, as from a style of the user and from its own keys, and then the opening and the closing run twice: the second opening finds math mode and leaves the switch alone, and the first closing clears it, so the second closes nothing.
+%   \changes{0.5.0}{2026/11/13}{a node with the \texttt{box} style twice no longer fails}
 %    \begin{macrocode}
 \bool_new:N \l_@@_box_math_bool
 \bool_set_true:N \l_@@_box_math_bool
 \bool_new:N \l_@@_box_math_open_bool
 \cs_new_protected:Nn \@@_box_math_begin: {
-  \bool_set_false:N \l_@@_box_math_open_bool
-  \bool_if:NT \l_@@_box_math_bool
+  \mode_if_math:F
     {
-      \mode_if_math:F
+      \bool_set_false:N \l_@@_box_math_open_bool
+      \bool_if:NT \l_@@_box_math_bool
         {
           \bool_set_true:N \l_@@_box_math_open_bool
           \cs_if_exist_use:N \MathCollectFalse
@@ -1035,8 +1037,13 @@
         }
     }
 }
-\cs_new_protected:Nn \@@_box_math_end:
-  { \bool_if:NT \l_@@_box_math_open_bool { $ } }
+\cs_new_protected:Nn \@@_box_math_end: {
+  \bool_if:NT \l_@@_box_math_open_bool
+    {
+      $
+      \bool_set_false:N \l_@@_box_math_open_bool
+    }
+}
 \msg_new:nnn { string-diagrams } { box-math }
   { box~math~is~true~or~false,~not~`#1',~so~it~is~left~as~it~was. }
 \tikzset{
