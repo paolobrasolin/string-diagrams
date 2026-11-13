@@ -53,7 +53,38 @@ the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 ============================================================
 ============================================================
-TEST 5: a dot is filled
+TEST 5: box math=false puts the label of a box in text mode
+============================================================
+text
+text
+============================================================
+============================================================
+TEST 6: box math works on a picture and a scope, and means true without a value
+============================================================
+text
+math
+math
+text
+============================================================
+============================================================
+TEST 7: a box label in dollars is fine with box math=false
+============================================================
+text
+a.north east = (10.20001pt, 10.20001pt)
+============================================================
+============================================================
+TEST 8: box math takes true or false only
+============================================================
+! Package string-diagrams Error: box math is true or false, not `maybe', so it is left as it was.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 9: a dot is filled
 ============================================================
 q 
 0 G 
@@ -69,7 +100,7 @@ f
 Q 
 ============================================================
 ============================================================
-TEST 6: a dot is .4em wide
+TEST 10: a dot is .4em wide
 ============================================================
 a.north = (0.0pt, 2.19997pt)
 a.east = (2.19997pt, 0.0pt)

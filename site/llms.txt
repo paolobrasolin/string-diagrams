@@ -10,7 +10,7 @@ Version 0.5.0 added boundaries that you can make, draw and give ports. In versio
 
 ### Boxes
 
-- `\node[box] (f) {f};` draws a box. The label of the box is in math mode: write `{f}`, not `{$f$}`, because `{$f$}` breaks the node.
+- `\node[box] (f) {f};` draws a box. The label of the box is in math mode: write `{f}`, not `{$f$}`, because `{$f$}` breaks the node. For a label in text, use `box math=false` on the box, on a scope or on the picture.
 - `box ports north=<n>`, `box ports east=<n>`, `box ports south=<n>` and `box ports west=<n>` open `<n>` ports on a side. A box has no ports until you open them.
 - `box ports=<north>/<east>/<south>/<west>` sets the four sides at the same time, and `box=<north>/<east>/<south>/<west>` does the same. Without counts, `box` keeps the counts that are set. Thus you can also set the keys on a picture or a scope, for all its boxes.
 - Ports are anchors: `A.east.1` is the first port on the east side of `A`. On the north and south sides, the ports go from left to right. On the east and west sides, they go from top to bottom.

@@ -34,6 +34,37 @@
   }
 }
 
+\TEST{box math=false puts the label of a box in text mode}{
+  \PICTURE{
+    \node[box, box math=false] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \node[box math=false, box] (b) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+  }
+}
+
+\TEST{box math works on a picture and a scope, and means true without a value}{
+  \begin{tikzpicture}[box math=false]
+    \node[box] (a) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \begin{scope}[box math]
+      \node[box] (b) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \end{scope}
+    \node[box, box math=true] (c) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \node[box] (d) at (0pt,0pt) {\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+  \end{tikzpicture}
+}
+
+\TEST{a box label in dollars is fine with box math=false}{
+  \PICTURE{
+    \node[box, box math=false] (a) at (0pt,0pt) {$f$\ifmmode\TYPE{math}\else\TYPE{text}\fi};
+    \SHOWANCHOR{a}{north east}
+  }
+}
+
+\TEST{box math takes true or false only}{
+  \PICTURE{
+    \node[box, box math=maybe] (a) at (0pt,0pt) {};
+  }
+}
+
 \TEST{a dot is filled}{
   \PICTURE{
     \LOG{\node[dot] (a) at (0pt,0pt) {};}

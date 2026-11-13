@@ -1,13 +1,14 @@
 \begin{tikzpicture}[
   wire flow=east,
+  box math=false,
   every node/.append style={minimum height=2.6em},
   every edge quotes/.append style={font=\small\itshape, minimum height=0pt, inner sep=2pt},
 ]
-  \node[box=0/2/0/1] (s) at (0,0.6) {\mathrm{separate}};
-  \node[box=0/1/0/1] (m) at (0,-1) {\mathrm{melt}};
-  \node[box=0/1/0/1] (w) at (2.8,1.4) {\mathrm{whisk}};
-  \node[box=0/1/0/2] (t) at (2.8,-0.5) {\mathrm{stir}};
-  \node[box=0/1/0/2] (f) at (4.9,0.45) {\mathrm{fold}};
+  \node[box=0/2/0/1] (s) at (0,0.6) {separate};
+  \node[box=0/1/0/1] (m) at (0,-1) {melt};
+  \node[box=0/1/0/1] (w) at (2.8,1.4) {whisk};
+  \node[box=0/1/0/2] (t) at (2.8,-0.5) {stir};
+  \node[box=0/1/0/2] (f) at (4.9,0.45) {fold};
   \wires{
     @ = { ["egg" beyond start] s, ["chocolate" beyond start] m },
     s = { east.1 = ["white"] w, east.2 = ["yolk"'] t.west.1 },

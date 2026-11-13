@@ -142,10 +142,29 @@
 %
 %   To draw a box, use this style on a node.
 %   Its label is in math mode already, so write it without dollars: \texttt{\{f\}}, since \texttt{\{\$f\$\}} breaks the node.
+%   For a label in text, set \texttt{box math=false}.
 %
 %   \begin{tcblisting}{example=box}
 %     \begin{tikzpicture}
 %       \node[box] {A};
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
+% \begin{function}[added=2026-11-13]{/tikz/box math}
+%   \begin{syntax}
+%     /tikz/box math=\meta{boolean}
+%   \end{syntax}
+%
+%   Sets whether the labels of boxes are in math mode: \texttt{true}, the initial value, or \texttt{false}.
+%   Set it to \texttt{false} for labels in text, on a box, a scope or a picture.
+%   Without a value, the key means \texttt{true}.
+%
+%   \begin{tcblisting}{example=box-math}
+%     \begin{tikzpicture}[box math=false]
+%       \node[box] (A) at (0,0) {whisk};
+%       \node[box, box math] (B) at (2,0) {f};
 %     \end{tikzpicture}
 %   \end{tcblisting}
 %
@@ -887,21 +906,44 @@
 %
 %   Define style to draw boxes.
 %    \begin{macrocode}
-\ExplSyntaxOff
 \tikzset{
-  box/.default={},
-  box/.style args={#1}{
-    shape=box,
+  box/.default = {},
+  box/.style~args = {#1}{
+    shape = box,
     draw,
-    inner sep=.5em,
-    minimum width=2em,
-    minimum height=2em,
-    execute at begin node=$,
-    execute at end node=$,
-    /pgf/box ports=#1,
+    inner~sep = .5em,
+    minimum~width = 2em,
+    minimum~height = 2em,
+    execute~at~begin~node = \@@_box_math_shift:,
+    execute~at~end~node = \@@_box_math_shift:,
+    /pgf/box~ports = #1,
   },
 }
-\ExplSyntaxOn
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{/tikz/box math,\@@_box_math_shift:}
+%   \changes{0.5.0}{2026/11/13}{new key: sets whether the labels of boxes are in math mode}
+%
+%   Sets whether the labels of boxes are in math mode.
+%   The key sets a switch, which a box reads when its label starts and ends: so the key works on a picture, a scope or the box itself, before or after \texttt{box}.
+%    \begin{macrocode}
+\bool_new:N \l_@@_box_math_bool
+\bool_set_true:N \l_@@_box_math_bool
+\cs_new:Nn \@@_box_math_shift: { \bool_if:NT \l_@@_box_math_bool { $ } }
+\msg_new:nnn { string-diagrams } { box-math }
+  { box~math~is~true~or~false,~not~`#1',~so~it~is~left~as~it~was. }
+\tikzset{
+  box~math/.default = true,
+  box~math/.code = {
+    \str_case:nnF { #1 }
+      {
+        { true } { \bool_set_true:N \l_@@_box_math_bool }
+        { false } { \bool_set_false:N \l_@@_box_math_bool }
+      }
+      { \msg_error:nnn { string-diagrams } { box-math } { #1 } }
+  },
+}
 %    \end{macrocode}
 % \end{macro}
 %
