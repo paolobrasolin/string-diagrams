@@ -287,4 +287,8 @@
   }
 }
 
+\TEST{wires outside a picture are one error}{
+  \wires{ a.north.1 = b.south.1 }
+}
+
 \END

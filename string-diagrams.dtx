@@ -2925,7 +2925,7 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\wires}
+% \begin{macro}{\wires,\@@_wires:nn}
 %   \changes{0.2.1}{2023/06/13}{now correctly handles optional style parameter}
 %   \changes{0.3.0}{2026/11/07}{loose ends are wires to the boundary node \texttt{@}, replacing the third argument}
 %   \changes{0.3.0}{2026/11/07}{every listed wire is drawn, so nodes can be listed twice and anchors can fan out}
@@ -2942,13 +2942,26 @@
 %   \changes{0.5.0}{2026/11/12}{finds nodes named under \texttt{name prefix} or \texttt{name suffix}, as in a pic, and so does the \texttt{wire} key}
 %   \changes{0.5.0}{2026/11/13}{blank lines among the wires are ignored}
 %   \changes{0.5.0}{2026/11/13}{a coordinate as a wire end gets an error that says what to write}
+%   \changes{0.5.0}{2026/11/13}{a call outside a picture is one error}
 %   Define our superstar.
 %   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
+%   Outside a picture it only reports an error.
 %   Its wires can hold blank lines: the \cs{par} tokens they make are removed, at any depth, and the regular expression that does it runs only when the wires hold one.
 %    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { outside-picture }
+  {
+    \iow_char:N\\wires~draws~in~a~picture~of~TikZ~only,~so~it~does~nothing~here:~
+    use~it~in~a~tikzpicture.
+  }
 \regex_const:Nn \c_@@_par_regex { \c{par} }
 \tl_new:N \l_@@_call_wires_tl
 \NewDocumentCommand{\wires}{ O{} +m }
+{
+  \legacy_if:nTF { pgfpicture }
+    { \@@_wires:nn { #1 } { #2 } }
+    { \msg_error:nn { string-diagrams } { outside-picture } }
+}
+\cs_new_protected:Nn \@@_wires:nn
 {
   \@@_call_keys:n { #1 }
   \seq_clear:N \l_@@_wires_seq

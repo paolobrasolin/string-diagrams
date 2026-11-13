@@ -509,3 +509,14 @@ Q
 S 
 Q 
 ============================================================
+============================================================
+TEST 43: wires outside a picture are one error
+============================================================
+! Package string-diagrams Error: \wires draws in a picture of TikZ only, so it does nothing here: use it in a tikzpicture.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================

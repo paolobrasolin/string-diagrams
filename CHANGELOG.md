@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep the label of a box in math mode where it is in math mode already, as in a `matrix of math nodes` of TikZ: the box opened math again, which closed it, and the label came out in text.
 - Ignore blank lines among the wires of `\wires`, which gave TeX's "Paragraph ended before \wires was complete".
 - Report a coordinate written as a wire end, as in `f.north.1 = (1,2)`, with an error that says what to write: the commas of the list split it, and the errors named a node `2)`.
+- Report `\wires` outside a picture with one error of the package, rather than with "Undefined control sequence" from TikZ and errors about missing nodes.
 - File the `box` and `dot` styles under `/tikz/` in the manual, where they are defined, rather than under `/pgf/`.
 - Stop slowing down the TikZ pictures of a document that loads the package, with or without wires in them: recording an anchor that TikZ resolves now takes the same time however many are recorded already. A picture that refers to 12,800 anchors took 57 s, and now takes 2.8 s, against 2.4 s without the package (#21).
 - Draw wires about four times faster: the regular expressions that read anchor names are now matched once for each name, or replaced by string comparisons (#22).
