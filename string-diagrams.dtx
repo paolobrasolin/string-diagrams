@@ -99,6 +99,7 @@
 % \changes{0.5.0}{2026/11/13}{draw wires about four times faster, by matching regular expressions once for each anchor name}
 % \changes{0.5.0}{2026/11/13}{require the \LaTeX\ and \pkg{expl3} of \TeX\ Live 2023, which the tests now run on}
 % \changes{0.5.0}{2026/11/13}{define the keys with short names under \texttt{string diagrams/}, and use those names only, so that redefining a short name doesn't break the package}
+% \changes{0.5.0}{2026/11/13}{name the shape of a box \texttt{string diagrams box}, and put the \texttt{box ports} keys under \texttt{/tikz/}}
 %
 % \GetFileInfo{\jobname.sty}
 %
@@ -184,16 +185,16 @@
 % \end{tcblisting}
 %
 % \begin{function}[added=2023-06-12,updated=2026-11-07]{
-%   /pgf/box ports north,
-%   /pgf/box ports east,
-%   /pgf/box ports south,
-%   /pgf/box ports west,
+%   /tikz/box ports north,
+%   /tikz/box ports east,
+%   /tikz/box ports south,
+%   /tikz/box ports west,
 % }
 %   \begin{syntax}
-%     /pgf/box ports north=\meta{integer}
-%     /pgf/box ports east=\meta{integer}
-%     /pgf/box ports south=\meta{integer}
-%     /pgf/box ports west=\meta{integer}
+%     /tikz/box ports north=\meta{integer}
+%     /tikz/box ports east=\meta{integer}
+%     /tikz/box ports south=\meta{integer}
+%     /tikz/box ports west=\meta{integer}
 %   \end{syntax}
 %
 %   These keys open ports on the sides of a box: a box has none until you open them.
@@ -226,10 +227,10 @@
 % \end{function}
 %
 % \begin{function}[added=2023-06-12,updated=2026-11-07]{
-%   /pgf/box ports,
+%   /tikz/box ports,
 % }
 %   \begin{syntax}
-%     /pgf/box ports=\meta{integer}/\meta{integer}/\meta{integer}/\meta{integer}
+%     /tikz/box ports=\meta{integer}/\meta{integer}/\meta{integer}/\meta{integer}
 %   \end{syntax}
 %
 %   The \texttt{box ports} key sets the ports of all sides at once.
@@ -699,7 +700,8 @@
 %   Each one is a style that only calls the key of the same name under \texttt{string diagrams/}, and the package itself uses the long names only.
 %   So if you redefine \texttt{dot}, say, \cmd\wires\ still works, and \texttt{string diagrams/dot} still gives the dot of this package.
 %   The style \texttt{every wire} goes the other way: the package applies \texttt{string diagrams/every wire}, which calls \texttt{every wire} unless you redefine it.
-%   The \texttt{box ports} keys are under \texttt{/pgf/}, but their long names are under \texttt{/tikz/} as all the others, and hold the port counts.
+%   The long names of the \texttt{box ports} keys hold the port counts.
+%   The shape of a box has a long name only, \texttt{string diagrams box}.
 %
 %   \begin{tcblisting}{example=long-names}
 %     \begin{tikzpicture}[dot/.style={circle, draw, red}]
@@ -749,6 +751,8 @@
 % \begin{itemize}
 %   \item \texttt{@} is the boundary of a call, and means nothing outside \cmd\wires: to reach a boundary by hand, name it.
 %   \item The margins of the boundary no longer scale with the picture.
+%   \item The \texttt{box ports} keys are under \texttt{/tikz/}, not \texttt{/pgf/}: in the keys of a picture or a node they work as before, but \cs{pgfset} no longer finds them.
+%   \item The shape of a box is \texttt{string diagrams box}, not \texttt{box}: the \texttt{box} key works as before.
 % \end{itemize}
 %
 % Version 0.4.0 changes some behaviors of 0.3.0:
@@ -795,11 +799,11 @@
 %    \end{macrocode}
 %
 %  \begin{macro}{
-%    /pgf/box ports north,
-%    /pgf/box ports east,
-%    /pgf/box ports south,
-%    /pgf/box ports west,
-%    /pgf/box ports,
+%    /tikz/box ports north,
+%    /tikz/box ports east,
+%    /tikz/box ports south,
+%    /tikz/box ports west,
+%    /tikz/box ports,
 %  }
 %   \changes{0.3.0}{2026/11/07}{counts start at zero, and the shortcut checks that it gets four}
 %
@@ -818,11 +822,11 @@
   /tikz/string~diagrams/box~ports~east/.initial=0,
   /tikz/string~diagrams/box~ports~south/.initial=0,
   /tikz/string~diagrams/box~ports~west/.initial=0,
-  /pgf/box~ports~north/.style = { /tikz/string~diagrams/box~ports~north = {#1} },
-  /pgf/box~ports~east/.style = { /tikz/string~diagrams/box~ports~east = {#1} },
-  /pgf/box~ports~south/.style = { /tikz/string~diagrams/box~ports~south = {#1} },
-  /pgf/box~ports~west/.style = { /tikz/string~diagrams/box~ports~west = {#1} },
-  /pgf/box~ports/.style = { /tikz/string~diagrams/box~ports = {#1} },
+  /tikz/box~ports~north/.style = { /tikz/string~diagrams/box~ports~north = {#1} },
+  /tikz/box~ports~east/.style = { /tikz/string~diagrams/box~ports~east = {#1} },
+  /tikz/box~ports~south/.style = { /tikz/string~diagrams/box~ports~south = {#1} },
+  /tikz/box~ports~west/.style = { /tikz/string~diagrams/box~ports~west = {#1} },
+  /tikz/box~ports/.style = { /tikz/string~diagrams/box~ports = {#1} },
   /tikz/string~diagrams/box~ports/.code={
     \tl_if_blank:nF { #1 }
       {
@@ -878,10 +882,10 @@
   { #1~has~no~port~#2.#3,~since~its~#2~side~has~#4. }
 \cs_new_protected:Nn \@@_subdivide_segment:nNNNNN {
   \int_step_inline:nn { #2 } {
-    \cs_if_exist:cF { pgf@anchor@box@#1.##1 }
+    \cs_if_exist:cF { pgf@anchor@string~diagrams~box@#1.##1 }
       {
         \cs_new_nopar:cpn
-          { pgf@anchor@box@#1.##1 }
+          { pgf@anchor@string~diagrams~box@#1.##1 }
           {
             \int_compare:nNnTF { ##1 } > { #2 }
               {
@@ -920,7 +924,7 @@
 %
 %   Define a rectangular shape with configurable ports.
 %    \begin{macrocode}
-\pgfdeclareshape{box}{
+\pgfdeclareshape{string~diagrams~box}{
 
   % Inherit all the structure of rectangle
   \inheritsavedanchors[from=rectangle]
@@ -937,24 +941,24 @@
   \inheritbackgroundpath[from=rectangle]
 
   % Dump port counts into saved macros
-  \savedmacro\portsnorth
-    {\pgfmathtruncatemacro\portsnorth{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~north}}}
-  \savedmacro\portseast
-    {\pgfmathtruncatemacro\portseast{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~east}}}
-  \savedmacro\portssouth
-    {\pgfmathtruncatemacro\portssouth{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~south}}}
-  \savedmacro\portswest
-    {\pgfmathtruncatemacro\portswest{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~west}}}
+  \savedmacro\l_@@_ports_north_tl
+    {\pgfmathtruncatemacro\l_@@_ports_north_tl{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~north}}}
+  \savedmacro\l_@@_ports_east_tl
+    {\pgfmathtruncatemacro\l_@@_ports_east_tl{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~east}}}
+  \savedmacro\l_@@_ports_south_tl
+    {\pgfmathtruncatemacro\l_@@_ports_south_tl{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~south}}}
+  \savedmacro\l_@@_ports_west_tl
+    {\pgfmathtruncatemacro\l_@@_ports_west_tl{\pgfkeysvalueof{/tikz/string~diagrams/box~ports~west}}}
 
   % Add ports definitions to shape definition
-  \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@box\endcsname{
-    \@@_subdivide_segment:nNNNNN { north } { \portsnorth }
+  \expandafter\pgfutil@g@addto@macro\csname pgf@sh@s@string~diagrams~box\endcsname{
+    \@@_subdivide_segment:nNNNNN { north } { \l_@@_ports_north_tl }
       { \southwest } { \northeast } { \northeast } { \northeast }
-    \@@_subdivide_segment:nNNNNN { east } { \portseast }
+    \@@_subdivide_segment:nNNNNN { east } { \l_@@_ports_east_tl }
       { \northeast } { \northeast } { \northeast } { \southwest }
-    \@@_subdivide_segment:nNNNNN { south } { \portssouth }
+    \@@_subdivide_segment:nNNNNN { south } { \l_@@_ports_south_tl }
       { \southwest } { \southwest } { \northeast } { \southwest }
-    \@@_subdivide_segment:nNNNNN { west } { \portswest }
+    \@@_subdivide_segment:nNNNNN { west } { \l_@@_ports_west_tl }
       { \southwest } { \northeast } { \southwest } { \southwest }
   }
 
@@ -976,7 +980,7 @@
   box/.style = { /tikz/string~diagrams/box = {#1} },
   string~diagrams/box/.default = {},
   string~diagrams/box/.style~args = {#1}{
-    shape = box,
+    shape = string~diagrams~box,
     draw,
     inner~sep = .5em,
     minimum~width = 2em,
@@ -1316,7 +1320,7 @@
     {
       /tikz/inner~xsep = 2.3333em ,
       /tikz/inner~ysep = 1.3333em ,
-      /tikz/string~diagrams/box/.style = { /tikz/shape = box , /tikz/string~diagrams/box~ports = {##1} } ,
+      /tikz/string~diagrams/box/.style = { /tikz/shape = string~diagrams~box , /tikz/string~diagrams/box~ports = {##1} } ,
       /tikz/append~after~command =
         { \pgfextra { \@@_boundary_made:e { \tikzlastnode } } } ,
     }
@@ -1490,11 +1494,11 @@
 \int_new:N \g_@@_ports_int
 \cs_new_protected:Nn \@@_side_ports:nnN {
   \int_zero:N #3
-  \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { box }
+  \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { string~diagrams~box }
     {
       \group_begin:
         \use:c { pgf@sh@ma@ #1 }
-        \int_gset:Nn \g_@@_ports_int { \use:c { ports #2 } }
+        \int_gset:Nn \g_@@_ports_int { \use:c { l_@@_ports_ #2 _tl } }
       \group_end:
       \int_set_eq:NN #3 \g_@@_ports_int
     }
@@ -1505,7 +1509,7 @@
 \regex_const:Nn \c_@@_port_regex { \A (north|east|south|west) \. ([0-9]+) \Z }
 \cs_new_protected:Nn \@@_port_of_box:nn {
   \seq_clear:N \l_@@_port_seq
-  \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { box }
+  \str_if_eq:eeT { \use:c { pgf@sh@ns@ #1 } } { string~diagrams~box }
     {
       \seq_if_exist:cF { g_@@_port_ \tl_to_str:n { #2 } _seq }
         {

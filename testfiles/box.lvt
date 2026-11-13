@@ -97,7 +97,7 @@
 \TEST{port counts set outside a box reach it}{
   \PICTURE[box ports=2/2/2/2]{
     \node[box, square] (a) at (0pt,0pt) {};
-    \node[shape=box, square] (b) at (0pt,0pt) {};
+    \node[shape=string diagrams box, square] (b) at (0pt,0pt) {};
     \SHOWANCHOR{a}{north.1}
     \SHOWANCHOR{b}{north.1}
   }
@@ -105,7 +105,7 @@
 
 \TEST{the box shape alone has no ports}{
   \PICTURE{
-    \node[shape=box, square] (a) at (0pt,0pt) {};
+    \node[shape=string diagrams box, square] (a) at (0pt,0pt) {};
     \SHOWANCHOR{a}{north.1}
     \SHOWANCHOR{a}{east.1}
     \SHOWANCHOR{a}{south.1}
