@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Draw boxes in documents with the tagging of LaTeX on, as with `\DocumentMetadata{tagging=on}`: every box failed there with "Argument of `\__math_grab_dollar_delim:w` has an extra }", since LaTeX collects each formula whole and a box opens and closes the math of its label in two places. The package now tells LaTeX not to collect that formula. The manual has a section on tagged PDF.
 - Keep the label of a box in math mode where it is in math mode already, as in a `matrix of math nodes` of TikZ: the box opened math again, which closed it, and the label came out in text.
 - Ignore blank lines among the wires of `\wires`, which gave TeX's "Paragraph ended before \wires was complete".
+- Report a coordinate written as a wire end, as in `f.north.1 = (1,2)`, with an error that says what to write: the commas of the list split it, and the errors named a node `2)`.
 - File the `box` and `dot` styles under `/tikz/` in the manual, where they are defined, rather than under `/pgf/`.
 - Stop slowing down the TikZ pictures of a document that loads the package, with or without wires in them: recording an anchor that TikZ resolves now takes the same time however many are recorded already. A picture that refers to 12,800 anchors took 57 s, and now takes 2.8 s, against 2.4 s without the package (#21).
 - Draw wires about four times faster: the regular expressions that read anchor names are now matched once for each name, or replaced by string comparisons (#22).

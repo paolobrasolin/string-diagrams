@@ -271,4 +271,20 @@
   }
 }
 
+\TEST{a coordinate as a wire end is an error}{
+  \PICTURE{
+    \node[box=1/0/1/0] (a) at (0pt,0pt) {};
+    \wires[boundary=none]{ a.north.1 = (10pt,20pt) }
+    \wires[boundary=none]{ (a.north.1) = a.south.1 }
+  }
+}
+
+\TEST{parentheses in keys and labels are fine}{
+  \PICTURE{
+    \node[box=1/0/1/0] (a) at (0pt,0pt) {};
+    \node[box=1/0/1/0] (b) at (0pt,50pt) {};
+    \LOG{\wires[boundary=none]{ a.north.1 = ["$f(x)$", shorten >={(1pt)}] b.south.1 }}
+  }
+}
+
 \END

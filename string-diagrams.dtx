@@ -2433,6 +2433,7 @@
 %   Tests whether a piece of the adjacencies, once its keys are peeled, can be a name: a node, an anchor, or both.
 %   A piece with a comma, an equals sign or braces in it is a group in braces where a name belongs, such as \texttt{\{b.south, c.south\}} in a list of targets, which has no beginning to share: it is reported.
 %   A blank piece is not a name either, silently, like an empty item of a list.
+%   A piece with a parenthesis is a part of a coordinate, as \texttt{(1} and \texttt{2)} of \texttt{(1,2)}, which the commas of the list split: it is reported too, since no node name has one.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { group-without-beginning }
   {
@@ -2440,6 +2441,11 @@
     a~group~follows~a~node~or~an~anchor~and~=,~as~in~b~=~\{~south.1,~south.2~\}.
   }
 \regex_const:Nn \c_@@_group_regex { [,=] | \cB. | \cE. }
+\msg_new:nnn { string-diagrams } { end-coordinate }
+  {
+    `#1'~has~a~parenthesis,~so~it~is~ignored:~wires~go~between~nodes,~not~coordinates~such~as~(1,2).~
+    Name~the~place,~as~in~\iow_char:N\\path~(1,2)~coordinate~(c);~and~wire~c.
+  }
 \prg_new_protected_conditional:Nnn \@@_adj_if_name:n { T, F, TF }
   {
     \regex_match:NnTF \c_@@_group_regex { #1 }
@@ -2447,7 +2453,20 @@
         \msg_error:nnn { string-diagrams } { group-without-beginning } { #1 }
         \prg_return_false:
       }
-      { \tl_if_blank:nTF { #1 } { \prg_return_false: } { \prg_return_true: } }
+      {
+        \@@_if_parenthesis:nTF { #1 }
+          {
+            \msg_error:nnn { string-diagrams } { end-coordinate } { #1 }
+            \prg_return_false:
+          }
+          { \tl_if_blank:nTF { #1 } { \prg_return_false: } { \prg_return_true: } }
+      }
+  }
+\prg_new_protected_conditional:Nnn \@@_if_parenthesis:n { TF }
+  {
+    \tl_if_in:nnTF { #1 } { ( }
+      { \prg_return_true: }
+      { \tl_if_in:nnTF { #1 } { ) } { \prg_return_true: } { \prg_return_false: } }
   }
 \prg_generate_conditional_variant:Nnn \@@_adj_if_name:n { V } { T, F, TF }
 %    \end{macrocode}
@@ -2922,6 +2941,7 @@
 %   \changes{0.5.0}{2026/11/12}{the margins of the boundary are paddings, which don't scale with the picture}
 %   \changes{0.5.0}{2026/11/12}{finds nodes named under \texttt{name prefix} or \texttt{name suffix}, as in a pic, and so does the \texttt{wire} key}
 %   \changes{0.5.0}{2026/11/13}{blank lines among the wires are ignored}
+%   \changes{0.5.0}{2026/11/13}{a coordinate as a wire end gets an error that says what to write}
 %   Define our superstar.
 %   It reads its keys and its wires, gives the call its boundary, and draws the wires with that boundary as \texttt{@}.
 %   Its wires can hold blank lines: the \cs{par} tokens they make are removed, at any depth, and the regular expression that does it runs only when the wires hold one.

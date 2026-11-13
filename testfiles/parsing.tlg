@@ -471,3 +471,41 @@ q
 S 
 Q 
 ============================================================
+============================================================
+TEST 41: a coordinate as a wire end is an error
+============================================================
+! Package string-diagrams Error: `(10pt' has a parenthesis, so it is ignored: wires go between nodes, not coordinates such as (1,2). Name the place, as in \path (1,2) coordinate (c); and wire c.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: `20pt)' has a parenthesis, so it is ignored: wires go between nodes, not coordinates such as (1,2). Name the place, as in \path (1,2) coordinate (c); and wire c.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: `(a.north.1)' has a parenthesis, so it is ignored: wires go between nodes, not coordinates such as (1,2). Name the place, as in \path (1,2) coordinate (c); and wire c.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 42: parentheses in keys and labels are fine
+============================================================
+q 
+q 
+0 G 
+0 g 
+Q 
+0.0 10.16203 m 
+0.0 21.66211 0.0 28.15172 0.0 38.65552 c 
+S 
+Q 
+============================================================
