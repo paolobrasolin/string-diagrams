@@ -1595,12 +1595,25 @@
 %
 % \begin{macro}{\@@_wire_end:nNNNN,\@@_wire_end_side:NNN}
 %   Finds the node and anchor of an end of a to path; the anchor is empty for a bare node.
-%   An anchor must be on a side, so that the wire has an angle to leave or enter it at; otherwise the end raises an error, whatever the other end.
-%   \TikZ\ gives an end as the text that was written, such as \texttt{g.south.1}, or as a point: the start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
-%   A point is looked up among the anchors resolved in the picture, which pgf records under the full names of their nodes; a name as written is resolved as \TikZ\ resolves it, with the name prefix and suffix in force.
-%   An end that is no anchor of a node raises an error.
-%   An end on a node that doesn't exist, or at an anchor its node doesn't have, raises an error only if \TikZ\ hasn't resolved the end, and so reported it, already: then it also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
-%   \TikZ\ resolves the start of a to path while reading the path, and a target only if it computes it.
+%   \TikZ\ gives an end in one of two forms:
+%   \begin{itemize}
+%     \item \emph{A point.}
+%       The start always, unless it is a bare node, and the target when it is computed, as in \texttt{++(0,1)} or \texttt{([xshift=1em]g.south)}.
+%       A point is looked up among the anchors resolved in the picture, which pgf records under the full names of their nodes.
+%     \item \emph{The text that was written,} such as \texttt{g.south.1}.
+%       A name is resolved as \TikZ\ resolves it, with the name prefix and suffix in force.
+%   \end{itemize}
+%   The errors:
+%   \begin{itemize}
+%     \item \emph{Not an anchor.}
+%       An end that is no anchor of a node raises an error.
+%     \item \emph{Off the sides.}
+%       An anchor must be on a side, so that the wire has an angle to leave or enter it at; otherwise the end raises an error, whatever the other end.
+%     \item \emph{Missing.}
+%       An end on a node that doesn't exist, or at an anchor its node doesn't have, raises an error only if \TikZ\ hasn't resolved the end already, since then \TikZ\ has reported it.
+%       \TikZ\ resolves the start of a to path while reading the path, and a target only if it computes it.
+%       Such an end also sets \cs{l_@@_end_missing_bool}, so that the end isn't resolved later.
+%   \end{itemize}
 %   \begin{arguments}
 %     \item end, as \TikZ\ gives it
 %     \item token list variable to store the node
@@ -2096,12 +2109,35 @@
 % \end{variable}
 %
 % \begin{macro}{\@@_wire:,\@@_wire_ends:,\@@_wire_path:}
-%   Turn a to path into a wire, just before \TikZ\ computes its curve, after all the keys of the path, so that \texttt{wire flow} counts wherever it is set.
-%   \TikZ\ computes a curve bent by \texttt{bend left} or \texttt{bend right} apart, from angles relative to the line between its ends, so both computations are hooked: the ends are resolved alike, and a bent wire keeps its angles.
-%   \cmd{\@@_wire:} finds the ends, infers the anchors of bare ends, and sets the angles that \TikZ's own \texttt{out} and \texttt{in} draw the curve with, unless keys after \texttt{wire} have set them.
-%   An end faces inwards when its node holds the other, as \cmd{\@@_faces_inwards:} tells: then its angle turns round, and a side without a port is reached straight across, as on the boundary.
-%   An end that becomes a point, or a bare start, moves the start, which \cmd{\@@_wire_path:} does after the computation; it also turns a wire that isn't drawn into a move to its target, or into nothing if its target is on a node that doesn't exist, which \TikZ\ would report again, and drops its labels, the nodes \TikZ\ would place along it.
-%   Each wrong end raises an error.
+%   Turn a to path into a wire.
+%   \begin{itemize}
+%     \item \cmd{\@@_wire:} runs just before \TikZ\ computes the curve.
+%       It finds the two ends, raises an error for each wrong one, and sets the angles and the points of the ends.
+%     \item \cmd{\@@_wire_ends:} does the geometry of a wire whose ends are fine: it infers the anchors of bare ends, and turns round an end that faces inwards.
+%     \item \cmd{\@@_wire_path:} runs just after the computation.
+%       It moves the start of the path, or removes a wire that isn't drawn.
+%   \end{itemize}
+%   The reasons:
+%   \begin{itemize}
+%     \item \emph{Late.}
+%       The code runs after all the keys of the path, so that \texttt{wire flow} counts wherever it is set.
+%     \item \emph{Two hooks.}
+%       \TikZ\ computes a curve bent by \texttt{bend left} or \texttt{bend right} apart, from angles relative to the line between its ends.
+%       So both computations are hooked: the ends are resolved alike, and a bent wire keeps its angles.
+%     \item \emph{Angles.}
+%       \TikZ's own \texttt{out} and \texttt{in} draw the curve.
+%       The code sets them only if keys after \texttt{wire} haven't.
+%     \item \emph{Inwards.}
+%       An end faces inwards when its node holds the other, as \cmd{\@@_faces_inwards:} tells.
+%       Then its angle turns round, and a side without a port is reached straight across, as on the boundary.
+%     \item \emph{Start.}
+%       A bare start, or an end that becomes a point, moves the start of the path.
+%       \TikZ\ has read the start already, so it is moved after the computation.
+%     \item \emph{Wires that aren't drawn.}
+%       Such a wire becomes a move to its target, so that the path goes on.
+%       If the target is on a node that doesn't exist, it becomes nothing, since \TikZ\ would report the node again.
+%       Its labels, the nodes \TikZ\ would place along it, are dropped.
+%   \end{itemize}
 %    \begin{macrocode}
 \cs_new_protected:Nn \@@_wire: {
   \bool_set_false:N \l_@@_end_missing_bool
@@ -2596,9 +2632,18 @@
 % \end{macro}
 %
 % \begin{macro}{\@@_parse_node_alone:nNnn,\@@_parse_node_alone_name:Nn}
-%   Reads an item without \texttt{=} in a group after the node a wire starts from.
-%   It is the target of a wire from that node without an anchor, as in \texttt{f = \{ g \}}, if it names a node that exists, or the boundary \texttt{@}, which the call makes after reading its wires.
-%   Otherwise it is an error: an anchor left without a target, if it is an anchor of the node the wires start from, as the shape of that node tells, or an angle, which pgf reads as a point of the border; or else a node that doesn't exist; if the node the wires start from doesn't exist either, the error names it, since the item can't be told apart.
+%   Reads an item without \texttt{=} in a group after the node a wire starts from, as \texttt{g} in \texttt{f = \{ g \}}.
+%   The item is one of three things:
+%   \begin{itemize}
+%     \item \emph{A target.}
+%       If the item names a node that exists, or the boundary \texttt{@}, it is the target of a wire from the node without an anchor.
+%       The call makes its boundary after reading its wires, so \texttt{@} is known by its name.
+%     \item \emph{An anchor without a target.}
+%       If the item is an anchor of the node the wires start from, as the shape of that node tells, or an angle, which pgf reads as a point of the border, the error says that the end has no target.
+%     \item \emph{A node that doesn't exist.}
+%       Otherwise the error says so.
+%       If the node the wires start from doesn't exist either, the error names that node, since the item can't be told apart.
+%   \end{itemize}
 %   \begin{arguments}
 %     \item \TikZ\ keys to pass through
 %     \item function to be mapped over wires
