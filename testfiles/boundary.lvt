@@ -6,7 +6,7 @@
 \NewDocumentCommand \TARGET { m m m }
   {
     \SHOWPOINT { #1.#2 ~ -> ~ @.#3 }
-      { \__stridi_calctarget:nnnn { #1 } { #2 } { @ } { #3 } }
+      { \__stridi_point_across:nnnn { #1 } { #2 } { @ } { #3 } }
   }
 
 \tl_new:N \l_test_end_tl

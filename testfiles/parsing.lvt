@@ -29,7 +29,7 @@
 
 % \MAP[<keys>]{<connectivity>}: log the wires that \wires would draw, as [keys] [node].[anchor] -- [node].[anchor].
 \NewDocumentCommand \MAP { O{} m }
-  { \__stridi_adj_map_function:nnN { #1 } { #2 } \test_log_wire:nnnnn }
+  { \__stridi_parse_wires:nnN { #1 } { #2 } \test_log_wire:nnnnn }
 
 \ExplSyntaxOff
 
