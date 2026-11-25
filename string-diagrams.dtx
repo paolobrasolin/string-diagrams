@@ -469,7 +469,9 @@
 %
 %   To make a boundary by hand, use this key on a node.
 %   The node goes around the picture so far, unless \texttt{fit} says otherwise.
-%   Its keys style it as any node: draw it, fill it, or label it.
+%   The key sets how the node looks, as \texttt{box} does: a rectangle without stroke or fill.
+%   So styles for all the nodes of a picture, such as \texttt{every node}, don't draw, fill or resize a boundary.
+%   Keys after \texttt{boundary} style it as any node: draw it, fill it, or label it.
 %   It needs a name, so that wires can reach it.
 %
 %   \begin{tcblisting}{example=boundary}
@@ -487,7 +489,7 @@
 % They are paddings, as in \TikZ, so they don't scale with the picture.
 %
 % On a boundary, \texttt{box} gives ports, and nothing else: no stroke, padding or math.
-% Write \texttt{box} after \texttt{boundary}: before it, \texttt{box} is the full style, and the boundary is drawn as a box.
+% Write \texttt{box} after \texttt{boundary}, as any key that styles a boundary: \texttt{boundary} replaces what \texttt{box} sets before it.
 % Loose ends reach the ports of a boundary as wires reach the ports of a box: name the port, or leave the anchor out on a side with one port.
 % A side without ports takes loose ends straight, as on any boundary.
 %
@@ -1423,6 +1425,10 @@
 % \begin{macro}{/tikz/boundary,\@@_boundary_key:,\@@_boundary_made:n}
 %   Defines the style of a boundary: around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds), with the margins that give the loose ends of 0.3.0.
 %   Its keys come after these, so \texttt{fit}, \texttt{inner xsep} and \texttt{inner ysep} change them.
+%   It sets how a boundary looks, as \texttt{box} sets how a box looks: a rectangle without stroke or fill, with the size that \texttt{fit} and the margins give it.
+%   So it replaces what styles before it set, \texttt{every node} included, which \TikZ\ applies first: a boundary that nobody asked to draw stays invisible, and a fill or a size meant for the nodes of the picture doesn't reach it.
+%   It also empties \texttt{every fit} and \texttt{every rectangle node}, which \TikZ\ would apply after it.
+%   Keys after it come last, as on any node.
 %   On a boundary, \texttt{box} gives ports only: no stroke, padding or math.
 %   Once the node is made, it is recorded as a boundary, with its picture, unless it has no name, since nothing could then refer to it: \TikZ\ names such a node \texttt{tikz@f@}\meta{number}.
 %    \begin{macrocode}
@@ -1432,6 +1438,7 @@
     name~it,~as~in~\iow_char:N\\node[boundary]~(B)~\{\}.
   }
 \cs_new_protected:Nn \@@_boundary_key: {
+  \pgfkeysalso { /tikz/every~fit/.style = { } , /tikz/every~rectangle~node/.style = { } }
   \dim_compare:nNnTF { \pgf@picmaxx } = { -16000pt }
     { \pgfkeysalso { /tikz/fit = { (0pt,0pt) } } }
     { \pgfkeysalso { /tikz/fit = { (current~bounding~box) } } }
@@ -1442,6 +1449,12 @@
       /tikz/string~diagrams/box/.style = { /tikz/shape = string~diagrams~box , /tikz/string~diagrams/box~ports = {##1} } ,
       /tikz/append~after~command =
         { \pgfextra { \@@_boundary_made:e { \tikzlastnode } } } ,
+      /tikz/shape = rectangle ,
+      /tikz/draw = none ,
+      /tikz/fill = none ,
+      /tikz/minimum~width = 1pt ,
+      /tikz/minimum~height = 1pt ,
+      /tikz/outer~sep = .5\pgflinewidth ,
     }
 }
 \cs_new_protected:Nn \@@_boundary_made:n {

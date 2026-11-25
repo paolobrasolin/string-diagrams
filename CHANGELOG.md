@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep the styles for all the nodes of a picture away from its boundaries: `every node`, `every rectangle node` and `every fit`, and keys of nodes set on a scope, such as `minimum size` or `outer sep`, drew a boundary that nobody asked to draw, filled it over the diagram, or made it larger. The `boundary` key now sets how a boundary looks, a rectangle without stroke or fill, as `box` sets how a box looks, and keys after it come last (#23).
 - Draw wires inside pics, and under the `name prefix` and `name suffix` keys of TikZ, rather than reporting their nodes as missing: node names are now resolved as TikZ resolves them (#18).
 - Draw boxes in documents with the tagging of LaTeX on, as with `\DocumentMetadata{tagging=on}`: every box failed there with "Argument of `\__math_grab_dollar_delim:w` has an extra }", since LaTeX collects each formula whole and a box opens and closes the math of its label in two places. The package now tells LaTeX not to collect that formula. The manual has a section on tagged PDF.
 - Draw a node that gets the `box` style twice, as in `\node[box, box=1/0/0/0] {f};` or with `every node/.style={box}`: it failed with "Missing $ inserted", since the second `box` forgot the math that the first had opened.

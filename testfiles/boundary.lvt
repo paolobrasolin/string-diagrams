@@ -185,6 +185,32 @@
   }
 }
 
+% NOTE: so the styles for all the nodes of a picture don't draw, fill or resize a boundary (issue 23).
+\TEST{boundary sets how a boundary looks, over the styles for all nodes}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \begin{scope}[
+      every node/.style={draw, fill, minimum size=300pt, shape=circle},
+      every rectangle node/.style={draw}, every fit/.style={draw, inner sep=50pt},
+      outer sep=6pt,
+    ]
+      \LOG{\wires{a.north = @.north}}
+      \LOG{\node[boundary, fit=(a)] (styled) {};}
+      \SHOWANCHOR{styled}{north east}
+    \end{scope}
+  }
+}
+
+\TEST{keys after boundary style it, and keys before it don't}{
+  \PICTURE{
+    \node[box, square] (a) at (0pt,0pt) {};
+    \LOG{\node[draw, minimum size=300pt, boundary, fit=(a)] (before) {};}
+    \SHOWANCHOR{before}{north east}
+    \LOG{\node[boundary, fit=(a), draw, minimum size=300pt] (after) {};}
+    \SHOWANCHOR{after}{north east}
+  }
+}
+
 \TEST{a boundary without a name is an error}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
