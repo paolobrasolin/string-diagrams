@@ -488,7 +488,7 @@
 %
 %   These keys choose the boundary of a call of \cmd\wires, which is \texttt{@} inside the call:
 %   \begin{itemize}
-%     \item \texttt{boundary=\{\meta{keys}\}} makes a boundary around the nodes of the call, with these keys. Name it with \texttt{name} to reach it elsewhere. Without a name, it stays with its call.
+%     \item \texttt{boundary=\{\meta{keys}\}} makes a boundary around the nodes of the call and their labels, with these keys. Name it with \texttt{name} to reach it elsewhere. Without a name, it stays with its call.
 %     \item \texttt{use boundary=\meta{name}} uses a boundary made before, by hand or by another call.
 %     \item \texttt{boundary=none} uses no boundary: the picture gets no margins, and a loose end is an error.
 %   \end{itemize}
@@ -512,6 +512,8 @@
 % \end{function}
 %
 % A boundary with ports is a box for the wires outside it, so diagrams compose as boxes do.
+% The boundary of a call goes around the labels and pins of its nodes too, so that its loose ends clear them.
+% A \texttt{fit} in its keys replaces the nodes of the call: the boundary goes around the nodes that \texttt{fit} names, without their labels.
 % Calls can share a named boundary: give it room for all their nodes with \texttt{fit}, and number its ports.
 % Boundaries fit their own nodes, so two of them side by side can differ in height: set a \texttt{minimum height} in their keys.
 % A \texttt{fill} in the keys of a boundary would cover its nodes, which come first: fill it behind them, with the \texttt{backgrounds} library of \TikZ.
@@ -1325,6 +1327,52 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{variable}{\g_@@_labels_prop}
+%   The labels and pins of the nodes made in the outermost picture so far, pictures nested in it included: for each node, by its resolved name, its labels and pins, each in parentheses, as \texttt{fit} takes them.
+%   It is cleared when an outermost picture begins, as the record of boundaries is.
+%    \begin{macrocode}
+\prop_new:N \g_@@_labels_prop
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_label_post:nn,\@@_record_label:n,\@@_add_label:nn}
+%   Records each label and pin under its node, so that the boundary of a call can go around them too.
+%   \TikZ\ makes a label or a pin as a node of its own, and applies its internal key \texttt{tikz@label@post} last to the options of that node.
+%   While the key runs, \cs{tikzlastnode} is still the node that the label belongs to.
+%   So the package wraps the key: it appends to the options of the label the code that records the label under that node, once the label exists.
+%   The style \texttt{every label} would reach labels too, but a style of the user's would replace it.
+%    \begin{macrocode}
+\cs_new_eq:Nc \@@_label_post_tikz:w { pgfk@/tikz/tikz@label@post/.@cmd }
+\cs_new_protected:Npn \@@_label_post:nn #1#2 { \@@_label_post_tikz:w { #1 } { #2 } \pgfeov }
+\cs_new_protected:Nn \@@_record_label:n
+  {
+    \use:e
+      {
+        \exp_not:N \pgfkeysalso
+          {
+            append~after~command =
+              {
+                \exp_not:N \pgfextra
+                  { \exp_not:N \@@_add_label:nV { \exp_not:n { #1 } } \exp_not:N \tikzlastnode }
+              }
+          }
+      }
+  }
+\cs_generate_variant:Nn \@@_record_label:n { e }
+\cs_new_protected:Nn \@@_add_label:nn
+  {
+    \prop_gput:Nne \g_@@_labels_prop { #1 }
+      { \prop_item:Nn \g_@@_labels_prop { #1 } ( \exp_not:n { #2 } ) }
+  }
+\cs_generate_variant:Nn \@@_add_label:nn { nV }
+\tikzset
+  {
+    tikz@label@post/.code~2~args =
+      { \@@_record_label:e { \tikzlastnode } \@@_label_post:nn { #1 } { #2 } }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
 % \begin{variable}{\c_@@_picture_boundary_tl}
 %   The name of the boundary that the calls of \cmd\wires\ without boundary keys share in a picture.
 %   Nobody needs to write it: inside a call, that boundary is \texttt{@}.
@@ -1445,6 +1493,7 @@
       {
         \int_gzero:N \g_@@_anchors_int
         \prop_gclear:N \g_@@_boundaries_prop
+        \prop_gclear:N \g_@@_labels_prop
       }
   }
 %    \end{macrocode}
@@ -2884,7 +2933,7 @@
 % \begin{macro}{\@@_call_boundary:,\@@_new_boundary:,\@@_boundary_name:nn,\@@_collect_nodes:nnnnn,\@@_collect_node:n,\@@_fit_item:n,\@@_use_boundary:}
 %   Gives a call its boundary, by its resolved name.
 %   Without boundary keys, it is the boundary of the picture.
-%   With \texttt{boundary}, it is a new one, around the nodes of the call, or around the origin if there are none, with the keys given, which come last; its name is the one in its keys, else a name that nobody writes, and a name in use in the picture is an error.
+%   With \texttt{boundary}, it is a new one, around the nodes of the call and their labels and pins, or around the origin if there are none, with the keys given, which come last; its name is the one in its keys, else a name that nobody writes, and a name in use in the picture is an error.
 %   With \texttt{use boundary}, it is that node, and a name that isn't in the picture is an error.
 %   After such an error the call has no boundary to draw its loose ends to.
 %    \begin{macrocode}
@@ -2963,7 +3012,9 @@
         { \seq_put_right:Nn \l_@@_call_nodes_seq { #1 } }
     }
 }
-\cs_new:Nn \@@_fit_item:n { ( \exp_not:n { #1 } ) }
+\cs_new:Nn \@@_fit_item:n
+  { ( \exp_not:n { #1 } ) \prop_item:Ne \g_@@_labels_prop { \@@_resolve:n { #1 } } }
+\cs_generate_variant:Nn \prop_item:Nn { Ne }
 \cs_new_protected:Nn \@@_use_boundary: {
   \@@_if_node_in_picture:VTF \l_@@_boundary_name_tl
     { \tl_set:Ne \l_@@_boundary_name_tl { \@@_resolve:V \l_@@_boundary_name_tl } }

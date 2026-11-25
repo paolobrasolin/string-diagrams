@@ -116,4 +116,25 @@
   }
 }
 
+% NOTE: the label sticks out above the box and the pin to its right, so the boundary grows on those sides only.
+\TEST{the boundary of a call goes around the labels and pins of its nodes, and fit leaves them out}{
+  \PICTURE{
+    \node[box=1/0/1/0, square, label=north:x, pin=east:y] (a14) at (0pt,0pt) {};
+    \wires[boundary={name=F14}]{a14.north.1 = @}
+    \SHOWANCHOR{F14}{north east}
+    \SHOWANCHOR{F14}{south west}
+    \wires[boundary={name=G14, fit=(a14)}]{a14.south.1 = @}
+    \SHOWANCHOR{G14}{north east}
+    \SHOWANCHOR{G14}{south west}
+  }
+}
+
+\TEST{labels count under a style of one's own for every label, and under a name prefix}{
+  \PICTURE[every label/.style={inner sep=20pt}, name prefix=L-]{
+    \node[box=1/0/1/0, square, label=north:x] (a15) at (0pt,0pt) {};
+    \wires[boundary={name=F15}]{a15.north.1 = @}
+    \SHOWANCHOR{L-F15}{north east}
+  }
+}
+
 \END
