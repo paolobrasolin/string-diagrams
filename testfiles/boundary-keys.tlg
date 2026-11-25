@@ -34,20 +34,31 @@ q
 0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
 S 
 Q 
--- a call without keys, with the boundary of the picture, around both:
+-- a call without keys, with a boundary of its own, around b2:
 q 
 0 G 
 0 g 
 Q 
 q 
 199.25537 59.77661 m 
-199.25537 70.36987 199.25537 76.3478 199.25537 86.94107 c 
+199.25537 65.0344 199.25537 68.00142 199.25537 73.2592 c 
 S 
 Q 
 ============================================================
 ============================================================
-TEST 3: a call without nodes makes its boundary around the origin
+TEST 3: a call without nodes makes its boundary around the picture so far, or the origin
 ============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+199.25537 125.79689 m 
+199.25537 125.79689 m 
+199.25537 183.09027 199.25537 215.42046 199.25537 272.71384 c 
+S 
+Q 
+F3.north east = (283.733pt, 273.73299pt)
 q 
 0 G 
 0 g 
@@ -58,7 +69,7 @@ q
 0.0 -2.96703 0.0 2.96703 0.0 13.48259 c 
 S 
 Q 
-F3.north east = (23.533pt, 13.53299pt)
+E3.north east = (23.533pt, 13.53299pt)
 ============================================================
 ============================================================
 TEST 4: the keys of a call still reach its wires

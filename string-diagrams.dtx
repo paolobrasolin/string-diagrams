@@ -277,7 +277,7 @@
 %
 % \subsection{Wires}
 %
-% \begin{function}[added=2023-05-31,updated=2026-11-13]{\wires}
+% \begin{function}[added=2023-05-31,updated=2026-11-25]{\wires}
 %   \begin{syntax}
 %     \cs{wires}\oarg{\TikZ\ keys}\marg{wires}
 %   \end{syntax}
@@ -342,10 +342,22 @@
 %     \end{tikzpicture}
 % \end{tcblisting}
 %
-% The first \cmd\wires\ of a picture makes the boundary of the picture around the nodes drawn so far, with a margin, and doesn't draw it.
-% Later calls in the same picture use the same boundary.
-% So draw all nodes before the wires.
-% A call can also have a boundary of its own, which can be drawn and have ports: see the section on boundaries.
+% Each call of \cmd\wires\ makes a boundary around the nodes it mentions and their labels, with a margin, and doesn't draw it.
+% So calls on separate nodes get separate boundaries, as the two sides of an equation need.
+% A call that mentions no node gets a boundary around the picture so far.
+% Calls can also share a boundary, and a boundary can be drawn and have ports: see the section on boundaries.
+%
+% \begin{tcblisting}{example=equation}
+%     \begin{tikzpicture}
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \node[box=1/0/1/0] (g) at (0,1.4) {g};
+%       \wires{ f = { south.1 = @.south, north.1 = g.south.1 },
+%               g.north.1 = @.north }
+%       \node at (1,.7) {$=$};
+%       \node[box=1/0/1/0] (h) at (2,.7) {h};
+%       \wires{ h = { south.1 = @.south, north.1 = @.north } }
+%     \end{tikzpicture}
+% \end{tcblisting}
 %
 % A wire across the boundary runs through its middle.
 % To place it elsewhere, for example beside a box:
@@ -477,7 +489,7 @@
 % On a boundary, \texttt{box} gives ports, and nothing else: no stroke, padding or math.
 % Write \texttt{box} after \texttt{boundary}: before it, \texttt{box} is the full style, and the boundary is drawn as a box.
 % Loose ends reach the ports of a boundary as wires reach the ports of a box: name the port, or leave the anchor out on a side with one port.
-% A side without ports takes loose ends straight, as the boundary of the picture does.
+% A side without ports takes loose ends straight, as on any boundary.
 %
 % \begin{function}[added=2026-11-12]{boundary,use boundary}
 %   \begin{syntax}
@@ -492,7 +504,7 @@
 %     \item \texttt{use boundary=\meta{name}} uses a boundary made before, by hand or by another call.
 %     \item \texttt{boundary=none} uses no boundary: the picture gets no margins, and a loose end is an error.
 %   \end{itemize}
-%   A call without these keys uses the boundary of the picture.
+%   A call without these keys makes a boundary as \texttt{boundary=\{\}} does.
 %
 %   \begin{tcblisting}{example=boundary-call}
 %     \begin{tikzpicture}
@@ -515,6 +527,8 @@
 % The boundary of a call goes around the labels and pins of its nodes too, so that its loose ends clear them.
 % A \texttt{fit} in its keys replaces the nodes of the call: the boundary goes around the nodes that \texttt{fit} names, without their labels.
 % Calls can share a named boundary: give it room for all their nodes with \texttt{fit}, and number its ports.
+% For several calls on one diagram, a shared boundary makes their loose ends line up.
+% The simplest way: draw all the nodes, make a boundary by hand, and give each call \texttt{use boundary}.
 % Boundaries fit their own nodes, so two of them side by side can differ in height: set a \texttt{minimum height} in their keys.
 % A \texttt{fill} in the keys of a boundary would cover its nodes, which come first: fill it behind them, with the \texttt{backgrounds} library of \TikZ.
 %
@@ -770,17 +784,18 @@
 %     A wire between two level ends of a node, as \texttt{f.east.1 = f.west.1}, leaves and enters straight, so \TikZ\ draws it as a line through the node.
 %     Give it angles, as in \texttt{f = [out=60, in=120, looseness=2.5] f}.
 %   \item \emph{Nodes drawn late.}
-%     A node drawn after the first \cmd\wires\ of a picture can stick out of the boundary of the picture.
-%     Then it overlaps the boundary, and its wires to \texttt{@} face out.
+%     A boundary doesn't grow, so a node drawn after it can stick out of it.
+%     A call that wires such a node to the boundary gets a warning, and the wires to \texttt{@} face out.
 %   \item \emph{Scaled pictures.}
 %     The \texttt{scale} key moves nodes closer or apart, but the margins of a boundary are paddings, which don't scale: loose ends keep their length.
-%     For other margins, give the call a boundary of its own, as in \texttt{boundary=\{inner xsep=1em\}}.
+%     For other margins, give the boundary keys, as in \texttt{boundary=\{inner xsep=1em\}}.
 % \end{itemize}
 %
 % \subsection{Changes from earlier versions}
 %
 % Version 0.5.0 changes some behaviors of 0.4.0:
 % \begin{itemize}
+%   \item Each call of \cmd\wires\ makes a boundary of its own, around the nodes it mentions: calls on separate nodes no longer share one, so their loose ends can end at different heights. To share one, make it by hand after the nodes, and give each call \texttt{use boundary}.
 %   \item \texttt{@} is the boundary of a call, and means nothing outside \cmd\wires: to reach a boundary by hand, name it.
 %   \item The margins of the boundary no longer scale with the picture.
 %   \item The \texttt{box ports} keys are under \texttt{/tikz/}, not \texttt{/pgf/}: in the keys of a picture or a node they work as before, but \cs{pgfset} no longer finds them.
@@ -1373,11 +1388,11 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\c_@@_picture_boundary_tl}
-%   The name of the boundary that the calls of \cmd\wires\ without boundary keys share in a picture.
-%   Nobody needs to write it: inside a call, that boundary is \texttt{@}.
+% \begin{variable}{\c_@@_unnamed_boundary_tl}
+%   The name of the boundaries that calls of \cmd\wires\ make without a name, followed by a number.
+%   Nobody needs to write it: inside a call, its boundary is \texttt{@}.
 %    \begin{macrocode}
-\tl_const:Nn \c_@@_picture_boundary_tl { string-diagrams~boundary }
+\tl_const:Nn \c_@@_unnamed_boundary_tl { string-diagrams~boundary }
 %    \end{macrocode}
 % \end{variable}
 %
@@ -1385,7 +1400,7 @@
 %   Defines the style of a boundary: around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds), with the margins that give the loose ends of 0.3.0.
 %   Its keys come after these, so \texttt{fit}, \texttt{inner xsep} and \texttt{inner ysep} change them.
 %   On a boundary, \texttt{box} gives ports only: no stroke, padding or math.
-%   Once the node is made, it is recorded as a boundary of the picture, unless it has no name, since nothing could then refer to it: \TikZ\ names such a node \texttt{tikz@f@}\meta{number}.
+%   Once the node is made, it is recorded as a boundary, with its picture, unless it has no name, since nothing could then refer to it: \TikZ\ names such a node \texttt{tikz@f@}\meta{number}.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { boundary-name }
   {
@@ -1415,17 +1430,6 @@
 \tikzset {
   boundary/.style = { /tikz/string~diagrams/boundary },
   string~diagrams/boundary/.code = { \@@_boundary_key: },
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\@@_make_picture_boundary:}
-%   Creates the boundary of the picture, with the \texttt{boundary} key.
-%   A picture gets a single such boundary: later calls of \cmd\wires\ in it reuse the first one.
-%    \begin{macrocode}
-\cs_new_protected:Nn \@@_make_picture_boundary: {
-  \@@_if_node_in_picture:VF \c_@@_picture_boundary_tl
-    { \node [ /tikz/string~diagrams/boundary , name = \c_@@_picture_boundary_tl ] { } ; }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1856,7 +1860,8 @@
 %   The end on a node that holds the other faces inwards.
 %   Otherwise both ends face out: the nodes are apart, or they overlap, or have the same box, and then a bare end is an error, since neither node is the outer one, and the wire is not drawn.
 %   A wire from a node to itself faces inwards at both ends on a boundary, which it crosses, and outwards on any other node, which it loops round.
-%   In a call that makes or uses a boundary of its own, \cs{l_@@_check_inside_bool} is true, and a node wired to the boundary of the call that it doesn't hold gets a warning, once per call, as its wires to the boundary face out.
+%   In a call that uses a boundary made before, or gives keys to the boundary it makes, \cs{l_@@_check_inside_bool} is true, and a node wired to the boundary of the call that it doesn't hold gets a warning, once per call, as its wires to the boundary face out.
+%   A boundary that a call makes without keys holds the nodes of the call, so it needs no check: in a rotated picture, which the package doesn't handle, the check would report nodes that it holds.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { bare-overlap }
   {
@@ -2857,7 +2862,7 @@
 % \end{macro}
 %
 % \begin{variable}{\l_@@_call_keys_tl,\l_@@_call_mode_tl,\l_@@_boundary_keys_tl,\l_@@_boundary_name_tl,\l_@@_given_new_bool,\l_@@_given_use_bool,\l_@@_wires_seq,\l_@@_call_nodes_seq,\g_@@_boundaries_int}
-%   Scratch variables for \cmd\wires: the keys of its wires, without those of its boundary; which boundary it has, \texttt{picture}, \texttt{new}, \texttt{use} or \texttt{none}, or \texttt{failed} after an error about it; the keys and the name of that boundary; whether \texttt{boundary} and \texttt{use boundary} were given; its wires, read once, each as its keys and its two ends; the nodes they join; and a count that names the boundaries made without a name.
+%   Scratch variables for \cmd\wires: the keys of its wires, without those of its boundary; which boundary it has, \texttt{new}, \texttt{use} or \texttt{none}, or \texttt{failed} after an error about it; the keys and the name of that boundary; whether \texttt{boundary} and \texttt{use boundary} were given; its wires, read once, each as its keys and its two ends; the nodes they join; and a count that names the boundaries made without a name.
 %    \begin{macrocode}
 \tl_new:N \l_@@_call_keys_tl
 \tl_new:N \l_@@_call_mode_tl
@@ -2881,7 +2886,7 @@
   \tl_clear:N \l_@@_call_keys_tl
   \tl_clear:N \l_@@_boundary_keys_tl
   \tl_clear:N \l_@@_boundary_name_tl
-  \tl_set:Nn \l_@@_call_mode_tl { picture }
+  \tl_set:Nn \l_@@_call_mode_tl { new }
   \bool_set_false:N \l_@@_given_new_bool
   \bool_set_false:N \l_@@_given_use_bool
   \keyval_parse:nnn { \@@_call_key:n } { \@@_call_key:nn } { #1 }
@@ -2932,8 +2937,7 @@
 %
 % \begin{macro}{\@@_call_boundary:,\@@_new_boundary:,\@@_boundary_name:nn,\@@_collect_nodes:nnnnn,\@@_collect_node:n,\@@_fit_item:n,\@@_use_boundary:}
 %   Gives a call its boundary, by its resolved name.
-%   Without boundary keys, it is the boundary of the picture.
-%   With \texttt{boundary}, it is a new one, around the nodes of the call and their labels and pins, or around the origin if there are none, with the keys given, which come last; its name is the one in its keys, else a name that nobody writes, and a name in use in the picture is an error.
+%   Without boundary keys, or with \texttt{boundary}, it is a new one, around the nodes of the call and their labels and pins, or around the picture so far if there are none, as a boundary made by hand, with the keys given, which come last; its name is the one in its keys, else a name that nobody writes, and a name in use in the picture is an error.
 %   With \texttt{use boundary}, it is that node, and a name that isn't in the picture is an error.
 %   After such an error the call has no boundary to draw its loose ends to.
 %    \begin{macrocode}
@@ -2950,11 +2954,6 @@
 \cs_new_protected:Nn \@@_call_boundary: {
   \str_case:Vn \l_@@_call_mode_tl
     {
-      { picture }
-        {
-          \@@_make_picture_boundary:
-          \tl_set:Ne \l_@@_boundary_name_tl { \@@_resolve:V \c_@@_picture_boundary_tl }
-        }
       { new } { \@@_new_boundary: }
       { use } { \@@_use_boundary: }
     }
@@ -2965,7 +2964,7 @@
     {
       \int_gincr:N \g_@@_boundaries_int
       \tl_set:Ne \l_@@_boundary_name_tl
-        { \c_@@_picture_boundary_tl \c_space_tl \int_use:N \g_@@_boundaries_int }
+        { \c_@@_unnamed_boundary_tl \c_space_tl \int_use:N \g_@@_boundaries_int }
     }
     {
       \@@_if_node_in_picture:VT \l_@@_boundary_name_tl
@@ -2983,12 +2982,8 @@
           \exp_not:N \node
             [
               /tikz/string~diagrams/boundary ,
-              fit =
-                {
-                  \seq_if_empty:NTF \l_@@_call_nodes_seq
-                    { (0pt,0pt) }
-                    { \seq_map_function:NN \l_@@_call_nodes_seq \@@_fit_item:n }
-                } ,
+              \seq_if_empty:NF \l_@@_call_nodes_seq
+                { fit = { \seq_map_function:NN \l_@@_call_nodes_seq \@@_fit_item:n } , }
               name = { \exp_not:V \l_@@_boundary_name_tl } ,
               \exp_not:V \l_@@_boundary_keys_tl
             ]
@@ -3089,7 +3084,10 @@
   \@@_call_boundary:
   \seq_gclear:N \g_@@_warned_seq
   \bool_set:Nn \l_@@_check_inside_bool
-    { \str_if_eq_p:Vn \l_@@_call_mode_tl { new } || \str_if_eq_p:Vn \l_@@_call_mode_tl { use } }
+    {
+      \str_if_eq_p:Vn \l_@@_call_mode_tl { use }
+      || ( \str_if_eq_p:Vn \l_@@_call_mode_tl { new } && ! \tl_if_empty_p:N \l_@@_boundary_keys_tl )
+    }
   \str_case:VnF \l_@@_call_mode_tl
     {
       { none } { \@@_draw_wires:N \@@_draw_wire_unbounded:nnnnn }

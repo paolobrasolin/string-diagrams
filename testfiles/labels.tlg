@@ -3,19 +3,19 @@ Don't change this file in any respect.
 ============================================================
 TEST 1: beyond end and beyond start place a label past a loose end
 ============================================================
-l.center = (0.0pt, 78.73299pt)
-l.center = (88.733pt, 0.0pt)
-l.center = (0.0pt, -78.73299pt)
-l.center = (-88.733pt, 0.0pt)
+l.center = (0.0pt, 78.53299pt)
+l.center = (88.533pt, 0.0pt)
+l.center = (0.0pt, -78.53299pt)
+l.center = (-88.533pt, 0.0pt)
 -- from the boundary:
-l.center = (0.0pt, 78.73299pt)
-l.center = (-88.733pt, 0.0pt)
+l.center = (0.0pt, 78.53299pt)
+l.center = (-88.533pt, 0.0pt)
 ============================================================
 ============================================================
 TEST 2: beyond end past a loose end from a corner, and with a flow
 ============================================================
-l.center = (30.53296pt, 16.3735pt)
-l.center = (-288.733pt, 0.0pt)
+l.center = (30.73297pt, 15.73296pt)
+l.center = (-288.533pt, 0.0pt)
 ============================================================
 ============================================================
 TEST 3: beside end and beside start place a label beside a port
@@ -43,7 +43,7 @@ l.center = (95.0pt, 105.0pt)
 ============================================================
 TEST 6: beyond end on a bent wire
 ============================================================
-l.center = (5.0pt, 78.73299pt)
+l.center = (5.0pt, 78.53299pt)
 ============================================================
 ============================================================
 TEST 7: beyond and beside in the label of a port

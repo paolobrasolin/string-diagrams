@@ -14,11 +14,19 @@ S
 Q 
 -- anchored:
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 59.77661 m 
 0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
 S 
 Q 
 -- without ports:
+q 
+0 G 
+0 g 
+Q 
 q 
 0.0 59.77661 m 
 0.0 109.70135 -99.62769 89.554 -99.62769 139.47876 c 
@@ -39,6 +47,10 @@ S
 Q 
 -- anchored:
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 59.77661 m 
 0.0 109.70135 99.62769 89.554 99.62769 139.47876 c 
 S 
@@ -58,11 +70,19 @@ S
 Q 
 -- sideways:
 q 
+0 G 
+0 g 
+Q 
+q 
 59.77661 0.0 m 
 140.01274 0.0 158.8703 99.62769 239.10645 99.62769 c 
 S 
 Q 
 -- backwards:
+q 
+0 G 
+0 g 
+Q 
 q 
 99.62769 139.47876 m 
 99.62769 89.554 0.0 109.70135 0.0 59.77661 c 
@@ -82,15 +102,27 @@ q
 S 
 Q 
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 59.77661 m 
 0.0 140.16386 189.2926 59.09149 189.2926 139.47876 c 
 S 
 Q 
 -- with a flow:
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 59.77661 m 
 0.0 142.29678 199.25537 46.9958 199.25537 129.51599 c 
 S 
+Q 
+q 
+0 G 
+0 g 
 Q 
 q 
 0.0 59.77661 m 
@@ -111,6 +143,10 @@ q
 S 
 Q 
 -- against the flow:
+q 
+0 G 
+0 g 
+Q 
 q 
 259.03198 99.62769 m 
 389.44759 99.62769 -190.19221 0.0 -59.77661 0.0 c 
@@ -142,11 +178,19 @@ q
 S 
 Q 
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 59.77661 m 
 0.0 138.08989 199.25537 -38.4622 199.25537 39.85107 c 
 S 
 Q 
 -- none:
+q 
+0 G 
+0 g 
+Q 
 q 
 59.77661 0.0 m 
 109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
@@ -172,6 +216,10 @@ S
 Q 
 -- with a flow:
 q 
+0 G 
+0 g 
+Q 
+q 
 1.5498 1.5498 m 
 84.50829 84.50829 298.88306 -77.46982 298.88306 39.85107 c 
 S 
@@ -185,25 +233,29 @@ q
 0 g 
 Q 
 q 
-0.0 -73.45847 m 
-0.0 -68.12297 0.0 -65.11209 0.0 -59.77661 c 
+0.0 -73.2592 m 
+0.0 -68.00142 0.0 -65.0344 0.0 -59.77661 c 
 S 
 Q 
 q 
 0.0 59.77661 m 
-0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
 S 
 Q 
 -- anchored:
 q 
-0.0 -73.45847 m 
-0.0 -73.45847 m 
-0.0 -68.12297 0.0 -65.11209 0.0 -59.77661 c 
+0 G 
+0 g 
+Q 
+q 
+0.0 -73.2592 m 
+0.0 -73.2592 m 
+0.0 -68.00142 0.0 -65.0344 0.0 -59.77661 c 
 S 
 Q 
 q 
 0.0 59.77661 m 
-0.0 65.11209 0.0 68.12297 0.0 73.45847 c 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
 S 
 Q 
 ============================================================
@@ -234,6 +286,10 @@ q
 -199.25537 9.96277 m 
 -137.09235 9.96277 -102.01408 9.96277 -39.85107 9.96277 c 
 S 
+Q 
+q 
+0 G 
+0 g 
 Q 
 q 
 79.70215 9.96277 m 
@@ -285,11 +341,19 @@ q
 S 
 Q 
 q 
+0 G 
+0 g 
+Q 
+q 
 59.77661 199.25537 m 
 159.62611 199.25537 -199.47719 0.0 -99.62769 0.0 c 
 S 
 Q 
 -- touching:
+q 
+0 G 
+0 g 
+Q 
 q 
 -99.62769 0.0 m 
 -99.62769 0.0 -99.62769 0.0 -99.62769 0.0 c 
@@ -315,6 +379,10 @@ If that doesn't work, type X <return> to quit.
 S 
 Q 
 q 
+0 G 
+0 g 
+Q 
+q 
 ! Package string-diagrams Error: Wire from `a' to `f' has an end without anchor, and the two nodes overlap, so it is not drawn: give both ends anchors.
 Type <return> to continue.
  ...                                              
@@ -325,6 +393,10 @@ If that doesn't work, type X <return> to quit.
 S 
 Q 
 -- anchored:
+q 
+0 G 
+0 g 
+Q 
 q 
 -99.62769 0.0 m 
 -154.02032 0.0 -14.54156 0.0 39.85107 0.0 c 
@@ -353,6 +425,7 @@ Q
 TEST 15: a node that sticks out of the boundary overlaps it
 ============================================================
 q 
+Package string-diagrams Warning: Node `b' is not inside the boundary of this call, so its wires to @ face out.
 ! Package string-diagrams Error: Wire from `@' to `b' has an end without anchor, and the two nodes overlap, so it is not drawn: give both ends anchors.
 Type <return> to continue.
  ...                                              
@@ -364,6 +437,7 @@ S
 Q 
 -- anchored:
 q 
+Package string-diagrams Warning: Node `b' is not inside the boundary of this call, so its wires to @ face out.
 -83.42125 0.0 m 
 -156.2723 0.0 -13.07442 119.55322 59.77661 119.55322 c 
 S 
@@ -382,32 +456,52 @@ q
 S 
 Q 
 q 
--83.42125 0.0 m 
--18.35751 0.0 18.35751 0.0 83.42125 0.0 c 
+0 G 
+0 g 
+Q 
+q 
+-130.04353 0.0 m 
+-28.61703 0.0 28.61703 0.0 130.04353 0.0 c 
 S 
 Q 
 -- one end anchored:
+q 
+0 G 
+0 g 
+Q 
 q 
 0.0 59.77661 m 
 0.0 106.3989 0.0 -106.3989 0.0 -59.77661 c 
 S 
 Q 
 q 
-0.0 73.45847 m 
-0.0 73.45847 m 
-0.0 16.16508 0.0 -16.16508 0.0 -73.45847 c 
+0 G 
+0 g 
+Q 
+q 
+0.0 120.08075 m 
+0.0 120.08075 m 
+0.0 26.42471 0.0 -26.42471 0.0 -120.08075 c 
 S 
 Q 
 -- both anchored:
+q 
+0 G 
+0 g 
+Q 
 q 
 59.77661 0.0 m 
 106.3989 0.0 -106.3989 0.0 -59.77661 0.0 c 
 S 
 Q 
 q 
--83.42125 0.0 m 
--83.42125 0.0 m 
--18.35751 0.0 18.35751 0.0 83.42125 0.0 c 
+0 G 
+0 g 
+Q 
+q 
+-176.93431 0.0 m 
+-176.93431 0.0 m 
+-38.93573 0.0 38.93573 0.0 176.93431 0.0 c 
 S 
 Q 
 ============================================================
@@ -427,6 +521,10 @@ LaTeX does not know anything more about this error, sorry.
 Try typing <return> to proceed.
 If that doesn't work, type X <return> to quit.
 S 
+Q 
+q 
+0 G 
+0 g 
 Q 
 q 
 ! Package string-diagrams Error: Wire from `@' to itself has no anchors, so it is not drawn: give an end an anchor, or set a wire flow.
@@ -477,6 +575,10 @@ S
 Q 
 -- with a flow:
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 2.19177 m 
 0.0 24.64813 0.0 37.32024 0.0 59.77661 c 
 S 
@@ -495,14 +597,26 @@ q
 S 
 Q 
 q 
+0 G 
+0 g 
+Q 
+q 
 59.77661 0.0 m 
 109.70135 0.0 89.554 99.62769 139.47876 99.62769 c 
 S 
 Q 
 q 
+0 G 
+0 g 
+Q 
+q 
 0.0 -59.77661 m 
 0.0 -175.39175 199.25537 275.01944 199.25537 159.4043 c 
 S 
+Q 
+q 
+0 G 
+0 g 
 Q 
 q 
 -59.77661 0.0 m 

@@ -133,7 +133,6 @@
     \node[string diagrams/box=1/0/1/0] (a) at (0pt,0pt) {};
     \node[string diagrams/dot] (b) at (10pt,40pt) {};
     \LOG{\wires{@.south = a.south.1, a.north.1 = ["" beyond end] b, b = ["" beside start] @.north}}
-    \SHOWANCHOR{string-diagrams boundary}{north east}
   }
   \PICTURE[
     box/.style={dashed}, dot/.style={dashed}, wire/.style={dashed}, boundary/.style={draw, dashed},
@@ -143,7 +142,6 @@
     \node[string diagrams/box=1/0/1/0] (a) at (0pt,0pt) {};
     \node[string diagrams/dot] (b) at (10pt,40pt) {};
     \LOG{\wires{@.south = a.south.1, a.north.1 = ["" string diagrams/beyond end] b, b = ["" string diagrams/beside start] @.north}}
-    \SHOWANCHOR{string-diagrams boundary}{north east}
   }
 }
 

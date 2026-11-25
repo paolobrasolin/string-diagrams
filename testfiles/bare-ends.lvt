@@ -168,15 +168,16 @@
   }
 }
 
-% NOTE: the boundary is drawn around the picture by the first \wires; a node drawn later that sticks out of it overlaps it, and wires to it face out.
+% NOTE: a boundary doesn't grow; a node drawn after it that sticks out of it overlaps it, and wires to it face out.
 \TEST{a node that sticks out of the boundary overlaps it}{
   \PICTURE{
     \node[box=0/1/0/1, square] (a) at (0pt,0pt) {};
-    \wires{a = @.east}
+    \node[boundary] (B) {};
+    \wires[use boundary=B]{a = @.east}
     \node[box=0/1/0/1, square] (b) at (120pt,120pt) {};
-    \LOG{\wires{@ = b}}
+    \LOG{\wires[use boundary=B]{@ = b}}
     \TYPE{-- anchored:}
-    \LOG{\wires{@.west = b.west.1}}
+    \LOG{\wires[use boundary=B]{@.west = b.west.1}}
   }
 }
 

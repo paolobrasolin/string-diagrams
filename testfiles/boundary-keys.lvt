@@ -22,16 +22,20 @@
     \node[box=1/0/1/0, square] (a2) at (0pt,0pt) {};
     \node[box=1/0/1/0, square] (b2) at (200pt,0pt) {};
     \LOG{\wires[boundary]{a2.north.1 = @}}
-    \TYPE{-- a call without keys, with the boundary of the picture, around both:}
+    \TYPE{-- a call without keys, with a boundary of its own, around b2:}
     \LOG{\wires{b2.north.1 = @}}
   }
 }
 
-\TEST{a call without nodes makes its boundary around the origin}{
+\TEST{a call without nodes makes its boundary around the picture so far, or the origin}{
   \PICTURE{
     \node[box, square] (a3) at (200pt,200pt) {};
     \LOG{\wires[boundary={name=F3}]{@.south = @.north}}
     \SHOWANCHOR{F3}{north east}
+  }
+  \PICTURE{
+    \LOG{\wires[boundary={name=E3}]{@.south = @.north}}
+    \SHOWANCHOR{E3}{north east}
   }
 }
 

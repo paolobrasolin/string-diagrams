@@ -26,9 +26,6 @@
 
 \ExplSyntaxOff
 
-% \BOUNDARY{<anchor>}: log an anchor of the boundary that the calls of \wires share in a picture, which has no name outside them.
-\newcommand\BOUNDARY[1]{\SHOWPOINT{@.#1}{\pgfpointanchor{string-diagrams boundary}{#1}}}
-
 % A boundary with sides at 200pt from the origin, and a box beside its center.
 \newcommand\SETUP{
   \node[minimum size=400pt, inner sep=0pt, outer sep=0pt] (@) at (0pt,0pt) {};
@@ -116,39 +113,30 @@
   }
 }
 
-\TEST{the boundary surrounds the picture}{
+% NOTE: the boundary of a call has no name outside it, so these tests log the loose ends, which end on it.
+\TEST{a call without nodes makes its boundary around the picture so far}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
-    \wires{}
-    \BOUNDARY{north east}
-    \BOUNDARY{south west}
+    \LOG{\wires{@.west = @.east}}
   }
 }
 
-\TEST{a second call of wires reuses the boundary, and a new picture gets its own}{
+\TEST{each call makes a boundary of its own, around the nodes it mentions}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
-    \wires{}
-    \BOUNDARY{north east}
-    \wires{}
-    \BOUNDARY{north east}
-  }
-  \PICTURE{
-    \node[box, minimum size=40pt, inner sep=0pt, outer sep=0pt] (a) at (0pt,0pt) {};
-    \wires{}
-    \BOUNDARY{north east}
+    \node[box, minimum size=200pt, inner sep=0pt, outer sep=0pt] (b) at (200pt,0pt) {};
+    \LOG{\wires{a.north = @.north}}
+    \LOG{\wires{b.north = @.north}}
   }
 }
 
-% NOTE: so nodes are best drawn before wires, as the documentation says.
-\TEST{nodes drawn after the first call of wires are outside the boundary}{
+% NOTE: so nodes can be drawn between calls.
+\TEST{a node drawn after a call is inside the boundary of the next one}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
-    \wires{}
-    \node[box, square] (b) at (200pt,0pt) {};
-    \wires{}
-    \BOUNDARY{north east}
-    \SHOWANCHOR{b}{north east}
+    \LOG{\wires{a.north = @.north}}
+    \node[box, square] (b) at (200pt,200pt) {};
+    \LOG{\wires{b.north = @.north}}
   }
 }
 
@@ -162,7 +150,7 @@
   }
 }
 
-\TEST{a boundary by hand surrounds the picture so far, as the boundary of the picture does}{
+\TEST{a boundary by hand surrounds the picture so far, as the boundary of a call without nodes does}{
   \PICTURE{
     \node[box, square] (a) at (0pt,0pt) {};
     \node[boundary] (hand) {};
