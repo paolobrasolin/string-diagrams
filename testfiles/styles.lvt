@@ -83,6 +83,17 @@
   \end{tikzpicture}
 }
 
+\TEST{every boundary styles boundaries, those of calls included, after the keys of boundary}{
+  \PICTURE[every boundary/.style={draw, inner ysep=30pt}]{
+    \node[box=1/0/1/0, square] (eb) at (0pt,0pt) {};
+    \LOG{\wires{eb.north.1 = @}}
+    \LOG{\node[boundary, fit=(eb)] (EB) {};}
+    \SHOWANCHOR{EB}{north east}
+    \TYPE{-- keys after boundary come last:}
+    \LOG{\node[boundary, fit=(eb), draw=none] (EC) {};}
+  }
+}
+
 \TEST{box math takes true or false only}{
   \PICTURE{
     \node[box, box math=maybe] (a) at (0pt,0pt) {};

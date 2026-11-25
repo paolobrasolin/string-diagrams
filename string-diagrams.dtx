@@ -488,6 +488,24 @@
 % The margins of a boundary are its \texttt{inner xsep} and \texttt{inner ysep}: 2.3333em and 1.3333em, unless you set them.
 % They are paddings, as in \TikZ, so they don't scale with the picture.
 %
+% \begin{function}[added=2026-11-25]{/tikz/every boundary}
+%
+%   The \texttt{boundary} key applies this style after its own keys.
+%   It is empty at first: set it to style all the boundaries of a picture, a scope or the document, those of the calls of \cmd\wires\ included.
+%   For example, draw them, or set their margins.
+%
+%   \begin{tcblisting}{example=every-boundary}
+%     \begin{tikzpicture}[every boundary/.style={draw, dashed}]
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \wires{ f = { south.1 = @.south, north.1 = @.north } }
+%       \node at (1.4,0) {$=$};
+%       \node[box=1/0/1/0] (g) at (2.8,0) {g};
+%       \wires{ g = { south.1 = @.south, north.1 = @.north } }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
 % On a boundary, \texttt{box} gives ports, and nothing else: no stroke, padding or math.
 % Write \texttt{box} after \texttt{boundary}, as any key that styles a boundary: \texttt{boundary} replaces what \texttt{box} sets before it.
 % Loose ends reach the ports of a boundary as wires reach the ports of a box: name the port, or leave the anchor out on a side with one port.
@@ -814,7 +832,7 @@
 %     A call that wires such a node to the boundary gets a warning, and the wires to \texttt{@} face out.
 %   \item \emph{Scaled pictures.}
 %     The \texttt{scale} key moves nodes closer or apart, but the margins of a boundary are paddings, which don't scale: loose ends keep their length.
-%     For other margins, give the boundary keys, as in \texttt{boundary=\{inner xsep=1em\}}.
+%     For other margins, set them in \texttt{every boundary}, or in the keys of a boundary, as in \texttt{boundary=\{inner xsep=1em\}}.
 % \end{itemize}
 %
 % \subsection{Changes from earlier versions}
@@ -1422,12 +1440,13 @@
 %    \end{macrocode}
 % \end{variable}
 %
-% \begin{macro}{/tikz/boundary,\@@_boundary_key:,\@@_boundary_made:n}
+% \begin{macro}{/tikz/boundary,/tikz/every boundary,\@@_boundary_key:,\@@_boundary_made:n}
 %   Defines the style of a boundary: around the picture so far, or around the origin if nothing has been drawn yet (as pgf does, it tells an empty picture by its untouched bounds), with the margins that give the loose ends of 0.3.0.
 %   Its keys come after these, so \texttt{fit}, \texttt{inner xsep} and \texttt{inner ysep} change them.
 %   It sets how a boundary looks, as \texttt{box} sets how a box looks: a rectangle without stroke or fill, with the size that \texttt{fit} and the margins give it.
 %   So it replaces what styles before it set, \texttt{every node} included, which \TikZ\ applies first: a boundary that nobody asked to draw stays invisible, and a fill or a size meant for the nodes of the picture doesn't reach it.
 %   It also empties \texttt{every fit} and \texttt{every rectangle node}, which \TikZ\ would apply after it.
+%   Then it applies \texttt{every boundary}, through its long name, which calls the short one that users set, as for \texttt{every box}.
 %   Keys after it come last, as on any node.
 %   On a boundary, \texttt{box} gives ports only: no stroke, padding or math.
 %   Once the node is made, it is recorded as a boundary, with its picture, unless it has no name, since nothing could then refer to it: \TikZ\ names such a node \texttt{tikz@f@}\meta{number}.
@@ -1455,6 +1474,7 @@
       /tikz/minimum~width = 1pt ,
       /tikz/minimum~height = 1pt ,
       /tikz/outer~sep = .5\pgflinewidth ,
+      /tikz/string~diagrams/every~boundary ,
     }
 }
 \cs_new_protected:Nn \@@_boundary_made:n {
@@ -1467,6 +1487,8 @@
 \tikzset {
   boundary/.style = { /tikz/string~diagrams/boundary },
   string~diagrams/boundary/.code = { \@@_boundary_key: },
+  every~boundary/.style = { },
+  string~diagrams/every~boundary/.style = { /tikz/every~boundary },
 }
 %    \end{macrocode}
 % \end{macro}

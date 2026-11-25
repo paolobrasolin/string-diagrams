@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add the `same boundary` key: `\wires[same boundary]{…}` uses the boundary of the call before it in the same picture, whatever that was, so that several calls can style the wires of one diagram and keep their loose ends on the same lines. A call takes one of `boundary`, `use boundary` and `same boundary`, and `same boundary` on the first call of a picture is an error.
 
+- Add the `every boundary` style, which `boundary` applies after its own keys: set it to style all the boundaries of a picture, a scope or the document, those of the calls of `\wires` included, as in `every boundary/.style={draw, dashed}`, or to set their margins with `inner xsep` and `inner ysep`.
+
 - Add the `box math` key, which sets whether the labels of boxes are in math mode: `box math=false`, on a box, a scope or a picture, gives labels in text, as in `\node[box, box math=false] {whisk};`. Labels are in math mode unless you set it, as before.
 
 - Add the `every box` style, which `box` applies after its own keys: set it to style all the boxes of a picture, a scope or the document, as in `every box/.style={rounded corners, box math=false}`. It doesn't apply to a boundary.
