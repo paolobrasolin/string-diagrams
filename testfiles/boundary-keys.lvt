@@ -141,4 +141,82 @@
   }
 }
 
+\TEST{same boundary shares the boundary of the call before it}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a16) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b16) at (200pt,50pt) {};
+    \LOG{\wires{a16.north.1 = @, b16.south.1 = @}}
+    \LOG{\wires[same boundary]{b16.north.1 = @}}
+    \TYPE{-- a third call shares it too:}
+    \LOG{\wires[same boundary]{a16.south.1 = @}}
+  }
+}
+
+\TEST{same boundary after a named boundary, and after use boundary}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a17) at (0pt,0pt) {};
+    \LOG{\wires[boundary={name=F17, inner ysep=50pt}]{a17.north.1 = @}}
+    \LOG{\wires[same boundary]{a17.south.1 = @}}
+    \node[boundary, inner ysep=80pt] (B17) {};
+    \LOG{\wires[use boundary=B17]{a17.north.1 = @}}
+    \LOG{\wires[same boundary]{a17.south.1 = @}}
+  }
+}
+
+% NOTE: B18 is made between the two calls, and isn't the boundary of either.
+\TEST{same boundary takes the boundary of the call before it, not the last boundary made}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a18) at (0pt,0pt) {};
+    \LOG{\wires{a18.north.1 = @}}
+    \node[boundary, inner ysep=80pt] (B18) {};
+    \LOG{\wires[same boundary]{a18.south.1 = @}}
+  }
+}
+
+\TEST{same boundary after boundary=none has no boundary either}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a19) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b19) at (0pt,200pt) {};
+    \LOG{\wires[boundary=none]{a19.north.1 = b19.south.1}}
+    \LOG{\wires[same boundary]{b19.north.1 = @}}
+  }
+}
+
+\TEST{same boundary first in a picture, or with another boundary key, is an error}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a20) at (0pt,0pt) {};
+    \LOG{\wires[same boundary]{a20.north.1 = @}}
+    \LOG{\wires{a20.north.1 = @}}
+    \LOG{\wires[same boundary, boundary={draw}]{a20.south.1 = @}}
+  }
+}
+
+\TEST{same boundary after a call whose boundary failed is an error}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a21) at (0pt,0pt) {};
+    \LOG{\wires[boundary={name=a21}]{a21.north.1 = @}}
+    \LOG{\wires[same boundary]{a21.south.1 = @}}
+  }
+}
+
+\TEST{each picture has its own calls, for same boundary}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a22) at (0pt,0pt) {};
+    \wires{a22.north.1 = @}
+  }
+  \PICTURE{
+    \node[box=1/0/1/0, square] (b22) at (0pt,0pt) {};
+    \LOG{\wires[same boundary]{b22.north.1 = @}}
+  }
+}
+
+\TEST{a node outside the boundary of the call before gets a warning}{
+  \PICTURE{
+    \node[box=1/0/1/0, square] (a23) at (0pt,0pt) {};
+    \node[box=1/0/1/0, square] (b23) at (300pt,0pt) {};
+    \LOG{\wires{a23.north.1 = @}}
+    \LOG{\wires[same boundary]{b23.north.1 = @.north}}
+  }
+}
+
 \END

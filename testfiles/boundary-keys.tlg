@@ -168,7 +168,7 @@ Q
 ============================================================
 TEST 10: boundary and use boundary together are an error
 ============================================================
-! Package string-diagrams Error: A call takes boundary or use boundary, not both, so its loose ends are not drawn.
+! Package string-diagrams Error: A call takes one of boundary, use boundary and same boundary, so its loose ends are not drawn.
 Type <return> to continue.
  ...                                              
 l. ...}
@@ -237,4 +237,170 @@ G14.south west = (-83.533pt, -73.53299pt)
 TEST 15: labels count under a style of one's own for every label, and under a name prefix
 ============================================================
 L-F15.north east = (83.533pt, 118.23853pt)
+============================================================
+============================================================
+TEST 16: same boundary shares the boundary of the call before it
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 84.46034 0.0 98.38931 0.0 123.07304 c 
+S 
+Q 
+q 
+199.25537 -9.96277 m 
+199.25537 -34.6465 199.25537 -48.57547 199.25537 -73.2592 c 
+S 
+Q 
+q 
+199.25537 109.59045 m 
+199.25537 114.84824 199.25537 117.81526 199.25537 123.07304 c 
+S 
+Q 
+-- a third call shares it too:
+q 
+0.0 -59.77661 m 
+0.0 -65.0344 0.0 -68.00142 0.0 -73.2592 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 17: same boundary after a named boundary, and after use boundary
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 79.28027 0.0 90.28603 0.0 109.7897 c 
+S 
+Q 
+q 
+0.0 -59.77661 m 
+0.0 -79.28027 0.0 -90.28603 0.0 -109.7897 c 
+S 
+Q 
+q 
+0.0 59.77661 m 
+0.0 110.51724 0.0 139.14972 0.0 189.89035 c 
+S 
+Q 
+q 
+0.0 -59.77661 m 
+0.0 -110.51724 0.0 -139.14972 0.0 -189.89035 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 18: same boundary takes the boundary of the call before it, not the last boundary made
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+q 
+0.0 -59.77661 m 
+0.0 -65.0344 0.0 -68.00142 0.0 -73.2592 c 
+S 
+Q 
+============================================================
+============================================================
+TEST 19: same boundary after boundary=none has no boundary either
+============================================================
+q 
+0.0 59.77661 m 
+0.0 90.85806 0.0 108.3973 0.0 139.47876 c 
+S 
+Q 
+! Package string-diagrams Error: Wire end `@' is a loose end, but the call has boundary=none, so the wire is not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 20: same boundary first in a picture, or with another boundary key, is an error
+============================================================
+! Package string-diagrams Error: This call has same boundary, but no call comes before it in this picture, so its loose ends are not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+! Package string-diagrams Error: A call takes one of boundary, use boundary and same boundary, so its loose ends are not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 21: same boundary after a call whose boundary failed is an error
+============================================================
+! Package string-diagrams Error: This picture has a node `a21' already, so the loose ends of this call are not drawn: give the boundary another name, or write use boundary=a21.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+! Package string-diagrams Error: The call before this one has no boundary, so the loose ends of this one, which has same boundary, are not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 22: each picture has its own calls, for same boundary
+============================================================
+! Package string-diagrams Error: This call has same boundary, but no call comes before it in this picture, so its loose ends are not drawn.
+Type <return> to continue.
+ ...                                              
+l. ...}
+LaTeX does not know anything more about this error, sorry.
+Try typing <return> to proceed.
+If that doesn't work, type X <return> to quit.
+============================================================
+============================================================
+TEST 23: a node outside the boundary of the call before gets a warning
+============================================================
+q 
+0 G 
+0 g 
+Q 
+q 
+0.0 59.77661 m 
+0.0 65.0344 0.0 68.00142 0.0 73.2592 c 
+S 
+Q 
+q 
+Package string-diagrams Warning: Node `b23' is not inside the boundary of this call, so its wires to @ face out.
+298.88306 59.77661 m 
+298.88306 176.78775 0.0 190.27036 0.0 73.2592 c 
+S 
+Q 
 ============================================================

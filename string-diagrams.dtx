@@ -505,6 +505,7 @@
 %     \item \texttt{boundary=none} uses no boundary: the picture gets no margins, and a loose end is an error.
 %   \end{itemize}
 %   A call without these keys makes a boundary as \texttt{boundary=\{\}} does.
+%   A call takes one of these keys, or \texttt{same boundary}, below.
 %
 %   \begin{tcblisting}{example=boundary-call}
 %     \begin{tikzpicture}
@@ -523,12 +524,35 @@
 %
 % \end{function}
 %
+% \begin{function}[added=2026-11-25]{same boundary}
+%   \begin{syntax}
+%     \cs{wires}[same boundary]\marg{wires}
+%   \end{syntax}
+%
+%   This key gives a call the boundary of the call before it in the picture, whatever that was.
+%   Use it to style the wires of one diagram in several calls, so that their loose ends line up.
+%   The boundary doesn't grow: it holds the nodes of the first call, so it must hold the nodes of the later calls too.
+%   On the first call of a picture, the key is an error.
+%
+%   \begin{tcblisting}{example=same-boundary}
+%     \begin{tikzpicture}
+%       \node[box=1/0/1/0] (f) at (0,0) {f};
+%       \node[box=1/0/1/0] (g) at (1,0) {g};
+%       \wires{ f = { south.1 = @.south, north.1 = @.north },
+%               g.south.1 = @.south }
+%       \wires[same boundary, dashed]{ g.north.1 = @.north }
+%     \end{tikzpicture}
+%   \end{tcblisting}
+%
+% \end{function}
+%
 % A boundary with ports is a box for the wires outside it, so diagrams compose as boxes do.
 % The boundary of a call goes around the labels and pins of its nodes too, so that its loose ends clear them.
 % A \texttt{fit} in its keys replaces the nodes of the call: the boundary goes around the nodes that \texttt{fit} names, without their labels.
 % Calls can share a named boundary: give it room for all their nodes with \texttt{fit}, and number its ports.
 % For several calls on one diagram, a shared boundary makes their loose ends line up.
-% The simplest way: draw all the nodes, make a boundary by hand, and give each call \texttt{use boundary}.
+% Give the later calls \texttt{same boundary}, if the boundary of the first call holds all their nodes.
+% Otherwise draw all the nodes, make a boundary by hand, and give each call \texttt{use boundary}.
 % Boundaries fit their own nodes, so two of them side by side can differ in height: set a \texttt{minimum height} in their keys.
 % A \texttt{fill} in the keys of a boundary would cover its nodes, which come first: fill it behind them, with the \texttt{backgrounds} library of \TikZ.
 %
@@ -795,7 +819,7 @@
 %
 % Version 0.5.0 changes some behaviors of 0.4.0:
 % \begin{itemize}
-%   \item Each call of \cmd\wires\ makes a boundary of its own, around the nodes it mentions: calls on separate nodes no longer share one, so their loose ends can end at different heights. To share one, make it by hand after the nodes, and give each call \texttt{use boundary}.
+%   \item Each call of \cmd\wires\ makes a boundary of its own, around the nodes it mentions: calls on separate nodes no longer share one, so their loose ends can end at different heights. To share one, give the later calls \texttt{same boundary}, or make it by hand after the nodes and give each call \texttt{use boundary}.
 %   \item \texttt{@} is the boundary of a call, and means nothing outside \cmd\wires: to reach a boundary by hand, name it.
 %   \item The margins of the boundary no longer scale with the picture.
 %   \item The \texttt{box ports} keys are under \texttt{/tikz/}, not \texttt{/pgf/}: in the keys of a picture or a node they work as before, but \cs{pgfset} no longer finds them.
@@ -2861,8 +2885,8 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{variable}{\l_@@_call_keys_tl,\l_@@_call_mode_tl,\l_@@_boundary_keys_tl,\l_@@_boundary_name_tl,\l_@@_given_new_bool,\l_@@_given_use_bool,\l_@@_wires_seq,\l_@@_call_nodes_seq,\g_@@_boundaries_int}
-%   Scratch variables for \cmd\wires: the keys of its wires, without those of its boundary; which boundary it has, \texttt{new}, \texttt{use} or \texttt{none}, or \texttt{failed} after an error about it; the keys and the name of that boundary; whether \texttt{boundary} and \texttt{use boundary} were given; its wires, read once, each as its keys and its two ends; the nodes they join; and a count that names the boundaries made without a name.
+% \begin{variable}{\l_@@_call_keys_tl,\l_@@_call_mode_tl,\l_@@_boundary_keys_tl,\l_@@_boundary_name_tl,\l_@@_given_new_bool,\l_@@_given_use_bool,\l_@@_given_same_bool,\l_@@_wires_seq,\l_@@_call_nodes_seq,\g_@@_boundaries_int}
+%   Scratch variables for \cmd\wires: the keys of its wires, without those of its boundary; which boundary it has, \texttt{new}, \texttt{use} or \texttt{none}, or \texttt{failed} after an error about it; the keys and the name of that boundary; whether \texttt{boundary}, \texttt{use boundary} and \texttt{same boundary} were given; its wires, read once, each as its keys and its two ends; the nodes they join; and a count that names the boundaries made without a name.
 %    \begin{macrocode}
 \tl_new:N \l_@@_call_keys_tl
 \tl_new:N \l_@@_call_mode_tl
@@ -2870,6 +2894,7 @@
 \tl_new:N \l_@@_boundary_name_tl
 \bool_new:N \l_@@_given_new_bool
 \bool_new:N \l_@@_given_use_bool
+\bool_new:N \l_@@_given_same_bool
 \seq_new:N \l_@@_wires_seq
 \seq_new:N \l_@@_call_nodes_seq
 \int_new:N \g_@@_boundaries_int
@@ -2877,11 +2902,14 @@
 % \end{variable}
 %
 % \begin{macro}{\@@_call_keys:n,\@@_call_key:n,\@@_call_key:nn}
-%   Reads the keys of a call: \texttt{boundary}, alone, with keys, or \texttt{none}, and \texttt{use boundary} choose its boundary, and the others go to its wires.
-%   Both \texttt{boundary} and \texttt{use boundary} is an error, and the call then has no boundary to draw its loose ends to.
+%   Reads the keys of a call: \texttt{boundary}, alone, with keys, or \texttt{none}, \texttt{use boundary} and \texttt{same boundary} choose its boundary, and the others go to its wires.
+%   More than one of these keys is an error, and the call then has no boundary to draw its loose ends to.
 %    \begin{macrocode}
 \msg_new:nnn { string-diagrams } { boundary-twice }
-  { A~call~takes~boundary~or~use~boundary,~not~both,~so~its~loose~ends~are~not~drawn. }
+  {
+    A~call~takes~one~of~boundary,~use~boundary~and~same~boundary,~
+    so~its~loose~ends~are~not~drawn.
+  }
 \cs_new_protected:Nn \@@_call_keys:n {
   \tl_clear:N \l_@@_call_keys_tl
   \tl_clear:N \l_@@_boundary_keys_tl
@@ -2889,18 +2917,30 @@
   \tl_set:Nn \l_@@_call_mode_tl { new }
   \bool_set_false:N \l_@@_given_new_bool
   \bool_set_false:N \l_@@_given_use_bool
+  \bool_set_false:N \l_@@_given_same_bool
   \keyval_parse:nnn { \@@_call_key:n } { \@@_call_key:nn } { #1 }
-  \bool_lazy_and:nnT { \l_@@_given_new_bool } { \l_@@_given_use_bool }
+  \int_compare:nNnTF
+    {
+      \bool_if:NTF \l_@@_given_new_bool { 1 } { 0 }
+      + \bool_if:NTF \l_@@_given_use_bool { 1 } { 0 }
+      + \bool_if:NTF \l_@@_given_same_bool { 1 } { 0 }
+    }
+    > { 1 }
     {
       \msg_error:nn { string-diagrams } { boundary-twice }
       \tl_set:Nn \l_@@_call_mode_tl { failed }
     }
+    { \bool_if:NT \l_@@_given_same_bool { \@@_same_boundary: } }
 }
 \cs_new_protected:Nn \@@_call_key:n {
-  \str_if_eq:nnTF { #1 } { boundary }
+  \str_case:nnF { #1 }
     {
-      \bool_set_true:N \l_@@_given_new_bool
-      \tl_set:Nn \l_@@_call_mode_tl { new }
+      { boundary }
+        {
+          \bool_set_true:N \l_@@_given_new_bool
+          \tl_set:Nn \l_@@_call_mode_tl { new }
+        }
+      { same~boundary } { \bool_set_true:N \l_@@_given_same_bool }
     }
     {
       \tl_if_empty:NF \l_@@_call_keys_tl { \tl_put_right:Nn \l_@@_call_keys_tl { , } }
@@ -2926,11 +2966,61 @@
           \tl_set:Nn \l_@@_call_mode_tl { use }
           \tl_set:Nn \l_@@_boundary_name_tl { #2 }
         }
+      { same~boundary } { \bool_set_true:N \l_@@_given_same_bool }
     }
     {
       \tl_if_empty:NF \l_@@_call_keys_tl { \tl_put_right:Nn \l_@@_call_keys_tl { , } }
       \tl_put_right:Nn \l_@@_call_keys_tl { #1 = { #2 } }
     }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{variable}{\g_@@_last_picture_tl,\g_@@_last_mode_tl,\g_@@_last_name_tl}
+%   The boundary of the last call of \cmd\wires: the picture of the call; \texttt{use} if the call had a boundary, else \texttt{none} or \texttt{failed}; and the resolved name of that boundary.
+%    \begin{macrocode}
+\tl_new:N \g_@@_last_picture_tl
+\tl_new:N \g_@@_last_mode_tl
+\tl_new:N \g_@@_last_name_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_same_boundary:,\@@_record_call:}
+%   \cmd{\@@_same_boundary:} gives a call with \texttt{same boundary} the boundary of the call before it in the picture, whatever that was: a boundary, which it then uses, none, or the failure of the call before.
+%   With no call before it in the picture, or after a call whose boundary failed, it is an error, and the call has no boundary to draw its loose ends to.
+%   \cmd{\@@_record_call:} records the boundary of each call, once the call has it.
+%    \begin{macrocode}
+\msg_new:nnn { string-diagrams } { same-first }
+  {
+    This~call~has~same~boundary,~but~no~call~comes~before~it~in~this~picture,~
+    so~its~loose~ends~are~not~drawn.
+  }
+\msg_new:nnn { string-diagrams } { same-failed }
+  {
+    The~call~before~this~one~has~no~boundary,~so~the~loose~ends~of~this~one,~
+    which~has~same~boundary,~are~not~drawn.
+  }
+\cs_new_protected:Nn \@@_same_boundary: {
+  \str_if_eq:VVTF \g_@@_last_picture_tl \pgfpictureid
+    {
+      \tl_set_eq:NN \l_@@_call_mode_tl \g_@@_last_mode_tl
+      \tl_set_eq:NN \l_@@_boundary_name_tl \g_@@_last_name_tl
+      \str_if_eq:VnT \l_@@_call_mode_tl { failed }
+        { \msg_error:nn { string-diagrams } { same-failed } }
+    }
+    {
+      \msg_error:nn { string-diagrams } { same-first }
+      \tl_set:Nn \l_@@_call_mode_tl { failed }
+    }
+}
+\cs_new_protected:Nn \@@_record_call: {
+  \tl_gset:Ne \g_@@_last_picture_tl { \pgfpictureid }
+  \tl_gset:Ne \g_@@_last_mode_tl
+    {
+      \str_case:Vn \l_@@_call_mode_tl
+        { { new } { use } { use } { use } { none } { none } { failed } { failed } }
+    }
+  \tl_gset_eq:NN \g_@@_last_name_tl \l_@@_boundary_name_tl
 }
 %    \end{macrocode}
 % \end{macro}
@@ -3082,6 +3172,7 @@
     { \regex_replace_all:NnN \c_@@_par_regex { } \l_@@_call_wires_tl }
   \@@_parse_wires:VVN \l_@@_call_keys_tl \l_@@_call_wires_tl \@@_store_wire:nnnnn
   \@@_call_boundary:
+  \@@_record_call:
   \seq_gclear:N \g_@@_warned_seq
   \bool_set:Nn \l_@@_check_inside_bool
     {
