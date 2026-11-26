@@ -1,6 +1,7 @@
 .vscode/
 build/
 /result*
+/check-demo/
 
 *.aux
 *.dep

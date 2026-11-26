@@ -1,0 +1,78 @@
+% Cases that dev/check-demo.mjs compiles in the live demo of the site, after its showcase.
+% Each case starts with a line "%% CASE: <name>".
+% A line "%% ERROR: <text>" after it says that TeX must stop with an error whose message has <text>.
+% The demo loads the calc library of TikZ, and the package with fit and quotes.
+
+%% CASE: labels and a pin of a box, which its boundary goes around
+\begin{tikzpicture}
+  \node[box=2/0/1/0, label={[beside]north.1:$A$},
+        label={[beside, swap]north.2:$B$}, pin=north east:$p$] (f) {f};
+  \wires{ f = { north.1 = @, north.2 = @, south.1 = @ } }
+\end{tikzpicture}
+
+%% CASE: labels of wires, beyond and beside their ends
+\begin{tikzpicture}[wire flow=north]
+  \node[box=1/0/2/0] (f) at (0,0) {f};
+  \node[box=1/0/1/0] (g) at (.4,1.6) {g};
+  \wires{ @ = { ["$A$" beyond start] f.south.1, ["$B$" beyond start] f.south.2 },
+          f.north.1 = ["$C$" beside end] g.south.1,
+          g.north.1 = ["$D$" beyond end] @ }
+\end{tikzpicture}
+
+%% CASE: the wire key on paths of TikZ
+\begin{tikzpicture}
+  \node[box=1/0/0/0] (f) at (0,0) {f};
+  \node[box=0/0/1/0] (g) at (1.2,1.5) {g};
+  \draw (f.north.1) to[wire] (g.south.1);
+  \draw[dashed] (f) to[wire, bend left] (g);
+\end{tikzpicture}
+
+%% CASE: two calls with same boundary
+\begin{tikzpicture}
+  \node[box=1/0/1/0] (f) at (0,0) {f};
+  \node[box=1/0/1/0] (g) at (1,0) {g};
+  \wires{ f = { south.1 = @.south, north.1 = @.north },
+          g.south.1 = @.south }
+  \wires[same boundary, dashed]{ g.north.1 = @.north }
+\end{tikzpicture}
+
+%% CASE: every boundary, on an equation of two pictures
+\begin{tikzpicture}[every boundary/.style={draw, dashed}]
+  \node[box=1/0/1/0] (f) at (0,0) {f};
+  \wires{ f = { south.1 = @.south, north.1 = @.north } }
+\end{tikzpicture}
+$=$
+\begin{tikzpicture}[every boundary/.style={draw, dashed}]
+  \node[box=1/0/1/0] (g) at (0,0) {g};
+  \node[box=1/0/1/0] (h) at (0,1.2) {h};
+  \wires{ g = { south.1 = @.south, north.1 = h.south.1 }, h.north.1 = @.north }
+\end{tikzpicture}
+
+%% CASE: a style for all nodes, which doesn't reach the boundary
+\begin{tikzpicture}[every node/.style={fill=yellow!40}]
+  \node[box=1/0/1/0] (f) at (0,0) {f};
+  \node[box=1/0/1/0] (g) at (.6,1.4) {g};
+  \wires{ @.south = f.south.1, f.north.1 = g.south.1, g.north.1 = @.north }
+\end{tikzpicture}
+
+%% CASE: a boundary with ports, wired from outside
+\begin{tikzpicture}[wire flow=north]
+  \node[box=1/0/1/0] (f) at (0,0) {f};
+  \wires[boundary={name=F, draw, dashed, box=1/0/1/0, label=left:$F$}]{ @ = f, f = @ }
+  \node[box=1/0/1/0] (g) at (0,1.8) {g};
+  \wires{ @ = F, F = g, g = @ }
+\end{tikzpicture}
+
+%% CASE: same boundary on the first call, an error
+%% ERROR: This call has same boundary
+\begin{tikzpicture}
+  \node[box=1/0/1/0] (f) at (0,0) {f};
+  \wires[same boundary]{ @.south = f.south.1, f.north.1 = @.north }
+\end{tikzpicture}
+
+%% CASE: a wire to a node that doesn't exist, an error
+%% ERROR: doesn't exist
+\begin{tikzpicture}
+  \node[box=1/0/1/0] (f) at (0,0) {f};
+  \wires{ f.north.1 = nowhere.south }
+\end{tikzpicture}

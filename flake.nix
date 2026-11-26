@@ -291,6 +291,23 @@
           '';
         };
 
+        # NOTE: TikZJax comes from jsDelivr, so this needs network and can't be a check of the flake. nixpkgs has no Chromium for macOS, so there it uses Google Chrome, or the browser that $BROWSER names.
+        check-demo = pkgs.writeShellApplication {
+          name = "string-diagrams-check-demo";
+          runtimeInputs = [pkgs.nodejs];
+          text = ''
+            export SITE=${site}
+            export CASES=${./dev/check-demo.tex}
+            export PLAYWRIGHT_CORE=${pkgs.playwright-driver}
+            export BROWSER="''${BROWSER:-${
+              if pkgs.stdenv.hostPlatform.isDarwin
+              then "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+              else "${pkgs.chromium}/bin/chromium"
+            }}"
+            node ${./dev/check-demo.mjs} "$@"
+          '';
+        };
+
         watch = pkgs.writeShellApplication {
           name = "string-diagrams-watch";
           runtimeInputs = [texlive pkgs.entr];
@@ -338,6 +355,11 @@
           type = "app";
           program = lib.getExe s.serve-site;
           meta.description = "Build the site and serve it locally";
+        };
+        check-demo = {
+          type = "app";
+          program = lib.getExe s.check-demo;
+          meta.description = "Compile the examples of the live demo in a headless browser, with TikZJax";
         };
       })
       perSystem;

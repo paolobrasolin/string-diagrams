@@ -16,6 +16,7 @@ The Nix flake supplies all the tools. `nix develop` gives you a TeX Live with l3
 | `nix build` | Build the TeX Live package, for use with `texlive.withPackages` |
 | `nix fmt` | Format the Nix files |
 | `nix run .#serve-site` | Build the project site and serve it at http://127.0.0.1:8000/ |
+| `nix run .#check-demo` | Compile the examples of the live demo in a headless browser |
 
 Run `l3build` commands inside the development shell.
 
@@ -97,6 +98,15 @@ The page and `llms.txt` are written by hand, apart from the examples. When the p
 
 Their text follows ASD-STE100 in full, with its dictionary. To check the site, serve it with `nix run .#serve-site` and try the live demo.
 
+The live demo compiles in the browser with TikZJax, which has its own versions of LaTeX and expl3. `nix flake check` doesn't run it. To check it, run `nix run .#check-demo`:
+
+1. It builds the site and opens it in a headless browser: Google Chrome on macOS, Chromium on Linux, or the browser that `$BROWSER` names.
+2. It compiles each example of the showcase, and each case of `dev/check-demo.tex`, as edited code.
+3. It saves a screenshot of each picture and a report to `check-demo/`, or to the directory that you give it.
+4. It fails if a picture doesn't compile, or if a case that expects an error gets none.
+
+It needs network, since TikZJax comes from jsDelivr. Add a case to `dev/check-demo.tex` for each new feature that the demo can show.
+
 `nix flake check` builds the site. It fails in three cases:
 
 - A showcase example does not compile.
@@ -119,7 +129,7 @@ Builds are reproducible. The version comes from `flake.nix`. The date comes from
 
 ## Releasing
 
-1. Check that the changelog, the manual, `site/llms.txt` and the page of the site all describe the release. Check that `nix flake check` passes.
+1. Check that the changelog, the manual, `site/llms.txt` and the page of the site all describe the release. Check that `nix flake check` and `nix run .#check-demo` pass.
 2. Prepare a release commit:
    - Set `version` in `flake.nix` to the new version, for example `0.3.0`.
    - Move the `[Unreleased]` entries of `CHANGELOG.md` to a section for the new version, and update the links at the bottom.
