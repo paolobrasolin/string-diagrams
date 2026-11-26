@@ -181,7 +181,8 @@ const compile = async (figure) => {
   }
 
   // TikZJax's input is the preamble, then \begin{document} on a line of its own, then a part of the example.
-  const base = `\\makeatletter\n${sty}\n\\ExplSyntaxOff\\makeatother\n${data.preamble}`;
+  // NOTE: LaTeX warns when a package provides another name than the file it loads; a pasted package has none, so it gets the name of the file, which it loses after.
+  const base = `\\makeatletter\\def\\@currname{string-diagrams}\\def\\@currext{sty}\n${sty}\n\\ExplSyntaxOff\\def\\@currname{}\\def\\@currext{}\\makeatother\n${data.preamble}`;
   const { prelude, parts } = splitCode(code);
   const preamble = base + prelude;
   const baseLines = base.split('\n').length - 1;
