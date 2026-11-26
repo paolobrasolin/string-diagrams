@@ -86,6 +86,9 @@ Version 0.5.0 added boundaries that you can make, draw and give ports. In versio
 - The type of a port goes next to the port. Use `beside start` or `beside end` on the wire, or `beside` in the label of the box, as in `\node[box=1/0/0/0, label={[beside]north.1:$A$}] (f) {f};`. The label goes next to the port, out of the box, to the left of a wire that goes out of it. `swap` puts it to the right. A label of the box shows one time, for all the wires of the port.
 - `beyond` and `beside` only set the anchor of the label, from the direction of the wire at the label. `at end`, `at start` and `pos` set its position: `beyond end` is the same as `at end, beyond`. In the label of a node, the keys use the name of the anchor.
 - The options of a quote stop at the first `]` that is not in braces, thus `"x"[blue]` fails. Write `"x" blue`, or `"x" {pos=1, below}`. With a language of babel that makes `"` a shorthand, load the `babel` library of TikZ.
+- Each key of the package also has a long name, with `string diagrams/` before the short name. For example, `string diagrams/box`, `string diagrams/dot`, `string diagrams/wire`, `string diagrams/boundary` and `string diagrams/box ports north`. The package itself uses only the long names. Thus, if a different package or one of your styles changes a short name, for example `dot`, `\wires` still draws correctly, and `string diagrams/dot` still gives the dot of this package.
+- The styles `every box`, `every wire` and `every boundary` are different: set them with their short names. The package applies the long names, and the long names apply the short names.
+- The shape of a box has only a long name: `string diagrams box`. The long names of the `box ports` keys keep the number of ports, as in `\pgfkeysvalueof{/tikz/string diagrams/box ports north}`.
 
 ### Errors
 
