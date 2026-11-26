@@ -7,19 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-26
+
+Each call of `\wires` now has a boundary of its own, around its nodes, so the two sides of an equation get loose ends of their own. A boundary is a node of TikZ: make one by hand, share it between calls, give it ports, or style all of them with `every boundary`. Wires now also work inside pics, boxes work in tagged PDF, and loading the package no longer slows down TikZ pictures.
+
 ### Added
 
 - Add the `boundary` key, which makes a boundary by hand, as in `\node[boundary] (B) {};`: a node around the picture so far, unless `fit` says otherwise, with the margins of loose ends as its `inner xsep` and `inner ysep`. On it, `box` gives ports only, without stroke, padding or math. Wires drawn by hand reach it by its name, and a wire from it to itself crosses it. It needs a name.
 - Let a call of `\wires` choose its boundary, which is `@` inside the call: `boundary={…}` makes one around the nodes of the call and their labels and pins, with these keys, and stays with the call unless its keys name it; a `fit` in the keys replaces the nodes of the call; `use boundary=B` uses one made before; `boundary=none` uses none, so the picture gets no margins for loose ends. An error about the boundary of a call leaves out its loose ends and draws its other wires, and a node wired to a boundary that doesn't hold it gets a warning.
-
 - Add the `same boundary` key: `\wires[same boundary]{…}` uses the boundary of the call before it in the same picture, whatever that was, so that several calls can style the wires of one diagram and keep their loose ends on the same lines. A call takes one of `boundary`, `use boundary` and `same boundary`, and `same boundary` on the first call of a picture is an error.
-
 - Add the `every boundary` style, which `boundary` applies after its own keys: set it to style all the boundaries of a picture, a scope or the document, those of the calls of `\wires` included, as in `every boundary/.style={draw, dashed}`, or to set their margins with `inner xsep` and `inner ysep`.
-
 - Add the `box math` key, which sets whether the labels of boxes are in math mode: `box math=false`, on a box, a scope or a picture, gives labels in text, as in `\node[box, box math=false] {whisk};`. Labels are in math mode unless you set it, as before.
-
 - Add the `every box` style, which `box` applies after its own keys: set it to style all the boxes of a picture, a scope or the document, as in `every box/.style={rounded corners, box math=false}`. It doesn't apply to a boundary.
-
 - Add long names for the keys: each one is also under `string diagrams/`, as in `string diagrams/box`, `string diagrams/dot` and `string diagrams/box ports north`. The short names are now styles that call them, and the package itself uses the long names only: if a package or a style of yours takes `dot`, say, `\wires` still works, and `string diagrams/dot` still gives the dot of this package.
 
 ### Changed
@@ -33,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** name the shape of a box `string diagrams box`, in place of `box`, so that it can't collide with a shape of another package: the `box` key works as before, and `shape=box` no longer gives a box. The macros that a box saves its port counts in have internal names too, in place of `\portsnorth` and the like.
 - Open the manual with what the package does and a first diagram, before the keys of boxes.
 - List what the package doesn't handle in a section of the manual of its own, "Known limitations", apart from the pitfalls of TikZ: rotated and mirrored pictures, wire ends that are shifted or computed, nodes that aren't rectangles around other nodes, wires in a row, feedback loops, nodes drawn late and scaled pictures.
-- Shorten the section of the manual on tagged PDF.
 - Remove the change history from the manual: this file is the only one.
 
 ### Fixed
@@ -126,7 +124,8 @@ Loose ends are now ordinary wires to the boundary of the picture, a node called 
 
 - Initial version.
 
-[unreleased]: https://github.com/paolobrasolin/string-diagrams/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/paolobrasolin/string-diagrams/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/paolobrasolin/string-diagrams/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/paolobrasolin/string-diagrams/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/paolobrasolin/string-diagrams/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/paolobrasolin/string-diagrams/compare/v0.2.0...v0.2.1
